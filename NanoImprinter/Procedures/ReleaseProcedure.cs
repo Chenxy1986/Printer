@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NanoImprinter.Procedures
@@ -11,14 +12,14 @@ namespace NanoImprinter.Procedures
     /// </summary>
     public class ReleaseProcedure : WorkProcedure
     {
-        protected override async Task<bool> OnExcute()
+        protected override bool OnExcute()
         {
-            await Task.Delay(1);
+            Thread.Sleep(1);
             return true;
         }
-        protected override async Task<bool> Prepare()
+        protected override bool Prepare()
         {
-            await Task.Delay(1);
+            Thread.Sleep(1);
             return true;
         }
     }

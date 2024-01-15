@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using WestLakeShape.Common;
 
@@ -20,27 +21,27 @@ namespace NanoImprinter.Procedures
             //_model = NanoImprinterModel.Instance;
         }
 
-        protected override async Task<bool> OnExcute()
+        protected override bool OnExcute()
         {
             ///移动到预压印位置
-            await _model.ImprintPlatform.MoveToPreprintHeight().ConfigureAwait(false);
+            _model.ImprintPlatform.MoveToPreprintHeight();
 
             //移动到相机拍照位置
-            await _model.ImprintPlatform.MoveToTakePictureHeight().ConfigureAwait(false);
+            _model.ImprintPlatform.MoveToTakePictureHeight();
 
             //等待相机拍照完成并计算偏移值
             var offsetValue = new PointXYR(5, 5, 0);
 
             //宏动平台移动补偿值
-            await _model.MacroPlatform.MoveTo(offsetValue).ConfigureAwait(false);
+            _model.MacroPlatform.MoveTo(offsetValue);
 
             //微动平台向上移动，等待压力传感器达到设定值停止。
 
             return true;
         }
-        protected override async Task<bool> Prepare()
+        protected override bool Prepare()
         {
-            await Task.Delay(1);
+            Thread.Sleep(1);
             return true;
         }
     }

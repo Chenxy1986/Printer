@@ -62,7 +62,7 @@ namespace NanoImprinter.Model
     {
         public string Name { get; set; }
 
-        public IOStateSourceConfig IOStateSourceConfig { get; set; }
+        public IOStateSourceConfig IOStateSourceConfig { get; set; } = new IOStateSourceConfig();
     }
 
 

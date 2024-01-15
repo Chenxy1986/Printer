@@ -3,9 +3,11 @@ using Prism.Commands;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WestLakeShape.Motion;
 
 namespace NanoImprinter.ViewModels
 {
@@ -85,6 +87,7 @@ namespace NanoImprinter.ViewModels
             set => SetProperty(ref _temperature, value);
         }
 
+        public ObservableCollection<IAxis> Axes { get; set; }
         #endregion
 
         #region command
@@ -109,6 +112,8 @@ namespace NanoImprinter.ViewModels
         {
             _machine = machine;
             _plate = _machine.GetPlatform(typeof(GluePlatform).Name) as GluePlatform;
+            Axes = new ObservableCollection<IAxis>();
+            Axes.Add(_plate.ZAxis);
         }
 
 

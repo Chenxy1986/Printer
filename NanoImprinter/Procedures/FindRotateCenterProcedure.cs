@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using WestLakeShape.Common;
 
@@ -16,29 +17,29 @@ namespace NanoImprinter.Procedures
         {
             _wafeCenter = new Point2D(0, 0);
         }
-        protected override async Task<bool> OnExcute()
+        protected override bool OnExcute()
         {
             var model = new NanoImprinterModel();
             //移动到圆心左监测点 
-            await model.MacroPlatform.MoveTo(model.MacroPlatform.Config.LeftCenterPoint).ConfigureAwait(false);
+             model.MacroPlatform.MoveTo(model.MacroPlatform.Config.LeftCenterPoint);
 
             //等待相机检测到圆心
 
 
             //移动到圆心右监测点
-            await model.MacroPlatform.MoveTo(model.MacroPlatform.Config.RightCenterPoint).ConfigureAwait(false);
+            model.MacroPlatform.MoveTo(model.MacroPlatform.Config.RightCenterPoint);
 
             //等待相机检测到圆心
 
 
             //移动到圆心上监测点
-            await model.MacroPlatform.MoveTo(model.MacroPlatform.Config.UpCenterPoint).ConfigureAwait(false);
+            model.MacroPlatform.MoveTo(model.MacroPlatform.Config.UpCenterPoint);
 
             //等待相机检测到圆心
 
 
             //移动到圆心下监测点
-            await model.MacroPlatform.MoveTo(model.MacroPlatform.Config.DownCenterPoint).ConfigureAwait(false);
+            model.MacroPlatform.MoveTo(model.MacroPlatform.Config.DownCenterPoint);
 
             //等待相机检测到圆心
 
@@ -50,10 +51,10 @@ namespace NanoImprinter.Procedures
             return true;
         }
 
-        protected override async Task<bool> Prepare()
+        protected override bool Prepare()
         {
             Debug.WriteLine($"Prepare {typeof(FindRotateCenterProcedure)}");
-            await Task.Delay(5);
+            Thread.Sleep(1);
             return true;
         }
 

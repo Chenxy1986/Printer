@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:NanoImprinter.Views"
+             xmlns:cs="clr-namespace:NanoImprinter.Controls"
              xmlns:ces="clr-namespace:NanoImprinter.ControlExtensions"
              xmlns:prism="http://prismlibrary.com/"
              prism:ViewModelLocator.AutoWireViewModel="True"
@@ -152,5 +153,15 @@
                         FontSize="20" />
             </Grid>
         </GroupBox>
+
+        <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="1*" />
+            </Grid.RowDefinitions>
+            
+            <cs:AxisControl Grid.Row="0"
+                            Axes="{Binding Axes}" />
+        </Grid>
     </Grid>
 </UserControl>

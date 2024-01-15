@@ -15,7 +15,7 @@ namespace NanoImprinter.ViewModels
     public class MacroViewModel : BindableBase
     {
         private readonly IMachineModel _machine;
-        private MacroPlatform _platform;
+        private MacroPlatform _plate;
 
         private Point2D _workVel;
         private Point2D _loadPosition;
@@ -104,11 +104,11 @@ namespace NanoImprinter.ViewModels
         public MacroViewModel(IMachineModel machine)
         {
             _machine = machine;
-            _platform = _machine.GetPlatform(typeof(MacroPlatform).Name) as MacroPlatform;
+            _plate = _machine.GetPlatform(typeof(MacroPlatform).Name) as MacroPlatform;
             Axes = new ObservableCollection<IAxis>();
-            Axes.Add(_platform.XAxis);
-            Axes.Add(_platform.YAxis);
-            Axes.Add(_platform.RAxis);
+            Axes.Add(_plate.XAxis);
+            Axes.Add(_plate.YAxis);
+            Axes.Add(_plate.RAxis);
         }
 
         private void MaskZGoHome()

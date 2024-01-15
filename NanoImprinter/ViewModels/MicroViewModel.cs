@@ -13,7 +13,7 @@ namespace NanoImprinter.ViewModels
     public class MicroViewModel : BindableBase
     {
         private readonly IMachineModel _machine;
-        private MicroPlatform _platform;
+        private MicroPlatform _plate;
 
         private PointZRXY _levelPosition;
         private PointZRXY _demoldPosition;
@@ -60,7 +60,7 @@ namespace NanoImprinter.ViewModels
         public MicroViewModel(IMachineModel machine)
         {
             _machine = machine;
-            _platform = _machine.GetPlatform(typeof(MicroPlatform).Name) as MicroPlatform;
+            _plate = _machine.GetPlatform(typeof(MicroPlatform).Name) as MicroPlatform;
         }
 
         #region
@@ -78,17 +78,17 @@ namespace NanoImprinter.ViewModels
 
         private void GoHome()
         {
-            _platform.GoHome();
+            _plate.GoHome();
         }
 
         private void MoveToLevelPosition()
         {
-            _platform.MoveTo(_levelPosition);
+            _plate.MoveTo(_levelPosition);
         }
 
         private void MoveToDemoldPosition()
         {
-            _platform.MoveTo(_demoldPosition);
+            _plate.MoveTo(_demoldPosition);
         }
 
         private void RefreshPressure()

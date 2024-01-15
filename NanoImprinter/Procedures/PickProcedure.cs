@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using WestLakeShape.Motion;
 using WestLakeShape.Motion.Device;
@@ -19,7 +20,7 @@ namespace NanoImprinter.Procedures
             Name = ProcedureName.PickProcedure.ToString();
         }
 
-        protected override async Task<bool> OnExcute()
+        protected override bool OnExcute()
         {
             var model = new NanoImprinterModel();
 
@@ -27,18 +28,18 @@ namespace NanoImprinter.Procedures
             model.MacroPlatform.MoveToLoadPosition();
 
             //等待取走晶圆
-            await model.IO.GetInputIO(ImprinterIOName.HasWafe).AsyncWait(false);
+            model.IO.GetInputIO(ImprinterIOName.HasWafe);
             //间隔一定时间
-            await Task.Delay(100);
+            Thread.Sleep(10);
 
             //等待放入新的晶圆
-            await model.IO.GetInputIO(ImprinterIOName.HasWafe).AsyncWait(false);
+            model.IO.GetInputIO(ImprinterIOName.HasWafe);
 
             return true;
         }
 
 
-        protected override Task<bool> Prepare()
+        protected override bool Prepare()
         {
             throw new NotImplementedException();
         }

@@ -33,6 +33,11 @@ namespace NanoImprinter.Model
             set => _config = value;
         }
 
+        public IAxis MaskZAxis => _maskZAxis;
+        public IAxis CameraZAxis => _cameraZAxis;
+        public IAxis UVXAxis => _uvXAxis;
+        public IAxis UVYAxis => _uvYAxis;
+
 
         public ImprintPlatform(ImprintPlatformConfig config,IAxis[] axes)
         {

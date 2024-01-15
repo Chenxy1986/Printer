@@ -85,7 +85,7 @@ namespace NanoImprinter.Model
         public void LoadParam()
         {
             //var model = new NanoImprinterModel();
-            var configFile = _rootFolder + Config_File_Name;
+            var configFile = Path.Combine(_rootFolder, Config_File_Name);
             NanoImprinterModelConfig config;
             if (Directory.Exists(configFile))
             {
@@ -94,7 +94,6 @@ namespace NanoImprinter.Model
             }
             else
             {
-                Directory.CreateDirectory(configFile);
                 config = new NanoImprinterModelConfig();
             }
 
@@ -134,28 +133,15 @@ namespace NanoImprinter.Model
     public class NanoImprinterModelConfig
     {
 
-        public AfmPlatformConfig AfmPlatform { get; set; }
-
-        public GluePlatformConfig GluePlatform { get; set; }
-
-
-        public ImprinterAxisConfig ImprinterAxis { get; set; }
-
-
-        public ImprinterIOConfig ImprinterIO { get; set; }
-
-
-        public MacroPlatformConfig MacroPlatform { get; set; }
-
-
-        public MicroPlatformConfig MicroPlatform { get; set; }
-
-
-        public ImprintPlatformConfig ImprintPlatform { get; set; }
-
-        public WafeInfo WafeInfo { get; set; }
-
-        public MaskInfo MaskInfo { get; set; }
+        public AfmPlatformConfig AfmPlatform { get; set; } = new AfmPlatformConfig();
+        public GluePlatformConfig GluePlatform { get; set; } = new GluePlatformConfig();
+        public ImprinterAxisConfig ImprinterAxis { get; set; } = new ImprinterAxisConfig();
+        public ImprinterIOConfig ImprinterIO { get; set; } = new ImprinterIOConfig();
+        public MacroPlatformConfig MacroPlatform { get; set; } = new MacroPlatformConfig();
+        public MicroPlatformConfig MicroPlatform { get; set; } = new MicroPlatformConfig();
+        public ImprintPlatformConfig ImprintPlatform { get; set; } = new ImprintPlatformConfig();
+        public WafeInfo WafeInfo { get; set; } = new WafeInfo();
+        public MaskInfo MaskInfo { get; set; } = new MaskInfo();
     }
 
     public enum MachineStatus

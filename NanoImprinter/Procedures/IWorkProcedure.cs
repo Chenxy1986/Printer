@@ -13,7 +13,7 @@ namespace NanoImprinter.Procedures
         DateTime EndTime { get; }
         TimeSpan Deration { get; }
         ProcesureStatus Status { get; set; }
-        Task<bool> Excute();
+        bool Excute();
     }
 
 
@@ -49,7 +49,7 @@ namespace NanoImprinter.Procedures
             set => _status = value;
         }
 
-        public async Task<bool> Excute()
+        public bool Excute()
         {
             if (_status >= ProcesureStatus.Failed)
                 return false;
@@ -57,8 +57,8 @@ namespace NanoImprinter.Procedures
             _status = ProcesureStatus.Running;
             try
             {
-                await Prepare();
-                await OnExcute();
+                Prepare();
+                OnExcute();
                 _endTime = DateTime.Now;
                 _status = ProcesureStatus.Succeeded;
                 return true;
@@ -71,9 +71,9 @@ namespace NanoImprinter.Procedures
 
         }
 
-        protected abstract Task<bool> Prepare();
+        protected abstract bool Prepare();
 
-        protected abstract Task<bool> OnExcute();
+        protected abstract bool OnExcute();
 
     }
 }

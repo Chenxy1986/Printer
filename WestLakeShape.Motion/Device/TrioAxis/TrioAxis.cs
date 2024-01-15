@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using TrioMotion.TrioPC_NET;
 using WestLakeShape.Common.Common;
@@ -45,11 +46,11 @@ namespace WestLakeShape.Motion.Device
         /// 回零
         /// </summary>
         /// <returns></returns>
-        public override async Task<bool> GoHome()
+        public override bool GoHome()
         {
             if (_config.HomeModel == TrioHomeModel.MoveToZero)
             {
-                return await MoveTo(0).ConfigureAwait(false);
+                return MoveTo(0);
             }
             else
             {
@@ -58,7 +59,7 @@ namespace WestLakeShape.Motion.Device
                 //执行回零动作
                 _trioPC.Datum((int)(_config.HomeModel), _config.Index);
                 //等待回零完成
-                return await WaitGoHome().ConfigureAwait(false);
+                return WaitGoHome();
             }
         }
 
@@ -68,9 +69,9 @@ namespace WestLakeShape.Motion.Device
         /// </summary>
         /// <param name="position"></param>
         /// <returns></returns>
-        public override async Task<bool> MoveTo(double position)
+        public override bool MoveTo(double position)
         {
-            await Stop().ConfigureAwait(false);
+            Stop();
   
             var movement = new Movement(position);
             _currentMovement = movement;
@@ -78,7 +79,7 @@ namespace WestLakeShape.Motion.Device
             var rt = _trioPC.MoveAbs(new double[] { position }, _config.Index);
             CheckException(rt);
 
-            return await movement.TaskCompletionSource.Task.ConfigureAwait(false);
+            return true ;
         }
 
         /// <summary>
@@ -88,7 +89,7 @@ namespace WestLakeShape.Motion.Device
         /// <returns></returns>
         public async Task<bool> MoveBy(double position) 
         {
-            await Stop().ConfigureAwait(false);
+            Stop();
 
             var movement = new Movement(position);
             _currentMovement = movement;
@@ -117,7 +118,7 @@ namespace WestLakeShape.Motion.Device
         /// 停止
         /// </summary>
         /// <returns></returns>
-        public override async Task Stop()
+        public override void Stop()
         {
             if (!IsBusy)
                 return;
@@ -134,7 +135,7 @@ namespace WestLakeShape.Motion.Device
             }
 
             while (IsBusy)
-                await Task.Delay(5).ConfigureAwait(false);
+                Thread.Sleep(5);
         }
 
         /// <summary>
@@ -149,45 +150,49 @@ namespace WestLakeShape.Motion.Device
         {
             return Task.Run(() =>
             {
-                double positionValue,speedValue;
-                double moveValue, stopValue;
-
-                //获取目标位置
-                //GetAxisParameter(AxisParameter.DPOS, out targetPostion);
-
-                //当前的速度和位置
-                GetAxisParameter(AxisParameter.MPOS, out positionValue);
-                GetAxisParameter(AxisParameter.MSPEED, out speedValue);
-                //运动否已停止
-                GetAxisParameter(AxisParameter.IDLE, out stopValue);
-                //当前的运动指令
-                GetAxisParameter(AxisParameter.MTYPE, out moveValue);
-
-                _state.Speed = speedValue;
-                _state.Position = positionValue;
-                _state.Command = (TrioMtypeValue)moveValue;
-                //0(false)代表正在移动
-                _state.IsBusy = stopValue == 0 ? true : false;
-
-
-                var movement = _currentMovement;
-                if (movement != null)
+                while (true)
                 {
-                    if (DateTime.UtcNow - movement.StartTimeUtc > _startWait)
+                    double positionValue, speedValue;
+                    double moveValue, stopValue;
+
+                    //获取目标位置
+                    //GetAxisParameter(AxisParameter.DPOS, out targetPostion);
+
+                    //当前的速度和位置
+                    GetAxisParameter(AxisParameter.MPOS, out positionValue);
+                    GetAxisParameter(AxisParameter.MSPEED, out speedValue);
+                    //运动否已停止
+                    GetAxisParameter(AxisParameter.IDLE, out stopValue);
+                    //当前的运动指令
+                    GetAxisParameter(AxisParameter.MTYPE, out moveValue);
+
+                    _state.Speed = speedValue;
+                    _state.Position = positionValue;
+                    _state.Command = (TrioMtypeValue)moveValue;
+                    //0(false)代表正在移动
+                    _state.IsBusy = stopValue == 0 ? true : false;
+
+
+                    var movement = _currentMovement;
+                    if (movement != null)
                     {
-                        if (!_state.IsBusy &&
-                           Math.Abs(positionValue - movement.TargetPostion) <= 10)
+                        if (DateTime.UtcNow - movement.StartTimeUtc > _startWait)
                         {
-                            if (!movement.TaskCompletionSource.TrySetResult(true))
-                                throw new Exception("轴运动完成赋值出错");
-                            lock (_state)
+                            if (!_state.IsBusy &&
+                               Math.Abs(positionValue - movement.TargetPostion) <= 10)
                             {
-                                if (movement == _currentMovement)
-                                    _currentMovement = null;
+                                if (!movement.TaskCompletionSource.TrySetResult(true))
+                                    throw new Exception("轴运动完成赋值出错");
+                                lock (_state)
+                                {
+                                    if (movement == _currentMovement)
+                                        _currentMovement = null;
+                                }
                             }
                         }
                     }
                 }
+               
             });
         }
 
@@ -230,14 +235,14 @@ namespace WestLakeShape.Motion.Device
             CheckException(ret);
         }
 
-        private async Task<bool> WaitGoHome()
+        private bool WaitGoHome()
         {
             var commValue = TrioMtypeValue.Datum;
             double typeValue = 1;
 
             while (commValue == TrioMtypeValue.Datum)
             {
-                await Task.Delay(50);
+                Thread.Sleep(50);
                 //获取当前运动指令
                 GetAxisParameter(AxisParameter.MTYPE, out typeValue);
 

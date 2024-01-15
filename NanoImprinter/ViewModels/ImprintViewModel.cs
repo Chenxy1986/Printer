@@ -3,16 +3,18 @@ using Prism.Commands;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WestLakeShape.Motion;
 
 namespace NanoImprinter.ViewModels
 {
     public class ImprintViewModel : BindableBase
     {
         private readonly IMachineModel _machine;
-        private ImprintPlatform _platform; 
+        private ImprintPlatform _plate; 
 
         private double _maskZWorkVel;
         private double _cameraZWorkVel;
@@ -87,11 +89,18 @@ namespace NanoImprinter.ViewModels
 
         #endregion
 
+        public ObservableCollection<IAxis> Axes { get; set; }
+
 
         public ImprintViewModel(IMachineModel machine)
         {
             _machine = machine;
-            _platform = machine.GetPlatform(typeof(ImprintPlatform).Name) as ImprintPlatform;
+            _plate = machine.GetPlatform(typeof(ImprintPlatform).Name) as ImprintPlatform;
+            Axes = new ObservableCollection<IAxis>();
+            Axes.Add(_plate.MaskZAxis);
+            Axes.Add(_plate.CameraZAxis);
+            Axes.Add(_plate.UVXAxis);
+            Axes.Add(_plate.UVYAxis);
         }
 
         private void MaskZGoHome()

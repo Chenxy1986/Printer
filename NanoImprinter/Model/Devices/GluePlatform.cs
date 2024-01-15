@@ -27,6 +27,8 @@ namespace NanoImprinter.Model
         private IAxis _zAxis;
         private GlueControl _glueControl;
 
+        public IAxis ZAxis => _zAxis;
+
         public GluePlatformConfig Config
         {
             get => _config;

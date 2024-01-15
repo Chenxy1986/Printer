@@ -45,9 +45,9 @@ namespace NanoImprinter.Model
             //RAxis = new TrioAxis(Config.RAxisConfig);
         }
 
-        public IReadOnlyCollection<IAxis> All()
+        public List<IAxis> Axes()
         {
-            return new[]
+            return new List<IAxis>
             {
                 XAxis,
                 YAxis,

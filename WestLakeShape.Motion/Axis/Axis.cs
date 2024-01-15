@@ -19,31 +19,16 @@ namespace WestLakeShape.Motion
             Config = config;
         }
 
-        public abstract Task<bool> GoHome();
+        public abstract bool GoHome();
 
        
-        public abstract Task<bool> MoveTo(double position);
+        public abstract bool MoveTo(double position);
 
         public abstract void ServoOff();
 
         public abstract void ServoOn();
 
-        public abstract Task Stop();
-
-        bool IAxis.GoHome()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        bool IAxis.MoveTo(double position)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        void IAxis.Stop()
-        {
-            throw new System.NotImplementedException();
-        }
+        public abstract void Stop();
     }
 
     public class AxisConfig

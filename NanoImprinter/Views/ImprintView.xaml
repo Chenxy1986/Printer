@@ -195,16 +195,10 @@
                   FontSize="24">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="60" />
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
-                
-                <StackPanel Orientation="Horizontal">
-                    <Label Content="轴号" />
-                    <ComboBox BorderBrush="White" />
-                </StackPanel>
-                <cs:AxisControl Grid.Row="1"/>
+                <cs:AxisControl Grid.Row="0" Axes="{Binding Axes}"/>
             </Grid>
         </GroupBox>
     </Grid>
