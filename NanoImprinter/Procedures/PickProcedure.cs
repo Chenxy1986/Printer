@@ -24,7 +24,7 @@ namespace NanoImprinter.Procedures
             var model = new NanoImprinterModel();
 
             //移动到放料位
-            await model.MacroPlatform.MoveToLoadPosition();
+            model.MacroPlatform.MoveToLoadPosition();
 
             //等待取走晶圆
             await model.IO.GetInputIO(ImprinterIOName.HasWafe).AsyncWait(false);
