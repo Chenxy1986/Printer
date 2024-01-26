@@ -23,7 +23,7 @@ namespace WestLakeShape.Motion.Device
 
         private TrioControl()
         {
-            _trioControl = new TrioPC();
+           // _trioControl = new TrioPC();
         }
 
         public void Dispose()

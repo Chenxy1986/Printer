@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using WestLakeShape.Common;
+using WestLakeShape.Common.WpfCommon;
 using WestLakeShape.Motion.Device;
 
 namespace NanoImprinter.Model
@@ -16,9 +17,9 @@ namespace NanoImprinter.Model
 
         void OnConnecting();
         void OnDisconnecting();
-        bool Imprint();
+        bool MoveToContactPosition();
         bool Demold();
-        bool Creep(ChannelNo index);
+        bool Creep(ChannelNo index,double distance);
         //bool GoHome();
         bool JogForward(ChannelNo index, double position);
         bool JogBackward(ChannelNo index, double position);
@@ -32,6 +33,9 @@ namespace NanoImprinter.Model
         private PointZRXY _currentPosition;
 
         public bool IsConnected => _piezo.IsConnected;
+        public ChannelNo ZAxis => ChannelNo.Third;
+        public ChannelNo RXAxis => ChannelNo.One;
+        public ChannelNo RYAxis => ChannelNo.Two;
 
         public MicroPlatformConfig Config
         {
@@ -68,12 +72,12 @@ namespace NanoImprinter.Model
         }
 
         /// <summary>
-        /// 微平台压印流程
+        /// 微平台移动到接触位置
         /// </summary>
         /// <returns></returns>
-        public bool Imprint()
+        public bool MoveToContactPosition()
         {
-            MoveTo(ChannelNo.Third, _config.PreprintPosition);
+            MoveTo(ZAxis, _config.ContactPosition);
             return true;
         }
 
@@ -93,9 +97,9 @@ namespace NanoImprinter.Model
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        public bool Creep(ChannelNo index)
+        public bool Creep(ChannelNo index,double distance)
         {
-            _piezo.WriteDisplace(index, _config.CreepDistance);
+            _piezo.WriteDisplace(index, distance);
             return true;
         }
 
@@ -144,7 +148,7 @@ namespace NanoImprinter.Model
         /// </summary>
         /// <param name="index"></param>
         /// <param name="position"></param>
-        public void MoveTo(ChannelNo index, double position)
+        private void MoveTo(ChannelNo index, double position)
         {
             _piezo.WriteDisplace(index, position);
             Thread.Sleep(100);
@@ -178,14 +182,14 @@ namespace NanoImprinter.Model
             switch (index)
             {
                 case ChannelNo.One:
-                    position = _currentPosition.RX - postion;
+                    position = _currentPosition.RX + postion;
                     break;
                 case ChannelNo.Two:
 
-                    position = _currentPosition.RY - postion;
+                    position = _currentPosition.RY + postion;
                     break;
                 case ChannelNo.Third:
-                    position = _currentPosition.Z - postion;
+                    position = _currentPosition.Z + postion;
                     break;
             }
 
@@ -193,35 +197,71 @@ namespace NanoImprinter.Model
         }
 
     }
-    public class MicroPlatformConfig
+    public class MicroPlatformConfig:NotifyPropertyChanged
     {
+        private string _comName = "Com1";
+        private double _contactPosition;
+        private double _zCreepDistance;
+        private PointZRXY _levelPosition;
+        private PointZRXY _demoldPosition;
+        private double _maxPressure;
+        private double _minPressure;
+
         [Category("MicroPlatform"), Description("串口名称")]
         [DisplayName("串口名称")]
-        public string ComName { get; set; }
+        public string ComName 
+        {
+            get => _comName;
+            set => SetProperty(ref _comName, value);
+        } 
 
-        [Category("MicroPlatform"), Description("预压印位置")]
-        [DisplayName("预压印位置")]
-        public double PreprintPosition { get; set; }
+        [Category("MicroPlatform"), Description("接触位置")]
+        [DisplayName("接触位置")]
+        public double ContactPosition
+        {
+            get => _contactPosition;
+            set => SetProperty(ref _contactPosition, value);
+        }
 
         [Category("MicroPlatform"), Description("蠕动距离")]
         [DisplayName("蠕动距离")]
-        public double CreepDistance { get; set; }
+        public double ZCreepDistance 
+        {
+            get => _zCreepDistance;
+            set => SetProperty(ref _zCreepDistance, value);
+        }
 
         [Category("MicroPlatform"), Description("脱模位置")]
-        [DisplayName("脱模位置")]
-        public PointZRXY DemoldPosition { get; set; }
+        [DisplayName("jiec")]
+        public PointZRXY DemoldPosition 
+        {
+            get => _demoldPosition;
+            set => SetProperty(ref _demoldPosition, value);
+        }
 
         [Category("MicroPlatform"), Description("调平位置")]
         [DisplayName("调平位置")]
-        public PointZRXY LevelPosition { get; set; }
+        public PointZRXY LevelPosition
+        {
+            get => _levelPosition;
+            set => SetProperty(ref _levelPosition, value);
+        }
 
         [Category("MicroPlatform"), Description("压力最大值")]
         [DisplayName("压力最大值")]
-        public double MaxPressure { get; set; }
+        public double MaxPressure 
+        {
+            get => _maxPressure;
+            set => SetProperty(ref _maxPressure, value);
+        }
 
 
         [Category("MicroPlatform"), Description("压力最小值")]
         [DisplayName("压力最小值")]
-        public double MinPressure { get; set; }
+        public double MinPressure 
+        {
+            get => _minPressure;
+            set => SetProperty(ref _minPressure, value);
+        }
     }
 }

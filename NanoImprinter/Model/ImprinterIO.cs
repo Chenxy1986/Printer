@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WestLakeShape.Common.WpfCommon;
 using WestLakeShape.Motion;
 using WestLakeShape.Motion.Device;
 using static WestLakeShape.Motion.IOStateSource;
@@ -11,21 +12,10 @@ namespace NanoImprinter.Model
 {
     public class ImprinterIO
     {
-        //private const string ConfigFileName = "//Config//GTSIO.config";
-
-
-        //public static bool LoadIOConfig(string rootFolder)
-        //{
-
-        //    return true;
-        //}
-
         private ImprinterIOConfig _config;
         private TrioIOStateSource _ioSource;
 
-
         public ImprinterIOConfig Config => _config;
-
 
         public ImprinterIO(ImprinterIOConfig config)
         {
@@ -58,9 +48,14 @@ namespace NanoImprinter.Model
         }
     }
 
-    public class ImprinterIOConfig
+    public class ImprinterIOConfig:NotifyPropertyChanged
     {
-        public string Name { get; set; }
+        private string _name;
+        public string Name 
+        {
+            get => _name;
+            set => SetProperty(ref _name, value);
+        }
 
         public IOStateSourceConfig IOStateSourceConfig { get; set; } = new IOStateSourceConfig();
     }

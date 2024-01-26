@@ -4,64 +4,58 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using WestLakeShape.Common;
+using WestLakeShape.Common.WpfCommon;
 using WestLakeShape.Motion.Device;
 
 namespace NanoImprinter.Model
 {
-    public class NanoImprinterModel:IMachineModel
+    public interface IMachineModel
     {
-        private const string Config_File_Name = "MachineConfig.config";
-        private readonly string _rootFolder = "C:\\NanoImprinterConfig";
-
+        Dictionary<string, IPlatform> Platforms { get; }
         
-
         /// <summary>
-        /// Afm测量平台
+        /// 上次流程执行到的步骤
         /// </summary>
-        public AfmPlatform AfmPlatform { get; private set; }
+        int ProcedureIndex { get; set; }
 
-        /// <summary>
-        /// 点胶平台
-        /// </summary>
-        public GluePlatform GluePlatform { get; private set; }
+        ImprinterIO IO { get;}
+        ImprinterAxis Axes { get; }
 
-        /// <summary>
-        /// 宏动平台
-        /// </summary>
-        public MacroPlatform MacroPlatform { get; private set; }
+        MachineModelConfig Config { get; }
+        void LoadParam();
+        void SaveParam();
+        IPlatform GetPlatform(string name);
+    }
 
-        /// <summary>
-        /// 微动平台
-        /// </summary>
-        public MicroPlatform MicroPlatform { get; private set; }
-
-        /// <summary>
-        /// 打印平台
-        /// </summary>
-        public ImprintPlatform ImprintPlatform { get; private set; }
-
+    public class MachineModel : IMachineModel
+    {
+        private readonly string Config_File_Name = "MachineConfig.config";
+        private readonly string _rootFolder = "C:\\NanoImprinterConfig";
+        
         /// <summary>
         /// 所有IO卡
         /// </summary>
         public ImprinterIO IO { get; private set; }
-
         /// <summary>
         /// 所有轴
         /// </summary>
         public ImprinterAxis Axes { get; private set; }
 
-        public NanoImprinterModelConfig Config { get; set; }
+        /// <summary>
+        /// 上次流程执行到的步骤
+        /// </summary>
+        public int ProcedureIndex { get; set; }
 
-        public MachineStatus Status { get; set; }
+        public MachineModelConfig Config { get; private set; }
 
         public Dictionary<string, IPlatform> Platforms { get; private set; }
 
-        //public static NanoImprinterModel Instance { get; private set; }
-
-        public NanoImprinterModel()
+        public MachineModel()
         {
+            Platforms = new Dictionary<string, IPlatform>();
             LoadParam();
         }
 
@@ -73,32 +67,26 @@ namespace NanoImprinter.Model
             if (!Directory.Exists(folder))
                 Directory.CreateDirectory(folder);
 
-            var config = new NanoImprinterModelConfig
-            {
-                MacroPlatform = MacroPlatform.Config,
-                MicroPlatform = MicroPlatform.Config,
-                ImprinterIO = IO.Config
-            };
-            File.WriteAllText(path, JsonConvert.SerializeObject(config), Constants.Encoding);
+            File.WriteAllText(path, JsonConvert.SerializeObject(Config), Constants.Encoding);
         }
 
         public void LoadParam()
         {
             //var model = new NanoImprinterModel();
             var configFile = Path.Combine(_rootFolder, Config_File_Name);
-            NanoImprinterModelConfig config;
+          
             if (Directory.Exists(configFile))
             {
                 var content = File.ReadAllText(configFile, Constants.Encoding);
-                config = JsonConvert.DeserializeObject<NanoImprinterModelConfig>(content);
+                Config = JsonConvert.DeserializeObject<MachineModelConfig>(content);
             }
             else
             {
-                config = new NanoImprinterModelConfig();
+                Config = new MachineModelConfig();
             }
 
-            IO = new ImprinterIO(config.ImprinterIO);
-            Axes = new ImprinterAxis(config.ImprinterAxis);
+            IO = new ImprinterIO(Config.ImprinterIO);
+            Axes = new ImprinterAxis(Config.ImprinterAxis);
             //MacroPlatform = new MacroPlatform(config.MacroPlatform,
             //                               Axes.MacroPlatformAxes());
             //MicroPlatform = new MicroPlatform(config.MicroPlatform);
@@ -108,13 +96,13 @@ namespace NanoImprinter.Model
             //ImprintPlatform = new ImprintPlatform(config.ImprintPlatform,
             //                               Axes.PrintPlatformAxes());
 
-            Platforms.Add(typeof(ImprintPlatform).Name, new ImprintPlatform(config.ImprintPlatform,
+            Platforms.Add(typeof(ImprintPlatform).Name, new ImprintPlatform(Config.ImprintPlatform,
                                                                             Axes.PrintPlatformAxes()));
-            Platforms.Add(typeof(GluePlatform).Name, new GluePlatform(config.GluePlatform,
+            Platforms.Add(typeof(GluePlatform).Name, new GluePlatform(Config.GluePlatform,
                                                                       Axes.GluePlatformAxes()));
-            Platforms.Add(typeof(AfmPlatform).Name, new AfmPlatform(config.AfmPlatform));
-            Platforms.Add(typeof(MicroPlatform).Name, new MicroPlatform(config.MicroPlatform));
-            Platforms.Add(typeof(MacroPlatform).Name, new MacroPlatform(config.MacroPlatform,
+            Platforms.Add(typeof(AfmPlatform).Name, new AfmPlatform(Config.AfmPlatform));
+            Platforms.Add(typeof(MicroPlatform).Name, new MicroPlatform(Config.MicroPlatform));
+            Platforms.Add(typeof(MacroPlatform).Name, new MacroPlatform(Config.MacroPlatform,
                                                                         Axes.MacroPlatformAxes()));
             //Instance = model;lei
         }
@@ -127,10 +115,9 @@ namespace NanoImprinter.Model
             }
             return platform;
         }
-
     }
 
-    public class NanoImprinterModelConfig
+    public class MachineModelConfig
     {
 
         public AfmPlatformConfig AfmPlatform { get; set; } = new AfmPlatformConfig();
@@ -144,12 +131,4 @@ namespace NanoImprinter.Model
         public MaskInfo MaskInfo { get; set; } = new MaskInfo();
     }
 
-    public enum MachineStatus
-    {
-        Manual,
-        Auto,
-        Running,
-        Paused,
-        Emergency,
-    }
 }

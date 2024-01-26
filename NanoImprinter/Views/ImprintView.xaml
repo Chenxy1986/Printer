@@ -2,13 +2,13 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ces="clr-namespace:NanoImprinter.ControlExtensions"
+             xmlns:cvs="clr-namespace:NanoImprinter.ControlViews"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:cs="clr-namespace:NanoImprinter.Controls"
              xmlns:prism="http://prismlibrary.com/"
-             prism:ViewModelLocator.AutoWireViewModel="True"
              d:DesignHeight="1010"
              d:DesignWidth="1670"
+             prism:ViewModelLocator.AutoWireViewModel="True"
              Background="White"
              mc:Ignorable="d">
     <Grid>
@@ -49,33 +49,39 @@
                 <ces:ParameterDisplayControl x:Name="tbImprintVel"
                                              ParamName="压印速度"
                                              ParamUnit="mm/s"
-                                             ParamValue="{Binding MaskZWorkVel}"/>
+                                             ParamValue="{Binding MaskZWorkVel}" />
                 <ces:ParameterDisplayControl x:Name="tbCameraMoveVel"
                                              Grid.Row="0"
                                              Grid.Column="1"
                                              ParamName="拍照速度"
-                                             ParamValue="{Binding CameraZWorkVel}"
-                                             ParamUnit="mm" />
+                                             ParamUnit="mm"
+                                             ParamValue="{Binding CameraZWorkVel}" />
                 <ces:ParameterDisplayControl x:Name="tbPreprintHeight"
                                              Grid.Row="1"
                                              Grid.Column="0"
                                              ParamName="预压印位"
-                                             ParamValue="{Binding PreprintPosition}"
-                                             ParamUnit="mm" />
+                                             ParamUnit="mm"
+                                             ParamValue="{Binding PreprintPosition}" />
                 <ces:ParameterDisplayControl x:Name="tbTakePictureHeight"
                                              Grid.Row="1"
                                              Grid.Column="1"
                                              ParamName="拍照位"
-                                             ParamValue="{Binding TakePicturePosition}"
-                                             ParamUnit="mm" />
+                                             ParamUnit="mm"
+                                             ParamValue="{Binding TakePicturePosition}" />
 
                 <Button x:Name="btnMaskSaveParameter"
                         Grid.Row="2"
                         Grid.Column="0"
                         Margin="50,20"
+                        Command="{Binding SaveParamCommand}"
                         Content="保存参数"
-                        FontSize="20"
-                        Command="{Binding SaveParamCommand}"/>
+                        FontSize="20" />
+                <Button Grid.Row="2"
+                        Grid.Column="1"
+                        Margin="50,20"
+                        Command="{Binding ReloadParamCommand}"
+                        Content="重载参数"
+                        FontSize="20" />
                 <UniformGrid Grid.Row="3"
                              Grid.ColumnSpan="2"
                              Columns="4">
@@ -83,29 +89,29 @@
                             Grid.Row="3"
                             Grid.Column="0"
                             Margin="20"
-                            Content="移动预压印位"
                             Command="{Binding MoveToPreprintPositionCommand}"
+                            Content="移动预压印位"
                             FontSize="20" />
                     <Button x:Name="btnMaskMoveToTakePictureHeight"
                             Grid.Row="3"
                             Grid.Column="1"
                             Margin="20"
-                            Content="移动拍照位"
                             Command="{Binding MoveToTakePicturePositionCommand}"
+                            Content="移动拍照位"
                             FontSize="20" />
                     <Button x:Name="btnMaskGoHome"
                             Grid.Row="3"
                             Grid.Column="1"
                             Margin="20"
-                            Content="回零"
                             Command="{Binding MaskZGoHomeCommand}"
+                            Content="回零"
                             FontSize="20" />
                     <Button x:Name="btnMaskResetAlarm"
                             Grid.Row="3"
                             Grid.Column="1"
                             Margin="20"
-                            Content="清除报警"
                             Command="{Binding ResetAlarmCommand}"
+                            Content="清除报警"
                             FontSize="20" />
                 </UniformGrid>
             </Grid>
@@ -134,27 +140,35 @@
                 <ces:ParameterDisplayControl x:Name="tbIrradiationPosition"
                                              ParamName="照射位"
                                              ParamUnit="mm/s"
-                                             ParamValue="{Binding IrradiationPosition}"/>
+                                             ParamValue="{Binding IrradiationPosition}" />
                 <ces:ParameterDisplayControl x:Name="tbUVWorkVel"
                                              Grid.Row="0"
                                              Grid.Column="1"
                                              ParamName="工作速度"
-                                             ParamValue="{Binding CameraWorkVel}"
-                                             ParamUnit="mm" />
+                                             ParamUnit="mm"
+                                             ParamValue="{Binding CameraWorkVel}" />
                 <ces:ParameterDisplayControl x:Name="tbUVWaitPosition"
                                              Grid.Row="1"
                                              Grid.Column="0"
                                              ParamName="等待位"
-                                             ParamValue="{Binding WaitPosition}"
-                                             ParamUnit="mm" />
+                                             ParamUnit="mm"
+                                             ParamValue="{Binding WaitPosition}" />
 
                 <Button x:Name="btnUVSaveParameter"
                         Grid.Row="2"
                         Grid.Column="0"
                         Margin="50,20"
-                        Content="保存参数"
                         Command="{Binding SaveParamCommand}"
+                        Content="保存参数"
                         FontSize="20" />
+                
+                <Button Grid.Row="2"
+                        Grid.Column="1"
+                        Margin="50,20"
+                        Command="{Binding ReloadParamCommand}"
+                        Content="重载参数"
+                        FontSize="20" />
+                
                 <UniformGrid Grid.Row="3"
                              Grid.ColumnSpan="2"
                              Columns="4">
@@ -162,43 +176,43 @@
                             Grid.Row="3"
                             Grid.Column="0"
                             Margin="20"
+                            Command="{Binding MoveToUVWaitPositionCommand}"
                             Content="移动等待位"
-                            Command="{Binding MoveToWaitPositionCommand}"
                             FontSize="20" />
                     <Button x:Name="btnUVMoveToTakePictureHeight"
                             Grid.Row="3"
                             Grid.Column="1"
                             Margin="20"
+                            Command="{Binding MoveToUVIrradiationPositionCommand}"
                             Content="移动照射位"
-                            Command="{Binding MoveToIrradiationPositionCommand}"
                             FontSize="20" />
                     <Button x:Name="btnUVGoHome"
                             Grid.Row="3"
                             Grid.Column="1"
                             Margin="20"
-                            Content="回零"
                             Command="{Binding UVGoHomeCommand}"
+                            Content="回零"
                             FontSize="20" />
                     <Button x:Name="btnUVResetAlarm"
                             Grid.Row="3"
                             Grid.Column="1"
                             Margin="20"
-                            Content="清除报警"
                             Command="{Binding ResetAlarmCommand}"
+                            Content="清除报警"
                             FontSize="20" />
                 </UniformGrid>
             </Grid>
         </GroupBox>
 
         <GroupBox Grid.Row="2"
-                  Header="轴操作"
-                  FontSize="24">
+                  FontSize="24"
+                  Header="轴操作">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
-                <cs:AxisControl Grid.Row="0" Axes="{Binding Axes}"/>
+                <cvs:AxisControl Grid.Row="0" Axes="{Binding Axes}" />
             </Grid>
         </GroupBox>
     </Grid>

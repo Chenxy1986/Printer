@@ -1,6 +1,7 @@
 ﻿
 using System.ComponentModel;
 using System.Threading.Tasks;
+using WestLakeShape.Common.WpfCommon;
 using static WestLakeShape.Motion.IOStateSource;
 
 namespace WestLakeShape.Motion.Device
@@ -12,6 +13,11 @@ namespace WestLakeShape.Motion.Device
         private UVControlPort _port;
         private readonly byte Slave_ID = 1;
         private bool _isAuto;
+
+        public int FirstChannel => (int)ChannelNo.First;
+        public int SecondChannel => (int)ChannelNo.Second;
+        public int ThirdChannel => (int)ChannelNo.Third;
+        public int FourChannel => (int)ChannelNo.Four;
 
         public UVControl(UVControlConfig config)
         {
@@ -45,7 +51,7 @@ namespace WestLakeShape.Motion.Device
             _isAuto = !_isAuto;
         }
 
-        public void TrunOn()
+        public void TurnOn()
         {
             _port.WriteSingleRegister(Slave_ID, 0x9C41, (int)ChannelNo.First);
         }
@@ -90,16 +96,34 @@ namespace WestLakeShape.Motion.Device
     }
 
 
-    public class UVControlConfig
+    public class UVControlConfig:NotifyPropertyChanged
     {
-        public string PortName { get; set; }
+        private string _portName = "Comm1";
+        private int _preheatTime;
+        private int _exposureTime;
 
-        [Category("PrintPlatform"), Description("UV灯保压时间，单位为毫秒")]
+        [Category("UVControl"), Description("UV串口")]
         [DisplayName("保压时间")]
-        public int PreheatTime { get; set; }
+        public string PortName 
+        {
+            get => _portName;
+            set => SetProperty(ref _portName, value);
+        }
 
-        [Category("PrintPlatform"), Description("掩膜预压印高度.,单位为毫秒")]
+        [Category("UVControl"), Description("UV灯保压时间，单位为毫秒")]
+        [DisplayName("保压时间")]
+        public int PreheatTime
+        {
+            get => _preheatTime;
+            set => SetProperty(ref _preheatTime, value);
+        }
+
+        [Category("UVControl"), Description("掩膜预压印高度.,单位为毫秒")]
         [DisplayName("UV曝光时间")]
-        public int ExposureTime { get; set; }
+        public int ExposureTime
+        {
+            get => _exposureTime;
+            set => SetProperty(ref _exposureTime, value);
+        }
     }
 }

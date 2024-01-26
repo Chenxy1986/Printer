@@ -16,7 +16,7 @@ namespace WestLakeShape.Common.WpfCommon
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        protected void UpdateProperty<T>(ref T properValue, T newValue, [CallerMemberName] string properName = "")
+        protected void SetProperty<T>(ref T properValue, T newValue, [CallerMemberName] string properName = "")
         {
             if (object.Equals(properValue, newValue))
                 return;

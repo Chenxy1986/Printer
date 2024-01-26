@@ -23,12 +23,12 @@ namespace NanoImprinter.Model
         private TrioAxis _macroPlatformYAxis;
         private TrioAxis _macroPlatformRAxis;
 
-        private TrioAxis _microPlatformRXAxis;// 微动平台
-        private TrioAxis _microPlatformRYAxis;
-        private TrioAxis _microPlatformZAxis;
+        //private TrioAxis _microPlatformRXAxis;// 微动平台
+        //private TrioAxis _microPlatformRYAxis;
+        //private TrioAxis _microPlatformZAxis;
 
-        private TrioAxis _printPlatformZAxis;// 压印Z轴
-        private TrioAxis _printPlatformCameraAxis;//压印相机轴
+        private TrioAxis _imprintPlatformMaskZAxis;// 压印Z轴
+        private TrioAxis _imprintPlatformCameraAxis;//压印相机轴
 
         private TrioAxis _uvPlatformXAxis;//UV平台轴
         private TrioAxis _uvPlatformZAxis;
@@ -38,8 +38,8 @@ namespace NanoImprinter.Model
         {
             _config = config;
 
-            _afmPlatformXAxis = new TrioAxis(config.AFMPlatformXAxis);
-            _afmPlatformYAxis = new TrioAxis(config.AFMPlatformYAxis);
+            _afmPlatformXAxis = new TrioAxis(config.AfmPlatformXAxis);
+            _afmPlatformYAxis = new TrioAxis(config.AfmPlatformYAxis);
 
             //_gluePlatformXAxis = new ZmcAxis(config.GluePlatformXAxis);
             //_gluePlatformYAxis = new ZmcAxis(config.GluePlatformYAxis);
@@ -49,25 +49,35 @@ namespace NanoImprinter.Model
             _macroPlatformYAxis = new TrioAxis(config.MacroPlatformYAxis);
             _macroPlatformRAxis = new TrioAxis(config.MacroPlatformRAxis);
 
-            _microPlatformRXAxis = new TrioAxis(config.MicroPlatformRXAxis);
-            _microPlatformRYAxis = new TrioAxis(config.MicroPlatformRYAxis);
-            _microPlatformZAxis = new TrioAxis(config.MicroPlatformZAxis);
+            //_microPlatformRXAxis = new TrioAxis(config.MicroPlatformRXAxis);
+            //_microPlatformRYAxis = new TrioAxis(config.MicroPlatformRYAxis);
+            //_microPlatformZAxis = new TrioAxis(config.MicroPlatformZAxis);
 
-            _printPlatformZAxis = new TrioAxis(config.PrintPlatformZAxis);
-            _printPlatformCameraAxis = new TrioAxis(config.PrintPlatformCameraAxis);
+            _imprintPlatformMaskZAxis = new TrioAxis(config.ImprintPlatformMaskZAxis);
+            _imprintPlatformCameraAxis = new TrioAxis(config.ImprintPlatformCameraZAxis);
 
             _uvPlatformXAxis = new TrioAxis(config.UVPlatformXAxis);
             _uvPlatformZAxis = new TrioAxis(config.UVPlatformZAxis);
         }
 
-        public IAxis[] MicroPlatformAxes()
+        public List<IAxis> All()
         {
-            return new IAxis[]
-            {
-                _microPlatformRXAxis,
-                _microPlatformRYAxis,
-                _microPlatformZAxis,
-             };
+            return new List<IAxis>() {
+            _afmPlatformXAxis,
+            _afmPlatformYAxis,
+
+            _gluePlatformZAxis,
+
+            _macroPlatformXAxis,
+            _macroPlatformYAxis,
+            _macroPlatformRAxis,
+
+             _imprintPlatformMaskZAxis,
+             _imprintPlatformCameraAxis,
+
+             _uvPlatformXAxis,
+             _uvPlatformZAxis
+            };
         }
 
         public IAxis[] MacroPlatformAxes()
@@ -103,20 +113,12 @@ namespace NanoImprinter.Model
         {
             return new IAxis[]
                 {
-                    _printPlatformZAxis,
-                    _printPlatformCameraAxis,
-                };
-        }
-
-        public IAxis[] UVPlatformAxes()
-        {
-            return new IAxis[]
-                {
-                    _uvPlatformXAxis,
+                    _imprintPlatformMaskZAxis,
+                    _imprintPlatformCameraAxis,
+                      _uvPlatformXAxis,
                     _uvPlatformZAxis,
                 };
         }
-
     }
 
     public class ImprinterAxisConfig
@@ -124,44 +126,34 @@ namespace NanoImprinter.Model
         /// <summary>
         /// AFM平台
         /// </summary>
-        public TrioAxisConfig AFMPlatformXAxis { get; set; }
-        public TrioAxisConfig AFMPlatformYAxis { get; set; }
-
+        public TrioAxisConfig AfmPlatformXAxis { get; set; } = new TrioAxisConfig() { Name = "X轴" };
+        public TrioAxisConfig AfmPlatformYAxis { get; set; } = new TrioAxisConfig() { Name = "Y轴" };
 
         /// <summary>
         /// 点胶平台
         /// </summary>
         //public ZmcAxisConfig GluePlatformXAxis { get; set; }
         //public ZmcAxisConfig GluePlatformYAxis { get; set; }
-        public TrioAxisConfig GluePlatformZAxis { get; set; }
+        public TrioAxisConfig GluePlatformZAxis { get; set; } = new TrioAxisConfig() { Name = "Z轴" };
 
 
         /// <summary>
         /// 宏动平台
         /// </summary>
-        public TrioAxisConfig MacroPlatformXAxis { get; set; }
-        public TrioAxisConfig MacroPlatformYAxis { get; set; }
-        public TrioAxisConfig MacroPlatformRAxis { get; set; }
-
-
-        /// <summary>
-        /// 微动平台
-        /// </summary>
-        public TrioAxisConfig MicroPlatformRXAxis { get; set; }
-        public TrioAxisConfig MicroPlatformRYAxis { get; set; }
-        public TrioAxisConfig MicroPlatformZAxis { get; set; }
-
+        public TrioAxisConfig MacroPlatformXAxis { get; set; } = new TrioAxisConfig() { Name = "X轴" };
+        public TrioAxisConfig MacroPlatformYAxis { get; set; } = new TrioAxisConfig() { Name = "Y轴" };
+        public TrioAxisConfig MacroPlatformRAxis { get; set; } = new TrioAxisConfig() { Name = "R轴" };
 
         /// <summary>
         /// 压印平台
         /// </summary>
-        public TrioAxisConfig PrintPlatformZAxis { get; set; }
-        public TrioAxisConfig PrintPlatformCameraAxis { get; set; }
+        public TrioAxisConfig ImprintPlatformMaskZAxis { get; set; } = new TrioAxisConfig() { Name = "掩膜Z轴" };
+        public TrioAxisConfig ImprintPlatformCameraZAxis { get; set; } = new TrioAxisConfig() { Name = "相机Z轴" };
 
         /// <summary>
         /// UV平台
         /// </summary>
-        public TrioAxisConfig UVPlatformXAxis { get; set; }
-        public TrioAxisConfig UVPlatformZAxis { get; set; }
+        public TrioAxisConfig UVPlatformXAxis { get; set; } = new TrioAxisConfig() { Name = "UV X轴" };
+        public TrioAxisConfig UVPlatformZAxis { get; set; } = new TrioAxisConfig() { Name = "UV Z轴" };
     }
 }

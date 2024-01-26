@@ -25,7 +25,8 @@ namespace NanoImprinter
             containerRegistry.RegisterForNavigation<MacroView>();
             containerRegistry.RegisterForNavigation<MainView>();
             containerRegistry.RegisterForNavigation<MicroView>();
-            containerRegistry.RegisterSingleton<IMachineModel, NanoImprinterModel>();
+            containerRegistry.RegisterSingleton<IMachineModel, MachineModel>();
+            containerRegistry.RegisterSingleton<ProcedureManager>();
         }
     }
 }

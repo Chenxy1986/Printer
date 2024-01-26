@@ -29,6 +29,8 @@ namespace NanoImprinter.ControlExtensions
             get { return (string)GetValue(TextBProperty); }
             set { SetValue(TextBProperty, value); }
         }
+
+
         public static readonly DependencyProperty TextABackgroundProperty =
           DependencyProperty.Register("TextABackground", typeof(Brush), typeof(SwitchButton), new PropertyMetadata(Brushes.Green));
 

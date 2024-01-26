@@ -21,6 +21,8 @@ namespace WestLakeShape.Motion
         bool MoveTo(double position);
 
         void Stop();
+        void EmergencyStop();
+        void ResetAlarm();
     }
 
     public interface IAxis<TAxisConfig> : IAxis

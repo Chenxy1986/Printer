@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace NanoImprinter.Controls
+namespace NanoImprinter.ControlViews
 {
     /// <summary>
-    /// WorkFlowView.xaml 的交互逻辑
+    /// VisionView.xaml 的交互逻辑
     /// </summary>
-    public partial class WorkFlowView : UserControl
+    public partial class VisionView : UserControl
     {
-        public WorkFlowView()
+        public VisionView()
         {
             InitializeComponent();
         }

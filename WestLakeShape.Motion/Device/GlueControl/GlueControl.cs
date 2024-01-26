@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using WestLakeShape.Common.WpfCommon;
 
 namespace WestLakeShape.Motion.Device
 {
@@ -189,56 +190,117 @@ namespace WestLakeShape.Motion.Device
         }
     }
 
-    public class GlueControlConfig
+    public class GlueControlConfig:NotifyPropertyChanged
     {
-        [Category("GlueControl"), Description("Comm端口号"), DefaultValue(1)]
+        private string _portName = "Com1";
+        private byte _slaveID;
+        private ModbusHubConfig _slaveConfig = new ModbusHubConfig();
+        private int _downTime;
+        private int _openValveTime;
+        private int _closedValveTime;
+        private int _upTime;
+        private int _openValveIntensity;
+        private int _controlModel;
+        private int _gluePoints;
+        private int _dispensingDelayTime;
+        private int _targetTemperatore;
+
+        [Category("GlueControl"), Description("Comm端口号")]
         [DisplayName("PortName")]
-        public string PortName { get; set; }
+        public string PortName 
+        {
+            get => _portName;
+            set => SetProperty(ref _portName, value);
+        } 
 
         [Category("GlueControl"), Description("从站地址"), DefaultValue(1)]
         [DisplayName("SlaveID")]
-        public byte SlaveID { get; set; }
+        public byte SlaveID 
+        {
+            get => _slaveID;
+            set => SetProperty(ref _slaveID, value);
+        }
 
-        [Category("GlueControl"), Description("下降时间，单位10us"), DefaultValue(10)]
+        [Category("GlueControl"), Description("下降时间，单位10us")]
         [DisplayName("SlaveConfig")]
-        public ModbusHubConfig SlaveConfig { get; set; }
+        public ModbusHubConfig SlaveConfig
+        {
+            get => _slaveConfig;
+            set => SetProperty(ref _slaveConfig, value);
+        }
 
 
         [Category("GlueControl"), Description("下降时间，单位10us"), DefaultValue(10)]
         [DisplayName("DownTime")]
-        public int DownTime { get; set; }
+        public int DownTime
+        {
+            get => _downTime;
+            set => SetProperty(ref _downTime, value);
+        }
 
         [Category("GlueControl"), Description("开阀时间，单位10us"), DefaultValue(30)]
         [DisplayName("OpenValveTime")]
-        public int OpenValveTime { get; set; }
+        public int OpenValveTime
+        {
+            get => _openValveTime;
+            set => SetProperty(ref _openValveTime, value);
+        }
 
 
         [Category("GlueControl"), Description("上升时间，单位10us"), DefaultValue(20)]
         [DisplayName("UpTime")]
-        public int UpTime { get; set; }
+        public int UpTime
+        {
+            get => _upTime;
+            set => SetProperty(ref _upTime, value);
+        }
 
         [Category("GlueControl"), Description("关阀时间，单位10us"), DefaultValue(30)]
         [DisplayName("ClosedValveTime")]
-        public int ClosedValveTime { get; set; }
+        public int ClosedValveTime
+        {
+            get => _closedValveTime;
+            set => SetProperty(ref _closedValveTime, value);
+        }
 
-        [Category("GlueControl"), Description("开阀力度，单位%")]
+        [Category("GlueControl"), Description("开阀力度，单位%"), DefaultValue(10)]
         [DisplayName("OpenValveIntensity")]
-        public int OpenValveIntensity { get; set; }
+        public int OpenValveIntensity
+        {
+            get => _openValveIntensity;
+            set => SetProperty(ref _openValveIntensity, value);
+        }
 
-        [Category("GlueControl"), Description("点胶模式")]
+        [Category("GlueControl"), Description("点胶模式"), DefaultValue(1)]
         [DisplayName("ControlModel")]
-        public int ControlModel { get; set; }
+        public int ControlModel
+        {
+            get => _controlModel;
+            set => SetProperty(ref _controlModel, value);
+        }
 
         [Category("GlueControl"), Description("点数计算，点模式生效"), DefaultValue(1)]
         [DisplayName("GluePoints")]
-        public int GluePoints { get; set; }
+        public int GluePoints
+        {
+            get => _gluePoints;
+            set => SetProperty(ref _gluePoints, value);
+        }
 
-        [Category("GlueControl"), Description("点胶延时，单位ms")]
+        [Category("GlueControl"), Description("点胶延时，单位ms"), DefaultValue(1)]
         [DisplayName("DispensingDelayTime")]
-        public int DispensingDelayTime { get; set; }
+        public int DispensingDelayTime 
+        {
+            get => _dispensingDelayTime;
+            set => SetProperty(ref _dispensingDelayTime, value);
+        }
 
         [Category("GlueControl"), Description("温度设定"), DefaultValue(25)]
         [DisplayName("TargetTemperatore")]
-        public int TargetTemperatore { get; set; }
+        public int TargetTemperatore
+        {
+            get => _targetTemperatore;
+            set => SetProperty(ref _targetTemperatore, value);
+        }
     }
 }

@@ -14,21 +14,21 @@ namespace NanoImprinter.ViewModels
     public class GlueViewModel : BindableBase
     {
         private readonly IMachineModel _machine;
-        private GluePlatform _plate;
+        private GluePlatform _gluePlatform;
         private GluePlatformConfig _config;
 
         private bool _isReady;       //Z轴是否Ready
         private bool _isAlaram;      //Z轴是否报警
         private bool _isConnected;   //点胶机是否连接
-        
-        private double _waitPosition;//Z轴等待位
-        private double _gluePosition;//Z轴点胶位
-        private double _workVel;     //Z轴移动速度
 
         private int _openTime;        //开阀时间
         private int _closeTime;       //关阀时间
         private int _openIntensity;   //开阀力度
         private int _temperature;     //当前温度
+        private double _waitPosition;
+        private double _gluePosition;
+        private double _workVel;
+
 
         #region property
         public bool IsReady 
@@ -92,63 +92,70 @@ namespace NanoImprinter.ViewModels
 
         #region command
 
-        private DelegateCommand _goHomeCommand;
-        private DelegateCommand _clearAlarmCommand;
-        private DelegateCommand _moveToWaitPositionCommand;
-        private DelegateCommand _moveToGluePositionCommand;
-        private DelegateCommand _saveParamCommand;
-        private DelegateCommand _glueCommand;
-
-        public DelegateCommand GoHomeCommand => _goHomeCommand ?? new DelegateCommand(GoHome).ObservesCanExecute(() => IsReady);
-        public DelegateCommand ClearAlarmCommand => _clearAlarmCommand ?? new DelegateCommand(ResetAlarm).ObservesCanExecute(() => IsAlarm);
-        public DelegateCommand MoveToWaitPositionCommand => _moveToWaitPositionCommand ?? new DelegateCommand(MoveToWaitPosition).ObservesCanExecute(() => IsReady);
-        public DelegateCommand MoveToGluePositionCommand => _moveToGluePositionCommand ?? new DelegateCommand(MoveToTakePicturePosition).ObservesCanExecute(() => IsReady);
-        public DelegateCommand SaveParamCommand => _saveParamCommand ?? new DelegateCommand(SaveParam);
-        public DelegateCommand GlueCommmand => _glueCommand ?? new DelegateCommand(Glue).ObservesCanExecute(()=>IsConnected);
+        public DelegateCommand GoHomeCommand => new DelegateCommand(GoHome).ObservesCanExecute(() => IsReady);
+        public DelegateCommand ClearAlarmCommand => new DelegateCommand(ResetAlarm).ObservesCanExecute(() => IsAlarm);
+        public DelegateCommand MoveToWaitPositionCommand => new DelegateCommand(MoveToWaitPosition).ObservesCanExecute(() => IsReady);
+        public DelegateCommand MoveToGluePositionCommand => new DelegateCommand(MoveToTakePicturePosition).ObservesCanExecute(() => IsReady);
+        public DelegateCommand SaveParamCommand => new DelegateCommand(SaveParam);
+        public DelegateCommand ReloadParamCommand => new DelegateCommand(ReloadParam);
+        public DelegateCommand GlueCommmand => new DelegateCommand(Glue).ObservesCanExecute(()=>IsConnected);
 
         #endregion
 
         public GlueViewModel(IMachineModel machine)
         {
             _machine = machine;
-            _plate = _machine.GetPlatform(typeof(GluePlatform).Name) as GluePlatform;
+            _gluePlatform = _machine.GetPlatform(typeof(GluePlatform).Name) as GluePlatform;
             Axes = new ObservableCollection<IAxis>();
-            Axes.Add(_plate.ZAxis);
+            Axes.Add(_gluePlatform.ZAxis);
         }
 
 
         public void GoHome()
         {
-            _plate.GoHome();
+            _gluePlatform.GoHome();
         }
         public void ResetAlarm()
         {
-            _plate.ResetAxesAlarm();
+            _gluePlatform.ResetAxesAlarm();
         }
 
         public void MoveToWaitPosition()
         {
-            _plate.MoveToWaitPosition();
+            _gluePlatform.MoveToWaitPosition();
         }
 
         public void MoveToTakePicturePosition()
         {
-            _plate.MoveToGluePosition();
+            _gluePlatform.MoveToGluePosition();
         }
 
         public void SaveParam()
         {
-            _plate.Config.WaitPosition = WaitPosition;
-            _plate.Config.GluePosition = GluePosition;
-            _plate.Config.GlueConfig.OpenValveTime = OpenTime;
-            _plate.Config.GlueConfig.OpenValveIntensity = OpenIntensity;
-            _plate.Config.GlueConfig.ClosedValveTime = CloseTime;
-            _plate.Config.GlueConfig.TargetTemperatore = Temperature;
+            _machine.Config.GluePlatform.WaitPosition = WaitPosition;
+            _machine.Config.GluePlatform.GluePosition = GluePosition;
+            _machine.Config.GluePlatform.WorkVel = WorkVel;
+
+            _machine.Config.GluePlatform.GlueConfig.OpenValveTime = OpenTime;
+            _machine.Config.GluePlatform.GlueConfig.OpenValveIntensity = OpenIntensity;
+            _machine.Config.GluePlatform.GlueConfig.ClosedValveTime = CloseTime;
+            _machine.Config.GluePlatform.GlueConfig.TargetTemperatore = Temperature;
+            _machine.SaveParam();
+        }
+        public void ReloadParam()
+        {
+            WaitPosition = _machine.Config.GluePlatform.WaitPosition;
+            GluePosition = _machine.Config.GluePlatform.GluePosition;
+            WorkVel = _machine.Config.GluePlatform.WorkVel;
+            OpenTime = _machine.Config.GluePlatform.GlueConfig.OpenValveTime;
+            OpenIntensity = _machine.Config.GluePlatform.GlueConfig.OpenValveIntensity;
+            CloseTime = _machine.Config.GluePlatform.GlueConfig.ClosedValveTime;
+            Temperature = _machine.Config.GluePlatform.GlueConfig.TargetTemperatore;
         }
 
         public void Glue()
         {
-            _plate.Glue();
+            _gluePlatform.Glue();
         }
 
     }

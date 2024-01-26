@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace NanoImprinter.Controls
+namespace NanoImprinter.ControlViews
 {
     /// <summary>
-    /// SystemOperatorView.xaml 的交互逻辑
+    /// WafeDisplayView.xaml 的交互逻辑
     /// </summary>
-    public partial class SystemOperatorView : UserControl
+    public partial class WafeDisplayView : UserControl
     {
-        public SystemOperatorView()
+        public WafeDisplayView()
         {
             InitializeComponent();
         }

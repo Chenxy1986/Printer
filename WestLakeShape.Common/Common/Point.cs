@@ -169,9 +169,9 @@ namespace WestLakeShape.Common
     /// </summary>
     public class PointZRXY:Point
     {
-        private double _rx;
-        private double _ry;
-        private double _z;
+        private double _rx = 0;
+        private double _ry = 0;
+        private double _z = 0;
         public PointZRXY(double z, double rX, double rY)
         {
             Z = z;

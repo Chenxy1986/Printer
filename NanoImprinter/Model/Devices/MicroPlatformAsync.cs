@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using WestLakeShape.Common;
+using WestLakeShape.Common.WpfCommon;
 using WestLakeShape.Motion.Device;
 
 namespace NanoImprinter.Model
@@ -178,26 +179,52 @@ namespace NanoImprinter.Model
         }
 
     }
-    public class MicroPlatformAsyncConfig
+    public class MicroPlatformAsyncConfig:NotifyPropertyChanged
     {
+        private string _comName;
+        private double _prepintPosition;
+        private double _creepDistance;
+        private PointZRXY _preparePosition;
+        private PointZRXY _demoldPosition;
+
         [Category("MicroPlatform"), Description("串口名称")]
         [DisplayName("串口名称")]
-        public string ComName { get; set; }
+        public string ComName 
+        {
+            get => _comName;
+            set => SetProperty(ref _comName, value);
+        }
 
         [Category("MicroPlatform"), Description("预压印位置")]
         [DisplayName("预压印位置")]
-        public double PreprintPosition { get; set; }
+        public double PreprintPosition 
+        {
+            get => _prepintPosition;
+            set => SetProperty(ref _prepintPosition, value);
+        }
 
         [Category("MicroPlatform"), Description("蠕动距离")]
         [DisplayName("蠕动距离")]
-        public double CreepDistance { get; set; }
+        public double CreepDistance
+        {
+            get => _creepDistance;
+            set => SetProperty(ref _creepDistance, value);
+        }
 
         [Category("MicroPlatform"), Description("脱模位置")]
         [DisplayName("脱模位置")]
-        public PointZRXY DemoldPosition { get; set; }
+        public PointZRXY DemoldPosition
+        {
+            get => _demoldPosition;
+            set => SetProperty(ref _demoldPosition, value);
+        }
 
         [Category("MicroPlatform"), Description("准备位置")]
         [DisplayName("准备位置")]
-        public PointZRXY PreparePosition { get; set; }
+        public PointZRXY PreparePosition
+        {
+            get => _preparePosition;
+            set => SetProperty(ref _preparePosition, value);
+        }
     }
 }

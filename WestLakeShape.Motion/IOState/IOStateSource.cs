@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using WestLakeShape.Common.WpfCommon;
 
 namespace WestLakeShape.Motion
 {
@@ -152,35 +153,66 @@ namespace WestLakeShape.Motion
         }
     }
 
-    public class IOStateSourceConfig
+    public class IOStateSourceConfig: NotifyPropertyChanged
     {
+        private string _name;
+        private int _inputBufferLength = 1;
+        private int _outputBufferLength = 1;
+        private Collection<IOStateConfig> _states = new Collection<IOStateConfig>();
+
         [Category("程序"), Description("状态包名称，如：IO卡1")]
         [DisplayName("状态包名称"), Required, StringLength(32)]
-        public string Name { get; set; } = "";
+        public string Name 
+        {
+            get => _name;
+            set => SetProperty(ref _name, value);
+        }
 
 
         [Category("I/O"), Description("输入缓冲区字节数"), DefaultValue(1)]
         [DisplayName("输入缓冲区字节数"), Range(0, 256)]
-        public int InputBufferLength { get; set; } = 1;
+        public int InputBufferLength
+        {
+            get => _inputBufferLength;
+            set => SetProperty(ref _inputBufferLength, value);
+        }
 
 
         [Category("I/O"), Description("输出缓冲区字节数"), DefaultValue(1)]
         [DisplayName("输出缓冲区字节数"), Range(0, 256)]
-        public int OutputBufferLength { get; set; } = 1;
+        public int OutputBufferLength
+        {
+            get => _outputBufferLength;
+            set => SetProperty(ref _outputBufferLength, value);
+        } 
 
 
         [Category("IO口"), Description("IO口")]
         [DisplayName("IO口")]
-        public Collection<IOStateConfig> States { get; set; } = new Collection<IOStateConfig>();
+        public Collection<IOStateConfig> States
+        {
+            get => _states;
+            set => SetProperty(ref _states, value);
+        } 
 
     }
 
 
-    public class IOStateConfig
+    public class IOStateConfig:NotifyPropertyChanged
     {
+        private string _name;
+        private IOType _type = IOType.Input;
+        private int _byteIndex = 0;
+        private int _bitIndex = 0;
+        private IOActiveLevel _activeLevel = IOActiveLevel.Lower;
+
         [Category("I/O"), Description("IO名称")]
         [DisplayName("IO名称"), Required, StringLength(32)]
-        public string Name { get; set; } = "";
+        public string Name 
+        {
+            get => _name;
+            set => SetProperty(ref _name, value);
+        } 
 
         /// <summary>
         /// 是否输入状态。True 代表输入状态，False 代表输出状态
@@ -188,28 +220,44 @@ namespace WestLakeShape.Motion
         /// </summary>
         [Category("I/O"), Description("状态类别，输入还是输出"), DefaultValue(IOType.Input)]
         [DisplayName("状态类别")]
-        public IOType Type { get; set; } = IOType.Input;
+        public IOType Type 
+        {
+            get => _type;
+            set => SetProperty(ref _type, value);
+        }
 
         /// <summary>
         /// 对应 Buffer 中存储字节索引
         /// </summary>
         [Category("I/O"), Description("字节索引。该状态存储于对应缓冲区第几字节，基于 0"), DefaultValue(0)]
         [DisplayName("字节索引"), Range(0, 255)]
-        public int ByteIndex { get; set; } = 0;
+        public int ByteIndex 
+        {
+            get => _byteIndex;
+            set => SetProperty(ref _byteIndex, value);
+        } 
 
         /// <summary>
         /// 对应 Buffer 中存储字节中的位(Bit)索引
         /// </summary>
         [Category("I/O"), Description("字位索引。该状态存储于所在字节的第几位，基于 0"), DefaultValue(0)]
         [DisplayName("字位索引"), Range(0, 7)]
-        public int BitIndex { get; set; } = 0;
+        public int BitIndex
+        {
+            get => _bitIndex;
+            set => SetProperty(ref _byteIndex, value);
+        }
 
         /// <summary>
         /// 有效电平
         /// </summary>
         [Category("I/O"), Description("有效电平,例如低电平有效"), DefaultValue(IOActiveLevel.Lower)]
         [DisplayName("有效电平"), StringLength(128)]
-        public IOActiveLevel ActiveLevel { get; set; } = IOActiveLevel.Lower;
+        public IOActiveLevel ActiveLevel 
+        {
+            get => _activeLevel;
+            set => SetProperty(ref _activeLevel, value);
+        } 
 
         /// <summary>
         /// 说明

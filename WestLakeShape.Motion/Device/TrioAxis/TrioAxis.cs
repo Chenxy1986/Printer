@@ -31,7 +31,7 @@ namespace WestLakeShape.Motion.Device
             _trioPC = TrioControl.Instance.TrioPC;
             _config = config;
             _state = new AxisState();
-            Initial();
+            //Initial();
         }
 
 
@@ -141,7 +141,7 @@ namespace WestLakeShape.Motion.Device
         /// <summary>
         /// 急停
         /// </summary>
-        public void EmegercyStop()
+        public override void EmergencyStop()
         {
             _trioPC.Cancel(2, _config.Index);
         }
@@ -199,7 +199,7 @@ namespace WestLakeShape.Motion.Device
         /// <summary>
         /// 清除报警
         /// </summary>
-        public void ResetAlarm()
+        public override void ResetAlarm()
         {
             _trioPC.Datum(0);
             var command = $"datum({_config.Index})";
@@ -353,32 +353,68 @@ namespace WestLakeShape.Motion.Device
 
     public class TrioAxisConfig: AxisConfig
     {
+        private double _plusEquivalent;
+        private double _acc;
+        private double _dec;
+        private double _startSpeed;
+        private double _workSpeed;
+        private TrioHomeModel _homeModel;
+        private double _creep;
+
         [Category("TrioAxis"), Description("脉冲当量"), DefaultValue(10)]
         [DisplayName("脉冲当量")]
-        public double PlusEquivalent { get; set; }
+        public double PlusEquivalent
+        {
+            get => _plusEquivalent;
+            set => SetProperty(ref _plusEquivalent, value);
+        }
 
         [Category("TrioAxis"), Description("加速度"), DefaultValue(100)]
         [DisplayName("加速度")]
-        public double Acc { get; set; }
+        public double Acc
+        {
+            get => _acc;
+            set => SetProperty(ref _acc, value);
+        }
         
         [Category("TrioAxis"), Description("减速度"), DefaultValue(100)]
         [DisplayName("减速度")]
-        public double Dec { get; set; }
+        public double Dec
+        {
+            get => _dec;
+            set => SetProperty(ref _dec, value);
+        }
 
         [Category("TrioAxis"), Description("启动速度"), DefaultValue(1000)]
         [DisplayName("启动速度")]
-        public double StartSpeed { get; set; }
+        public double StartSpeed
+        {
+            get => _startSpeed;
+            set => SetProperty(ref _startSpeed, value);
+        }
 
         [Category("TrioAxis"), Description("工作速度"), DefaultValue(1000)]
         [DisplayName("工作速度")]
-        public double WorkSpeed { get; set; }
+        public double WorkSpeed
+        {
+            get => _workSpeed;
+            set => SetProperty(ref _workSpeed, value);
+        }
 
         [Category("TrioAxis"), Description("回零方式"), DefaultValue(TrioHomeModel.MoveToZero)]
         [DisplayName("回零方式")]
-        public TrioHomeModel HomeModel { get; set; }
+        public TrioHomeModel HomeModel 
+        {
+            get => _homeModel;
+            set => SetProperty(ref _homeModel, value);
+        }
 
         [Category("TrioAxis"), Description("回零蠕动速度"), DefaultValue(10)]
         [DisplayName("回零蠕动速度")]
-        public double Creep { get; set; }
+        public double Creep
+        {
+            get => _creep;
+            set => SetProperty(ref _creep, value);
+        }
     }
 }

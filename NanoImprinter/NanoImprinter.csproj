@@ -56,26 +56,30 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Controls\AxisControl.xaml.cs">
+    <Compile Include="ControlViews\AxisControl.xaml.cs">
       <DependentUpon>AxisControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\PrintMaskDataView.xaml.cs">
+    <Compile Include="ControlViews\PrintMaskDataView.xaml.cs">
       <DependentUpon>PrintMaskDataView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\SystemOperatorView.xaml.cs">
+    <Compile Include="ControlViews\SystemOperatorView.xaml.cs">
       <DependentUpon>SystemOperatorView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\VisionView.xaml.cs">
+    <Compile Include="ControlViews\VisionView.xaml.cs">
       <DependentUpon>VisionView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\WafeDisplayView.xaml.cs">
+    <Compile Include="ControlViews\WafeDisplayView.xaml.cs">
       <DependentUpon>WafeDisplayView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\WorkFlowView.xaml.cs">
+    <Compile Include="ControlViews\WorkFlowView.xaml.cs">
       <DependentUpon>WorkFlowView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters\EnumToProcedureStatusConverter.cs" />
+    <Compile Include="Events\MessageFromMainViewEvent.cs" />
     <Compile Include="Model\IPlatform.cs" />
-    <Compile Include="Model\IMachineModel.cs" />
+    <Compile Include="Procedures\ImprintProcedure.cs" />
+    <Compile Include="Procedures\PositionProcedure.cs" />
+    <Compile Include="Procedures\UVCurePorcedure.cs" />
     <Compile Include="ViewModels\AfmCameraViewModel.cs" />
     <Compile Include="ViewModels\MicroViewModel.cs" />
     <Compile Include="Views\AfmCameraView.xaml.cs">
@@ -87,7 +91,7 @@
     <Compile Include="Views\MicroView.xaml.cs">
       <DependentUpon>MicroView.xaml</DependentUpon>
     </Compile>
-    <Page Include="Controls\AxisControl.xaml">
+    <Page Include="ControlViews\AxisControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -169,17 +173,17 @@
     <Compile Include="Model\Devices\MicroPlatform.cs" />
     <Compile Include="Model\Devices\MicroPlatformAsync.cs" />
     <Compile Include="Model\Devices\ImprintPlatform.cs" />
-    <Compile Include="Model\NanoImprinterModel.cs" />
-    <Compile Include="Model\WafeInfo.cs" />
-    <Compile Include="Model\WorkProcedureManager.cs" />
+    <Compile Include="Model\MachineModel.cs" />
+    <Compile Include="Model\MaskInfo.cs" />
+    <Compile Include="Model\ProcedureManager.cs" />
     <Compile Include="Procedures\CalibPrecedure.cs" />
     <Compile Include="Procedures\FindRotateCenterProcedure.cs" />
     <Compile Include="Procedures\GlueProcedure.cs" />
-    <Compile Include="Procedures\ImprinterProcedure.cs" />
+    <Compile Include="Procedures\PreprintProcedure.cs" />
     <Compile Include="Procedures\IWorkProcedure.cs" />
-    <Compile Include="Procedures\PickProcedure.cs" />
+    <Compile Include="Procedures\LoadProcedure.cs" />
     <Compile Include="Procedures\PutProcesure.cs" />
-    <Compile Include="Procedures\ReleaseProcedure.cs" />
+    <Compile Include="Procedures\DemoldProcedure.cs" />
     <Compile Include="ViewModels\GlueViewModel.cs" />
     <Compile Include="ViewModels\ImprintViewModel.cs" />
     <Compile Include="ViewModels\MacroViewModel.cs" />
@@ -203,23 +207,23 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Controls\PrintMaskDataView.xaml">
+    <Page Include="ControlViews\PrintMaskDataView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\SystemOperatorView.xaml">
+    <Page Include="ControlViews\SystemOperatorView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\VisionView.xaml">
+    <Page Include="ControlViews\VisionView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\WafeDisplayView.xaml">
+    <Page Include="ControlViews\WafeDisplayView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\WorkFlowView.xaml">
+    <Page Include="ControlViews\WorkFlowView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

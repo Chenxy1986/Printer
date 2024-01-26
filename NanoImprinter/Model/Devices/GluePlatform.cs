@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using WestLakeShape.Common.WpfCommon;
 using WestLakeShape.Motion;
 using WestLakeShape.Motion.Device;
 
@@ -77,24 +78,45 @@ namespace NanoImprinter.Model
     }
 
 
-    public class GluePlatformConfig
+    public class GluePlatformConfig:NotifyPropertyChanged
     {
+        private double _gluePosition;
+        private double _waitPosition;
+        private double _workVel;
+        private GlueControlConfig _glueConfig = new GlueControlConfig();
+
         [Category("GluePlatform"), Description("点胶高度")]
         [DisplayName("点胶高度")]
-        public double GluePosition { get; set; }
+        public double GluePosition 
+        { 
+            get => _gluePosition;
+            set => SetProperty(ref _gluePosition, value);
+        }
 
 
         [Category("GluePlatform"), Description("等待点胶高度")]
         [DisplayName("等待高度")]
-        public double WaitPosition { get; set; }
+        public double WaitPosition
+        {
+            get => _waitPosition;
+            set => SetProperty(ref _waitPosition, value);
+        }
 
         [Category("GluePlatform"), Description("运行速度")]
         [DisplayName("运行速度")]
-        public double WorkVel { get; set; }
+        public double WorkVel
+        {
+            get => _workVel;
+            set => SetProperty(ref _workVel, value);
+        }
 
         [Category("GluePlatform"), Description("点胶控制器配置参数")]
         [DisplayName("点胶配置参数")]
-        public GlueControlConfig GlueConfig { get; set; }
+        public GlueControlConfig GlueConfig 
+        {
+            get => _glueConfig;
+            set => SetProperty(ref _glueConfig, value);
+        }
 
         //[Category("GluePlatform"), Description("Z轴配置参数")]
         //[DisplayName("Z轴配置参数")]

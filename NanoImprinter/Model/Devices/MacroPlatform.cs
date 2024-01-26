@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WestLakeShape.Common;
+using WestLakeShape.Common.WpfCommon;
 using WestLakeShape.Motion;
 using WestLakeShape.Motion.Device;
 
@@ -17,8 +18,7 @@ namespace NanoImprinter.Model
         bool MoveTo(Point2D offsetValue);
         //bool GoHome();
         bool MoveToLoadPosition();
-        bool MoveToPosition(PointXYR pos);
-        bool MoveToPressurePosition();
+        bool MoveToImprintPosition();
         bool MoveToGluePosition();
         void ResetAxesAlarm();
     }
@@ -100,15 +100,7 @@ namespace NanoImprinter.Model
                           Config.LoadPosition.Y,
                           0);
         }
-
-        public bool MoveToPosition(PointXYR pos)
-        {
-            return MoveBy(pos.X,
-                          pos.Y,
-                          pos.R);
-        }
-
-        public bool MoveToPressurePosition()
+        public bool MoveToImprintPosition()
         {
             return MoveBy(Config.ImprintPosition.X,
                           Config.ImprintPosition.Y,
@@ -142,37 +134,92 @@ namespace NanoImprinter.Model
     }
 
 
-    public class MacroPlatformConfig
+    public class MacroPlatformConfig:NotifyPropertyChanged
     {
+        private Point2D _loadPosition;
+        private Point2D _gluePosition;
+        private Point2D _imprintPosition;
+        private Point2D _leftCenterPosition;
+        private Point2D _rightCenterPosition;
+        private Point2D _upCenterPosition;
+        private Point2D _downCenterPosition;
+        private double _xWorkVel;
+        private double _yWorkVel;
+        private double _rWorkVel;
+
+        public double XWorkVel
+        {
+            get => _xWorkVel;
+            set => SetProperty(ref _xWorkVel, value);
+        }
+        public double YWorkVel
+        {
+            get => _yWorkVel;
+            set => SetProperty(ref _yWorkVel, value);
+        }
+        public double RWorkVel
+        {
+            get => _rWorkVel;
+            set => SetProperty(ref _rWorkVel, value);
+        }
+
         [Category("MacroPlatform"), Description("放晶圆位置")]
         [DisplayName("放料位置")]
-        public Point2D LoadPosition { get; set; }
+        public Point2D LoadPosition
+        {
+            get => _loadPosition;
+            set => SetProperty(ref _loadPosition, value);
+        }
 
         [Category("MacroPlatform"), Description("点胶位置")]
         [DisplayName("点胶位置")]
-        public Point2D GluePosition { get; set; }
+        public Point2D GluePosition 
+        {
+            get => _gluePosition;
+            set => SetProperty(ref _gluePosition, value);
+        }
 
 
         [Category("MacroPlatform"), Description("压印位置")]
         [DisplayName("压印位置")]
-        public Point2D ImprintPosition { get; set; }
+        public Point2D ImprintPosition 
+        {
+            get => _imprintPosition;
+            set => SetProperty(ref _imprintPosition, value);
+        }
 
         [Category("MacroPlatform"), Description("圆心左监测点")]
         [DisplayName("圆心左监测点")]
-        public Point2D LeftCenterPoint { get; set; }
+        public Point2D LeftCenterPosition 
+        {
+            get => _leftCenterPosition;
+            set => SetProperty(ref _leftCenterPosition, value);
+        }
 
         [Category("MacroPlatform"), Description("圆心右监测点")]
         [DisplayName("圆心右监测点")]
-        public Point2D RightCenterPoint { get; set; }
+        public Point2D RightCenterPosition
+        {
+            get => _rightCenterPosition;
+            set => SetProperty(ref _rightCenterPosition, value);
+        }
 
 
         [Category("MacroPlatform"), Description("圆心上监测点")]
         [DisplayName("圆心上监测点")]
-        public Point2D UpCenterPoint { get; set; }
+        public Point2D UpCenterPosition
+        {
+            get => _upCenterPosition;
+            set => SetProperty(ref _upCenterPosition, value);
+        }
 
         [Category("MacroPlatform"), Description("圆心下监测点")]
         [DisplayName("圆心下监测点")]
-        public Point2D DownCenterPoint { get; set; }
+        public Point2D DownCenterPosition
+        {
+            get => _downCenterPosition;
+            set => SetProperty(ref _downCenterPosition, value);
+        }
 
 
         //public TrioAxisConfig XAxisConfig { get; set; }

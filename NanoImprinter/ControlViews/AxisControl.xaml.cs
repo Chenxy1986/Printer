@@ -16,26 +16,36 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using WestLakeShape.Motion;
 
-namespace NanoImprinter.Controls
+namespace NanoImprinter.ControlViews
 {
     /// <summary>
     /// AxisControl.xaml 的交互逻辑
     /// </summary>
     public partial class AxisControl : UserControl
     {
-        public IAxis SelectedAxis { get; set; }
+        public AxisControl()
+        {
+            InitializeComponent();
+        }
+
+        public IAxis SelectedAxis {get; set;}
 
         public static readonly DependencyProperty IsFxiedSpeedProperty = DependencyProperty.Register("IsFixedSpeed",
-             typeof(bool), typeof(AxisControl), new PropertyMetadata(default(bool)));
+             typeof(bool), typeof(AxisControl), new PropertyMetadata(true));
 
         public static readonly DependencyProperty AxesProperty = DependencyProperty.Register("Axes",
             typeof(IEnumerable<IAxis>), typeof(AxisControl), new PropertyMetadata(null));
 
         public static readonly DependencyProperty UnitNameProperty = DependencyProperty.Register("UnitName",
-            typeof(string), typeof(AxisControl), new PropertyMetadata(default(string)));
+            typeof(string), typeof(AxisControl), new PropertyMetadata("mm/s"));
         
         public static readonly DependencyProperty SelectedValueProperty = DependencyProperty.Register("SelectedValue",
            typeof(double), typeof(AxisControl), new PropertyMetadata(default(double)));
+
+
+        /// <summary>
+        /// 因为模版的原因导致IsChecked绑定失败，后期优化
+        /// </summary>
         public bool IsFixedSpeed
         {
             get => (bool)GetValue(IsFxiedSpeedProperty);
@@ -49,8 +59,8 @@ namespace NanoImprinter.Controls
         {
             get => (IEnumerable<IAxis>)GetValue(AxesProperty);
             set => SetValue(AxesProperty, value);
+              
         }
-
         public string UnitName
         {
             get => (string)GetValue(UnitNameProperty);
@@ -61,16 +71,12 @@ namespace NanoImprinter.Controls
             get => (double)GetValue(SelectedValueProperty);
             set => SetValue(SelectedValueProperty, value);
         }
+ 
 
-        public AxisControl()
-        {
-            InitializeComponent();
-        }
         private void btnJogForward_Click(object sender, RoutedEventArgs e)
         {
             SelectedAxis.MoveTo(SelectedValue);
         }
-
         private void btnJogBack_Click(object sender, RoutedEventArgs e)
         {
             SelectedAxis.MoveTo(SelectedValue);
@@ -84,6 +90,18 @@ namespace NanoImprinter.Controls
             // update the information to tool tip
             string toolTip = string.Format("{0:n} | min:{1:n}, max:{2:n}", currentValue, minimum, maximum);
             this.ToolTip = toolTip;
+        }
+
+        private void JogModeToggleButton_Checked(object sender, RoutedEventArgs e)
+        {
+            UnitName = "mm";
+            IsFixedSpeed = false;
+        }
+
+        private void JogModeToggleButton_Unchecked(object sender, RoutedEventArgs e)
+        {
+            UnitName = "mm/s";
+            IsFixedSpeed = true;
         }
     }
 }

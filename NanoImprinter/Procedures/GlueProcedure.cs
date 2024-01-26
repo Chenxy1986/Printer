@@ -1,4 +1,5 @@
 ﻿using NanoImprinter.Model;
+using Prism.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,21 +14,37 @@ namespace NanoImprinter.Procedures
     /// </summary>
     public class GlueProcedure : WorkProcedure
     {
-        protected override bool OnExcute()
+        private GluePlatform _gluePlatform;
+        private MacroPlatform _macroPlatform;
+        public GlueProcedure(IMachineModel machine, IEventAggregator eventAggregator) :base(machine,eventAggregator)
         {
-            var model = new NanoImprinterModel();
+            _name = "点胶流程";
+            _gluePlatform = _machine.GetPlatform(typeof(GluePlatform).Name) as GluePlatform;
+            _macroPlatform = _machine.GetPlatform(typeof(MacroPlatform).Name) as MacroPlatform;
+        }
 
+        protected override bool OnExecute()
+        {
+            var model = new MachineModel();
+            if (!CheckWorkStatus())
+                return false;
             //宏动平台移动点胶位置
-            model.MacroPlatform.MoveToGluePosition();
-
+            _macroPlatform.MoveToGluePosition();
+            
+            if (!CheckWorkStatus())
+                return false;
             //点胶平台Z轴移动到点胶高度
-            model.GluePlatform.MoveToGluePosition();
+            _gluePlatform.MoveToGluePosition();
 
+            if (!CheckWorkStatus())
+                return false;
             //执行点胶
-            model.GluePlatform.Glue();
+            _gluePlatform.Glue();
 
+            if (!CheckWorkStatus())
+                return false;
             //点胶平台移动到等待位置
-            model.GluePlatform.MoveToWaitPosition();
+            _gluePlatform.MoveToWaitPosition();
 
             return true;
         }

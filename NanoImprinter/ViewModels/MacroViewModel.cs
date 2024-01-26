@@ -15,40 +15,53 @@ namespace NanoImprinter.ViewModels
     public class MacroViewModel : BindableBase
     {
         private readonly IMachineModel _machine;
-        private MacroPlatform _plate;
-
-        private Point2D _workVel;
-        private Point2D _loadPosition;
-        private Point2D _gluePosition;
-        private Point2D _imprintPosition;
-        private Point2D _leftCenterPosition;
-        private Point2D _rightCenterPosition;
-        private Point2D _upCenterPosition;
-        private Point2D _downCenterPosition;
-
-
-
+        private MacroPlatform _macroPlatform;
+        private double _xWorkVel;
+        public double _yWorkVel;
+        public double _rWorkVel;
+        public Point2D _loadPosition;
+        public Point2D _gluePosition;
+        public Point2D _imprintPosition;
+        public Point2D _leftCenterPosition;
+        public Point2D _rightCenterPosition;
+        public Point2D _upCenterPosition;
+        public Point2D _downCenterPosition;
         #region property
         public ObservableCollection<IAxis> Axes { get; set; }
 
-        public Point2D WorkVel
+        public double XWorkVel
         {
-            get => _workVel;
-            set=> SetProperty(ref _workVel,value);
+            get => _xWorkVel;
+            set => SetProperty(ref _xWorkVel, value);
         }
+      
+        public double YWorkVel
+        {
+            get => _yWorkVel;
+            set => SetProperty(ref _yWorkVel, value);
+        }
+
+        public double RWorkVel
+        {
+            get => _rWorkVel;
+            set => SetProperty(ref _rWorkVel, value);
+        }
+        
         public Point2D LoadPosition
         {
             get => _loadPosition;
             set => SetProperty(ref _loadPosition, value);
         }
+       
         public Point2D GluePosition
         {
             get => _gluePosition;
             set => SetProperty(ref _gluePosition, value);
         }
+
         public Point2D ImprintPosition
         {
-            get => _gluePosition;
+            get => _imprintPosition;
             set => SetProperty(ref _imprintPosition, value);
         }
         public Point2D LeftCenterPosition
@@ -76,74 +89,100 @@ namespace NanoImprinter.ViewModels
 
 
         #region Command
-        private DelegateCommand _goHomeCommand;
-        private DelegateCommand _resetAlarmCommand;
-        private DelegateCommand _saveParamCommand;
-        private DelegateCommand _moveToLoadPositionCommand;
-        private DelegateCommand _moveToGluePositionCommand;
-        private DelegateCommand _moveToImprintPositonCommand;
-        private DelegateCommand _moveToLeftCenterPositionCommand;
-        private DelegateCommand _moveToRightCenterPositionCommand;
-        private DelegateCommand _moveToUpCenterPositionCommand;
-        private DelegateCommand _moveToDownCenterPositionCommand;
+        public DelegateCommand GoHomeCommand => new DelegateCommand(GoHome);
+        public DelegateCommand ResetAlarmCommand => new DelegateCommand(ResetAlarm);
+        public DelegateCommand SaveParamCommand => new DelegateCommand(SaveParam);
+        public DelegateCommand ReloadParamCommand => new DelegateCommand(ReloadParam);
+        public DelegateCommand MoveToLoadPositionCommand => new DelegateCommand(MoveToLoadPosition);
+        public DelegateCommand MoveToGluePositionCommand => new DelegateCommand(MoveToGluePosition);
 
-        public DelegateCommand GoHomeCommand => _goHomeCommand ?? new DelegateCommand(MaskZGoHome);
-        public DelegateCommand ResetAlarmCommand => _resetAlarmCommand ?? new DelegateCommand(ResetAlarm);
-        public DelegateCommand SaveParamCommand => _saveParamCommand ?? new DelegateCommand(MaskZGoHome);
-        public DelegateCommand MoveToLoadPositionCommand => _moveToLoadPositionCommand ?? new DelegateCommand(MoveToPreprintPosition);
-        public DelegateCommand MoveToGluePositionCommand => _moveToGluePositionCommand ?? new DelegateCommand(MoveToTakePicturePosition);
-
-        public DelegateCommand MoveToImprintPositionCommand => _moveToImprintPositonCommand ?? new DelegateCommand(MoveToWaitPosition);
-        public DelegateCommand MoveToLeftCenterPositionCommand => _moveToLeftCenterPositionCommand ?? new DelegateCommand(MoveToIrradiationPosition);
-        public DelegateCommand MoveToRightCenterPositionCommand => _moveToRightCenterPositionCommand ?? new DelegateCommand(MoveToIrradiationPosition);
-        public DelegateCommand MoveToUpCenterPositionCommand => _moveToUpCenterPositionCommand ?? new DelegateCommand(MoveToIrradiationPosition);
-        public DelegateCommand MoveToDownCenterPositionCommand => _moveToDownCenterPositionCommand ?? new DelegateCommand(MoveToIrradiationPosition);
+        public DelegateCommand MoveToImprintPositionCommand => new DelegateCommand(MoveToImprintPosition);
+        public DelegateCommand MoveToLeftCenterPositionCommand => new DelegateCommand(MoveToLeftCenterPosition);
+        public DelegateCommand MoveToRightCenterPositionCommand => new DelegateCommand(MoveToRightCenterPosition);
+        public DelegateCommand MoveToUpCenterPositionCommand => new DelegateCommand(MoveToUpCenterPosition);
+        public DelegateCommand MoveToDownCenterPositionCommand => new DelegateCommand(MoveToDownCenterPosition);
         #endregion
 
 
         public MacroViewModel(IMachineModel machine)
         {
             _machine = machine;
-            _plate = _machine.GetPlatform(typeof(MacroPlatform).Name) as MacroPlatform;
+            _macroPlatform = _machine.GetPlatform(typeof(MacroPlatform).Name) as MacroPlatform;
             Axes = new ObservableCollection<IAxis>();
-            Axes.Add(_plate.XAxis);
-            Axes.Add(_plate.YAxis);
-            Axes.Add(_plate.RAxis);
+            Axes.Add(_macroPlatform.XAxis);
+            Axes.Add(_macroPlatform.YAxis);
+            Axes.Add(_macroPlatform.RAxis);
         }
 
-        private void MaskZGoHome()
-        {
 
+        private void GoHome()
+        {
+            _macroPlatform.GoHome();
         }
-        private void MoveToPreprintPosition()
-        {
 
+        private void MoveToLoadPosition()
+        {
+            _macroPlatform.MoveToLoadPosition();
         }
-        private void MoveToTakePicturePosition()
+        private void MoveToGluePosition()
         {
-
+            _macroPlatform.MoveToGluePosition();
         }
         private void ResetAlarm()
         {
-
+            _macroPlatform.XAxis.ResetAlarm();
+            _macroPlatform.YAxis.ResetAlarm();
+            _macroPlatform.RAxis.ResetAlarm();
         }
 
         private void SaveParam()
         {
-
+            _machine.Config.MacroPlatform.XWorkVel = XWorkVel;
+            _machine.Config.MacroPlatform.YWorkVel = YWorkVel;
+            _machine.Config.MacroPlatform.RWorkVel = RWorkVel;
+            _machine.Config.MacroPlatform.LoadPosition = LoadPosition;
+            _machine.Config.MacroPlatform.GluePosition = GluePosition;
+            _machine.Config.MacroPlatform.ImprintPosition = ImprintPosition;
+            _machine.Config.MacroPlatform.LeftCenterPosition = LeftCenterPosition;
+            _machine.Config.MacroPlatform.RightCenterPosition = RightCenterPosition;
+            _machine.Config.MacroPlatform.UpCenterPosition = UpCenterPosition;
+            _machine.Config.MacroPlatform.DownCenterPosition = DownCenterPosition;
+            _machine.SaveParam();
         }
 
-        private void MoveToWaitPosition()
+        private void ReloadParam()
         {
-
+            XWorkVel = _machine.Config.MacroPlatform.XWorkVel;
+            YWorkVel = _machine.Config.MacroPlatform.YWorkVel;
+            RWorkVel = _machine.Config.MacroPlatform.RWorkVel;
+            LoadPosition = _machine.Config.MacroPlatform.LoadPosition;
+            GluePosition = _machine.Config.MacroPlatform.GluePosition;
+            ImprintPosition = _machine.Config.MacroPlatform.ImprintPosition;
+            LeftCenterPosition = _machine.Config.MacroPlatform.LeftCenterPosition;
+            RightCenterPosition = _machine.Config.MacroPlatform.RightCenterPosition;
+            UpCenterPosition = _machine.Config.MacroPlatform.UpCenterPosition;
+            DownCenterPosition = _machine.Config.MacroPlatform.DownCenterPosition;
         }
-        private void MoveToIrradiationPosition()
-        {
 
+        private void MoveToImprintPosition()
+        {
+            _macroPlatform.MoveToImprintPosition();
         }
-        private void UVGoHome()
+        private void MoveToLeftCenterPosition()
         {
-
+            _macroPlatform.MoveTo(LeftCenterPosition);
+        }
+        private void MoveToRightCenterPosition()
+        {
+            _macroPlatform.MoveTo(RightCenterPosition);
+        }
+        private void MoveToUpCenterPosition()
+        {
+            _macroPlatform.MoveTo(UpCenterPosition);
+        }
+        private void MoveToDownCenterPosition()
+        {
+            _macroPlatform.MoveTo(DownCenterPosition);
         }
     }
 }

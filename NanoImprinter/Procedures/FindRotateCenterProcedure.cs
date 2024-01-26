@@ -1,4 +1,5 @@
 ﻿using NanoImprinter.Model;
+using Prism.Events;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,35 +14,49 @@ namespace NanoImprinter.Procedures
     public class FindRotateCenterProcedure : WorkProcedure
     {
         private Point2D _wafeCenter;
-        public FindRotateCenterProcedure()
+        private MacroPlatform _platform;
+        public FindRotateCenterProcedure(IMachineModel machine, IEventAggregator eventAggregator) :base(machine,eventAggregator)
         {
             _wafeCenter = new Point2D(0, 0);
+            _platform = _machine.GetPlatform(typeof(MacroPlatform).Name) as MacroPlatform;
+            _name = "找圆心流程";
         }
-        protected override bool OnExcute()
+        protected override bool OnExecute()
         {
-            var model = new NanoImprinterModel();
+            var model = new MachineModel();
+            if (!CheckWorkStatus())
+                return false;
             //移动到圆心左监测点 
-             model.MacroPlatform.MoveTo(model.MacroPlatform.Config.LeftCenterPoint);
+            _platform.MoveTo(_platform.Config.LeftCenterPosition);
 
             //等待相机检测到圆心
 
 
+
+            if (!CheckWorkStatus())
+                return false;
             //移动到圆心右监测点
-            model.MacroPlatform.MoveTo(model.MacroPlatform.Config.RightCenterPoint);
+            _platform.MoveTo(_platform.Config.RightCenterPosition);
 
             //等待相机检测到圆心
 
 
+
+            if (!CheckWorkStatus())
+                return false;
             //移动到圆心上监测点
-            model.MacroPlatform.MoveTo(model.MacroPlatform.Config.UpCenterPoint);
+            _platform.MoveTo(_platform.Config.UpCenterPosition);
 
             //等待相机检测到圆心
 
 
+            if (!CheckWorkStatus())
+                return false;
             //移动到圆心下监测点
-            model.MacroPlatform.MoveTo(model.MacroPlatform.Config.DownCenterPoint);
+            _platform.MoveTo(_platform.Config.DownCenterPosition);
 
             //等待相机检测到圆心
+
 
 
             ///图像算法获取圆心位置

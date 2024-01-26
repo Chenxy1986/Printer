@@ -1,13 +1,13 @@
-﻿<UserControl x:Class="NanoImprinter.Controls.WafeDisplayView"
+﻿<UserControl x:Class="NanoImprinter.ControlViews.WafeDisplayView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:ces="clr-namespace:NanoImprinter.ControlExtensions"
-             xmlns:local="clr-namespace:NanoImprinter.Controls"
-             mc:Ignorable="d" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:NanoImprinter.ControlViews"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              d:DesignHeight="483"
-             d:DesignWidth="500">
+             d:DesignWidth="500"
+             mc:Ignorable="d">
     <Border Margin="5"
             BorderBrush="#979797"
             BorderThickness="2">
@@ -40,7 +40,7 @@
                     </StackPanel>
 
                     <ces:ParameterDisplayControl IsReadOnly="True" ParamName="Mask尺寸" />
-                    <ces:ParameterDisplayControl Margin="15,0,0,0"
+                    <ces:ParameterDisplayControl Margin="25,0,0,0"
                                                  IsReadOnly="True"
                                                  ParamName="容量" />
                 </UniformGrid>
