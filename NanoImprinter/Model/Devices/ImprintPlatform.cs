@@ -79,12 +79,12 @@ namespace NanoImprinter.Model
 
         public bool MoveToTakePictureHeight()
         {
-            if (_uvXAxis.Position > _config.XDirSafePosition)
+            if (_uvXAxis.Position > _config.CameraXDirSafePosition)
                 throw new Exception("UV未离开冲突区域，移动相机会发生碰撞");
-            if (_maskZAxis.Position < _config.TakePictureHeight)
+            if (_maskZAxis.Position < _config.CameraTakePictureHeight)
                 throw new Exception("掩膜高度太低，移动相机会发生碰撞");
 
-            return MoveBy(_cameraZAxis,_config.TakePictureHeight);
+            return MoveBy(_cameraZAxis,_config.CameraTakePictureHeight);
         }
 
         public bool MoveToCameraWaitHeight()
@@ -144,9 +144,9 @@ namespace NanoImprinter.Model
         private double _maskPrepintHeight;
         private double _maskZWorkVel;
         private double _cameraWaitHeight;
-        private double _takePictureHeight;
+        private double _cameraTakePictureHeight;
         private double _cameraZWorkVel;
-        private double _xDirSafePosition;
+        private double _cameraXDirSafePosition;
         private PointXZ _uvWaitPosition;
         private PointXZ _uvIrradiationPosition;
         private double _uvXWorkVel;
@@ -192,10 +192,10 @@ namespace NanoImprinter.Model
 
         [Category("PrintPlatform"), Description("拍照高度")]
         [DisplayName("拍照高度")]
-        public double TakePictureHeight
+        public double CameraTakePictureHeight
         {
-            get => _takePictureHeight;
-            set => SetProperty(ref _takePictureHeight, value);
+            get => _cameraTakePictureHeight;
+            set => SetProperty(ref _cameraTakePictureHeight, value);
         }
 
         [Category("PrintPlatform"), Description("移动拍照位速度")]
@@ -208,10 +208,10 @@ namespace NanoImprinter.Model
 
         [Category("PrintPlatform"), Description("相机移动过程中，X方向UV发生碰撞的位置")]
         [DisplayName("X方向安全位置")]
-        public double XDirSafePosition
+        public double CameraXDirSafePosition
         {
-            get => _xDirSafePosition;
-            set => SetProperty(ref _xDirSafePosition, value);
+            get => _cameraXDirSafePosition;
+            set => SetProperty(ref _cameraXDirSafePosition, value);
         }
 
 
@@ -257,7 +257,7 @@ namespace NanoImprinter.Model
         } 
 
         [Category("PrintPlatform"), Description("UV移动过程中，Z方向相机发生碰撞的位置")]
-        [DisplayName("X方向安全位置")]
+        [DisplayName("Z方向安全位置")]
         public double UVZDirSafePosition
         {
             get => _uvZDirSafePosition;

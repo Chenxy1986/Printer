@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Serilog;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -7,13 +8,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using TrioMotion.TrioPC_NET;
 using WestLakeShape.Common.Common;
+using WestLakeShape.Common.LogService;
 
 namespace WestLakeShape.Motion.Device
 {
     public class TrioAxis : Axis<TrioAxisConfig>
     {
         private readonly TimeSpan _startWait = TimeSpan.FromMilliseconds(5);
-        
+        private static readonly ILogger _log = LogHelper.For<TrioAxis>();
         private static TrioPC _trioPC;
         private TrioAxisConfig _config;
         private Movement _currentMovement;
@@ -32,6 +34,7 @@ namespace WestLakeShape.Motion.Device
             _config = config;
             _state = new AxisState();
             //Initial();
+            _log.Information($"{config.Name}轴完成创建");
         }
 
 

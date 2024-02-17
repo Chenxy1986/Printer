@@ -49,7 +49,7 @@ namespace NanoImprinter.Model
         public MicroPlatform(MicroPlatformConfig config)
         {
             _config = config;
-            _piezo = new PiezoActuator(_config.ComName);
+            _piezo = new PiezoActuator(_config.PortName);
             _currentPosition = new PointZRXY(0, 0, 0);
         }
 
@@ -199,7 +199,7 @@ namespace NanoImprinter.Model
     }
     public class MicroPlatformConfig:NotifyPropertyChanged
     {
-        private string _comName = "Com1";
+        private string _portName = "Com1";
         private double _contactPosition;
         private double _zCreepDistance;
         private PointZRXY _levelPosition;
@@ -209,10 +209,10 @@ namespace NanoImprinter.Model
 
         [Category("MicroPlatform"), Description("串口名称")]
         [DisplayName("串口名称")]
-        public string ComName 
+        public string PortName 
         {
-            get => _comName;
-            set => SetProperty(ref _comName, value);
+            get => _portName;
+            set => SetProperty(ref _portName, value);
         } 
 
         [Category("MicroPlatform"), Description("接触位置")]

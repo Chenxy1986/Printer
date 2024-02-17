@@ -15,7 +15,7 @@ namespace NanoImprinter.ViewModels
     {
         private readonly IMachineModel _machine;
         private GluePlatform _gluePlatform;
-        private GluePlatformConfig _config;
+        private GluePlatformConfig _platformConfig;
 
         private bool _isReady;       //Z轴是否Ready
         private bool _isAlaram;      //Z轴是否报警
@@ -64,6 +64,8 @@ namespace NanoImprinter.ViewModels
             get => _workVel;
             set => SetProperty(ref _workVel, value);
         }
+
+
         public int OpenTime
         {
             get => _openTime;
@@ -88,6 +90,7 @@ namespace NanoImprinter.ViewModels
         }
 
         public ObservableCollection<IAxis> Axes { get; set; }
+        
         #endregion
 
         #region command
@@ -106,6 +109,7 @@ namespace NanoImprinter.ViewModels
         {
             _machine = machine;
             _gluePlatform = _machine.GetPlatform(typeof(GluePlatform).Name) as GluePlatform;
+            _platformConfig = _machine.Config.GluePlatform;
             Axes = new ObservableCollection<IAxis>();
             Axes.Add(_gluePlatform.ZAxis);
         }
@@ -132,25 +136,25 @@ namespace NanoImprinter.ViewModels
 
         public void SaveParam()
         {
-            _machine.Config.GluePlatform.WaitPosition = WaitPosition;
-            _machine.Config.GluePlatform.GluePosition = GluePosition;
-            _machine.Config.GluePlatform.WorkVel = WorkVel;
+            _platformConfig.WaitPosition = WaitPosition;
+            _platformConfig.GluePosition = GluePosition;
+            _platformConfig.WorkVel = WorkVel;
 
-            _machine.Config.GluePlatform.GlueConfig.OpenValveTime = OpenTime;
-            _machine.Config.GluePlatform.GlueConfig.OpenValveIntensity = OpenIntensity;
-            _machine.Config.GluePlatform.GlueConfig.ClosedValveTime = CloseTime;
-            _machine.Config.GluePlatform.GlueConfig.TargetTemperatore = Temperature;
+            _platformConfig.GlueConfig.OpenValveTime = OpenTime;
+            _platformConfig.GlueConfig.OpenValveIntensity = OpenIntensity;
+            _platformConfig.GlueConfig.ClosedValveTime = CloseTime;
+            _platformConfig.GlueConfig.TargetTemperatore = Temperature;
             _machine.SaveParam();
         }
         public void ReloadParam()
         {
-            WaitPosition = _machine.Config.GluePlatform.WaitPosition;
-            GluePosition = _machine.Config.GluePlatform.GluePosition;
-            WorkVel = _machine.Config.GluePlatform.WorkVel;
-            OpenTime = _machine.Config.GluePlatform.GlueConfig.OpenValveTime;
-            OpenIntensity = _machine.Config.GluePlatform.GlueConfig.OpenValveIntensity;
-            CloseTime = _machine.Config.GluePlatform.GlueConfig.ClosedValveTime;
-            Temperature = _machine.Config.GluePlatform.GlueConfig.TargetTemperatore;
+            WaitPosition = _platformConfig.WaitPosition;
+            GluePosition = _platformConfig.GluePosition;
+            WorkVel = _platformConfig.WorkVel;
+            OpenTime = _platformConfig.GlueConfig.OpenValveTime;
+            OpenIntensity = _platformConfig.GlueConfig.OpenValveIntensity;
+            CloseTime = _platformConfig.GlueConfig.ClosedValveTime;
+            Temperature = _platformConfig.GlueConfig.TargetTemperatore;
         }
 
         public void Glue()

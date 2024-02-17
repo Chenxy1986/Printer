@@ -9,7 +9,7 @@ namespace WestLakeShape.Motion
 {
     public interface IConnectable
     {
-        bool Connected { get; }
+        bool IsConnected { get; }
 
         void Connect();
 
@@ -20,32 +20,32 @@ namespace WestLakeShape.Motion
     {
         public abstract string Name { get; }
 
-        public bool Connected { get; private set; }
+        public bool IsConnected { get; private set; }
 
 
         public void Connect()
         {
-            if (!Connected)
+            if (!IsConnected)
             {
                 OnConnecting();
-                Connected = true;
+                IsConnected = true;
                 ThreadPool.QueueUserWorkItem(_ => TickProc());
             }
         }
 
         public void Disconnect()
         {
-            if (Connected)
+            if (IsConnected)
             {
                 OnDisconnecting();
-                Connected = false;
+                IsConnected = false;
             }
         }
 
 
         private void TickProc()
         {
-            while (Connected)
+            while (IsConnected)
             {
                 RefreshStates();
                 Thread.Sleep(1);

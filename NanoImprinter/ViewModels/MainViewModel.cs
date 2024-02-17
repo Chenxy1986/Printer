@@ -4,12 +4,18 @@ using NanoImprinter.Procedures;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
+using Serilog;
+using Serilog.Events;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
+using WestLakeShape.Common.LogService;
 
 namespace NanoImprinter.ViewModels
 {
@@ -17,10 +23,11 @@ namespace NanoImprinter.ViewModels
     {
         private readonly IMachineModel _machine;
         private readonly SemaphoreSlim _workDoneEvent = new SemaphoreSlim(1, 1);
+        private static readonly ILogger Log = LogHelper.For<MainViewModel>();
+        private const int Max_Log_Count = 15;
+
         private ProcedureManager _manager;
         //private IEventAggregator _eventAggregator;
-        private WorkStatus _status;
-
         private ProcedureStatus _loadStatus;
         private ProcedureStatus _glueStatus;
         private ProcedureStatus _preprintStatus;
@@ -28,6 +35,8 @@ namespace NanoImprinter.ViewModels
         private ProcedureStatus _uvStatus;
         private ProcedureStatus _demoldStatus;
         private ProcedureStatus _positionStatus;
+
+        private WorkStatus _status;
 
         private bool _isAuto = false;
         private string _startContent = "启动";
@@ -143,6 +152,8 @@ namespace NanoImprinter.ViewModels
             get => _startContent;
             set => SetProperty(ref _startContent, value);
         }
+       
+        public ObservableCollection<LogEvent> LogEvents { get; private set; }
         #endregion
 
 
@@ -228,6 +239,21 @@ namespace NanoImprinter.ViewModels
             _machine = machine;
             _manager = manager;
             eventAggregator.GetEvent<ProcedureInfoEvent>().Subscribe(ProcedureInfoChanged);
+
+            LogEvents = new ObservableCollection<LogEvent>();
+            if (Application.Current is App app)
+            {
+                app.LogEventStream
+                    .ObserveOnDispatcher()
+                    .Subscribe(logEvent =>
+                    {
+                        LogEvents.Add(logEvent);
+                        if (LogEvents.Count > Max_Log_Count)
+                        {
+                            LogEvents.RemoveAt(0);
+                        }
+                    });
+            }
         }
 
        
@@ -281,7 +307,7 @@ namespace NanoImprinter.ViewModels
 
         private void Vacuum()
         {
-            
+            Log.Information("真空吸气");
         }
 
 

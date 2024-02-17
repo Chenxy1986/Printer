@@ -3,6 +3,8 @@ using Prism.Commands;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,24 +17,28 @@ namespace NanoImprinter.ViewModels
     {
         private readonly IMachineModel _machine;
         private MicroPlatform _microPlatform;
+        private MicroPlatformConfig _microPlatformConfig;
         private double _currentPressure;
         private double _moveDistance;
 
         private ChannelNo _selectedChannel;//选择通道
-
+        private string _portName;
+        private double _contactPosition;
+        private double _zCreepDistance;
+        private double _demoldPositionZ;
+        private double _demoldPositionRX;
+        private double _demoldPositionRY;
+        private double _levelPositionZ;
+        private double _levelPositionRX;
+        private double _levelPositionRY;
+        private double _maxPressure;
+        private double _minPressure;
         #region property
 
-        public string ComName
+        public string PortName
         {
-            get => _machine.Config.MicroPlatform.ComName;
-            set
-            {
-                if (_machine.Config.MicroPlatform.ComName != value)
-                {
-                    _machine.Config.MicroPlatform.ComName = value;
-                    RaisePropertyChanged(nameof(ComName));
-                }
-            }
+            get => _portName;
+            set => SetProperty(ref _portName, value);
         }
 
         /// <summary>
@@ -40,103 +46,86 @@ namespace NanoImprinter.ViewModels
         /// </summary>
         public double ContactPosition
         {
-            get => _machine.Config.MicroPlatform.ContactPosition;
-            set
-            {
-                if (_machine.Config.MicroPlatform.ContactPosition != value)
-                {
-                    _machine.Config.MicroPlatform.ContactPosition = value;
-                    RaisePropertyChanged(nameof(ContactPosition));
-                }
-            }
+            get => _contactPosition;
+            set => SetProperty(ref _contactPosition, value);
+
         }
         /// <summary>
         /// Z向压印过程中的蠕动距离
         /// </summary>
         public double ZCreepDistance
         {
-            get => _machine.Config.MicroPlatform.ZCreepDistance;
-            set
-            {
-                if (_machine.Config.MicroPlatform.ZCreepDistance != value)
-                {
-                    _machine.Config.MicroPlatform.ZCreepDistance = value;
-                    RaisePropertyChanged(nameof(ZCreepDistance));
-                }
-            }
+            get => _zCreepDistance;
+            set => SetProperty(ref _zCreepDistance, value);
         }
 
-        public PointZRXY DemoldPosition
+        public double DemoldPositionZ
         {
-            get => _machine.Config.MicroPlatform.DemoldPosition;
-            set
-            {
-                if (_machine.Config.MicroPlatform.DemoldPosition != value)
-                {
-                    _machine.Config.MicroPlatform.DemoldPosition = value;
-                    RaisePropertyChanged(nameof(DemoldPosition));
-                }
-            }
+            get => _demoldPositionZ;
+            set => SetProperty(ref _demoldPositionZ, value);
+        }
+        public double DemoldPositionRX
+        {
+            get => _demoldPositionRX;
+            set => SetProperty(ref _demoldPositionRX, value);
+        }
+        public double DemoldPositionRY
+        {
+            get => _demoldPositionRY;
+            set => SetProperty(ref _demoldPositionRY, value);
+        }
+        public double LevelPositionZ
+        {
+            get => _levelPositionZ;
+            set => SetProperty(ref _levelPositionZ, value);
+        }
+        public double LevelPositionRX
+        {
+            get => _levelPositionRX;
+            set => SetProperty(ref _levelPositionRX, value);
+        }
+        public double LevelPositionRY
+        {
+            get => _levelPositionRY;
+            set => SetProperty(ref _levelPositionRY, value);
         }
 
-        public PointZRXY LevelPosition
-        {
-            get => _machine.Config.MicroPlatform.LevelPosition;
-            set
-            {
-                if (_machine.Config.MicroPlatform.LevelPosition != value)
-                {
-                    _machine.Config.MicroPlatform.LevelPosition = value;
-                    RaisePropertyChanged(nameof(LevelPosition));
-                }
-            }
-        }
- 
         public double MaxPressure
         {
-            get => _machine.Config.MicroPlatform.MaxPressure;
-            set
-            {
-                if (_machine.Config.MicroPlatform.MaxPressure != value)
-                {
-                    _machine.Config.MicroPlatform.MaxPressure = value;
-                    RaisePropertyChanged(nameof(MaxPressure));
-                }
-            }
-        }     
+            get => _maxPressure;
+            set => SetProperty(ref _maxPressure, value);
+        }
         public double MinPressure
         {
-            get => _machine.Config.MicroPlatform.MinPressure;
-            set
-            {
-                if (_machine.Config.MicroPlatform.MinPressure != value)
-                {
-                    _machine.Config.MicroPlatform.MinPressure = value;
-                    RaisePropertyChanged(nameof(MinPressure));
-                }
-            }
+            get => _minPressure;
+            set => SetProperty(ref _minPressure, value);
         }
-        
+
         public double CurrentPressure
         {
             get => _currentPressure;
             set => SetProperty(ref _currentPressure, value);
         }
-        
+
         public double MoveDistance
         {
             get => _moveDistance;
             set => SetProperty(ref _moveDistance, value);
         }
-        
+
         public ChannelNo SelectedChannel
         {
             get => _selectedChannel;
             set => SetProperty(ref _selectedChannel, value);
         }
-        
+
         public IList<ChannelNo> ChannelIndex { get; }
 
+        public ObservableCollection<string> PortNames
+        {
+            get;
+            set;
+        }
         #endregion
 
 
@@ -150,6 +139,7 @@ namespace NanoImprinter.ViewModels
         public DelegateCommand JogBackwardCommand => new DelegateCommand(JogBackward);
         public DelegateCommand SaveParamCommand => new DelegateCommand(SaveParam);
         public DelegateCommand ReloadParamCommand => new DelegateCommand(ReloadParam);
+        public DelegateCommand RefreshPortNamesCommand => new DelegateCommand(RefreshPortNames);
 
         #endregion
 
@@ -159,7 +149,10 @@ namespace NanoImprinter.ViewModels
         {
             _machine = machine;
             _microPlatform = _machine.GetPlatform(typeof(MicroPlatform).Name) as MicroPlatform;
+            _microPlatformConfig = _machine.Config.MicroPlatform;
             ChannelIndex = Enum.GetValues(typeof(ChannelNo)).Cast<ChannelNo>().ToList();
+            PortNames = new ObservableCollection<string>(SerialPort.GetPortNames());
+            ReloadParam();
         }
 
 
@@ -170,12 +163,12 @@ namespace NanoImprinter.ViewModels
 
         private void MoveToLevelPosition()
         {
-            _microPlatform.MoveTo(LevelPosition);
+            _microPlatform.MoveTo(new PointZRXY(_levelPositionZ, _levelPositionRX, _levelPositionRY));
         }
 
         private void MoveToDemoldPosition()
         {
-            _microPlatform.MoveTo(DemoldPosition);
+            _microPlatform.MoveTo(new PointZRXY(_demoldPositionZ, _demoldPositionRX, _demoldPositionRY));
         }
 
         private void Creep()
@@ -185,36 +178,53 @@ namespace NanoImprinter.ViewModels
 
         private void JogForward()
         {
-            
+
         }
         private void JogBackward()
         {
-            
+
         }
 
         private void RefreshPressure()
         {
-           
+
         }
+
+        private void RefreshPortNames()
+        {
+            PortNames.Clear();
+            foreach (var port in SerialPort.GetPortNames())
+            {
+                PortNames.Add(port);
+            }
+            PortNames.Add("Com2");
+            PortNames.Add("Com3");
+        }
+
         private void SaveParam()
         {
-           _machine.Config.MicroPlatform.ComName = ComName;
-            _machine.Config.MicroPlatform.ContactPosition = ContactPosition;
-            _machine.Config.MicroPlatform.ZCreepDistance = ZCreepDistance;
-            _machine.Config.MicroPlatform.DemoldPosition = DemoldPosition;
-            _machine.Config.MicroPlatform.LevelPosition = LevelPosition;
-            _machine.Config.MicroPlatform.MaxPressure = MaxPressure;
-            _machine.Config.MicroPlatform.MinPressure = MinPressure;
+            _microPlatformConfig.PortName = PortName;
+            _microPlatformConfig.ContactPosition = ContactPosition;
+            _microPlatformConfig.ZCreepDistance = ZCreepDistance;
+            _microPlatformConfig.DemoldPosition = new PointZRXY(_demoldPositionZ, _demoldPositionRX, _demoldPositionRY);
+            _microPlatformConfig.LevelPosition = new PointZRXY(_levelPositionZ, _levelPositionRX, _levelPositionRY);
+            _microPlatformConfig.MaxPressure = MaxPressure;
+            _microPlatformConfig.MinPressure = MinPressure;
+            _machine.SaveParam();
         }
-    private void ReloadParam()
+        private void ReloadParam()
         {
-            ComName = _machine.Config.MicroPlatform.ComName;
-            ContactPosition = _machine.Config.MicroPlatform.ContactPosition;
-            ZCreepDistance = _machine.Config.MicroPlatform.ZCreepDistance;
-            DemoldPosition = _machine.Config.MicroPlatform.DemoldPosition;
-            LevelPosition = _machine.Config.MicroPlatform.LevelPosition;
-            MaxPressure = _machine.Config.MicroPlatform.MaxPressure;
-            MinPressure = _machine.Config.MicroPlatform.MinPressure;
+            PortName = _microPlatformConfig.PortName;
+            ContactPosition = _microPlatformConfig.ContactPosition;
+            ZCreepDistance = _microPlatformConfig.ZCreepDistance;
+            DemoldPositionZ = _microPlatformConfig.DemoldPosition.Z;
+            DemoldPositionRX = _microPlatformConfig.DemoldPosition.RX;
+            DemoldPositionRY = _microPlatformConfig.DemoldPosition.RY;
+            LevelPositionZ = _microPlatformConfig.LevelPosition.Z;
+            LevelPositionRX = _microPlatformConfig.LevelPosition.RX;
+            LevelPositionRY = _microPlatformConfig.LevelPosition.RY;
+            MaxPressure = _microPlatformConfig.MaxPressure;
+            MinPressure = _microPlatformConfig.MinPressure;
         }
     }
 }

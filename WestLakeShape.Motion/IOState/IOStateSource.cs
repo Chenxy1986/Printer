@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading;
 using WestLakeShape.Common.WpfCommon;
 
 namespace WestLakeShape.Motion
@@ -11,24 +13,24 @@ namespace WestLakeShape.Motion
     public abstract class IOStateSource:Connectable
     {
         private IOStateSourceConfig _config;
-        private List<IOState> _outputIOs;
-        private byte[] _tempBuffer;
-
-        protected byte[] _inputBuffer;
-        protected byte[] _outputBuffer;
-        protected byte[] _dirtyMasks;
+        private List<IOState> _outputIOs;    //输出IO
+        private byte[] _tempBuffer;          //
+        
+        protected byte[] _inputBuffer;       //输入IO的缓存状态值
+        protected byte[] _outputBuffer;      //输出IO的缓存状态值
+        protected byte[] _dirtyMasks;        //输出IO是否需要修改标志位
 
         public Dictionary<string, IOState> InputStates { get; private set; }
         public Dictionary<string, IOState> OutputStates { get; private set; }
 
+        public byte[] InputBuffer => _inputBuffer;
+        public byte[] OutputBuffer => _outputBuffer;
 
         public override string Name => _config.Name;
 
-        public byte[] InputBuffer => _inputBuffer;
-        public byte[] OutputBuffer => _outputBuffer;
-        
         public IOStateSourceConfig Config => _config;
 
+     
         public IOStateSource(IOStateSourceConfig config)
         {
             _config = config;
@@ -40,11 +42,13 @@ namespace WestLakeShape.Motion
 
             InputStates = new Dictionary<string, IOState>();
             OutputStates = new Dictionary<string, IOState>();
+            LoadStates();
         }
+
 
         protected override void OnConnecting() 
         {
-            LoadStates();
+            
         }
 
         private void LoadStates()
@@ -62,12 +66,14 @@ namespace WestLakeShape.Motion
 
         protected override void RefreshStates()
         {
-            RefreshOutputs();
-            WriteOutputs(_outputBuffer);
-
-            Array.Clear(_dirtyMasks, 0, _dirtyMasks.Length);
-            _outputIOs.ForEach(o => o.HasChanged());
-            ReadInputs(_inputBuffer);
+            while (IsConnected)
+            {
+                RefreshOutputs();
+                WriteOutputs(_outputBuffer);
+                _outputIOs.ForEach(o => o.HasChanged());
+                ReadInputs(_inputBuffer);
+            }
+           
         }
 
         private void RefreshOutputs()
@@ -78,7 +84,9 @@ namespace WestLakeShape.Motion
                 var mask = _dirtyMasks[i];
                 var remote = _tempBuffer[i];
                 var local = _outputBuffer[i];
+                //修改byte中某个bit值，并保证不影响其它bit
                 var merged = (byte)(_tempBuffer[i] ^ ((remote ^ local) & mask));
+                
                 _outputBuffer[i] = merged;
             }
         }
@@ -106,7 +114,10 @@ namespace WestLakeShape.Motion
             private readonly IOStateConfig _config;
             private readonly IOStateSource _source;
 
+
             public override bool ReadOnly => _config.Type == IOType.Input;
+           
+            public bool State => Get();
 
 
             public IOState(IOStateConfig config, IOStateSource ioSource) : base(config.Name)
@@ -125,7 +136,6 @@ namespace WestLakeShape.Motion
                 var data = buffer[_config.ByteIndex];
                 return 0 != (data & (1 << _config.BitIndex));
             }
-
 
             public override void Set(bool value)
             {
@@ -147,7 +157,7 @@ namespace WestLakeShape.Motion
                 var masks = _source._dirtyMasks;
                 var mask = masks[_config.ByteIndex];
                 mask |= (byte)(1 << _config.BitIndex);
-                masks[_config.ByteIndex] = mask;
+                _source._dirtyMasks[_config.ByteIndex] = mask;
                 Dirty = true;
             }
         }

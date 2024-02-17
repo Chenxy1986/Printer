@@ -102,8 +102,8 @@ namespace WestLakeShape.Motion.Device
         private int _preheatTime;
         private int _exposureTime;
 
-        [Category("UVControl"), Description("UV串口")]
-        [DisplayName("保压时间")]
+        [Category("UVControl"), Description("UV com串口")]
+        [DisplayName("Com端口")]
         public string PortName 
         {
             get => _portName;
@@ -118,7 +118,7 @@ namespace WestLakeShape.Motion.Device
             set => SetProperty(ref _preheatTime, value);
         }
 
-        [Category("UVControl"), Description("掩膜预压印高度.,单位为毫秒")]
+        [Category("UVControl"), Description("UV曝光时间.,单位为毫秒")]
         [DisplayName("UV曝光时间")]
         public int ExposureTime
         {

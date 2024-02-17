@@ -22,7 +22,7 @@ namespace NanoImprinter.Procedures
         {
             _name = "取料流程";
             _platform = _machine.GetPlatform(typeof(MacroPlatform).Name) as MacroPlatform;
-            _io = _machine.IO;
+            _io = _machine.IOStates;
         }
 
         protected override bool OnExecute()

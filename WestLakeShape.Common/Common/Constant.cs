@@ -12,7 +12,7 @@ namespace WestLakeShape.Common
 
         public const int DelayInterval = 1;
 
-        public const string EncodingName = "gbk";
+        public const string EncodingName = "GBK";
 
         public static Encoding Encoding
         {

@@ -49,17 +49,20 @@
 
                 <ces:ParameterDisplayControl x:Name="tbGlueWaitPosition"
                                              ParamName="等待位"
-                                             ParamUnit="mm" />
+                                             ParamUnit="mm"
+                                             ParamValue="{Binding WaitPosition}" />
                 <ces:ParameterDisplayControl x:Name="tbGluePosition"
                                              Grid.Row="0"
                                              Grid.Column="1"
                                              ParamName="点胶位"
-                                             ParamUnit="mm" />
+                                             ParamUnit="mm"
+                                             ParamValue="{Binding GluePosition}" />
                 <ces:ParameterDisplayControl x:Name="tbGlueWorkVel"
                                              Grid.Row="1"
                                              Grid.Column="0"
                                              ParamName="工作速度"
-                                             ParamUnit="mm/s" />
+                                             ParamUnit="mm/s"
+                                             ParamValue="{Binding WorkVel}" />
                 <Button x:Name="btnGlueSaveParameter"
                         Grid.Row="2"
                         Grid.Column="0"
@@ -120,22 +123,26 @@
 
                 <ces:ParameterDisplayControl x:Name="tbGlueControlOpen"
                                              ParamName="开阀时间"
-                                             ParamUnit="mm" />
+                                             ParamUnit="mm"
+                                             ParamValue="{Binding OpenTime}" />
                 <ces:ParameterDisplayControl x:Name="tbGlueControlClose"
                                              Grid.Row="0"
                                              Grid.Column="1"
                                              ParamName="关阀时间"
-                                             ParamUnit="mm" />
+                                             ParamUnit="mm"
+                                             ParamValue="{Binding CloseTime}" />
                 <ces:ParameterDisplayControl x:Name="tbGlueControlIntensity"
                                              Grid.Row="1"
                                              Grid.Column="0"
                                              ParamName="开阀力度"
-                                             ParamUnit="N" />
+                                             ParamUnit="N"
+                                             ParamValue="{Binding OpenIntensity}" />
                 <ces:ParameterDisplayControl x:Name="tbGlueControlTemplate"
                                              Grid.Row="1"
                                              Grid.Column="1"
                                              ParamName="温度"
-                                             ParamUnit="℃" />
+                                             ParamUnit="℃"
+                                             ParamValue="{Binding Temperature}" />
 
                 <Button x:Name="btnGlueControlSaveParameter"
                         Grid.Row="2"

@@ -235,8 +235,8 @@
                   Style="{StaticResource GroupBox.DefaultStyle}">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="45" />
-                    <RowDefinition Height="45" />
+                    <RowDefinition Height="50" />
+                    <RowDefinition Height="50" />
                     <RowDefinition Height="100" />
                     <RowDefinition Height="100" />
                     <RowDefinition Height="*" />
@@ -284,7 +284,7 @@
                     <Button Margin="30,10"
                             Command="{Binding ReloadParamCommand}"
                             Content="重载参数" />
-                   
+
                 </UniformGrid>
             </Grid>
         </GroupBox>

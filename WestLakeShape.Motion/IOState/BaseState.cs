@@ -1,24 +1,15 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace WestLakeShape.Motion
 {
-    public interface IReadable
-    {
-        bool Get();
-    }
-
-
-    public interface IWritable
-    {
-        void Set(bool value);
-    }
-
-
-    public abstract class BaseState:IReadable, IWritable
+    public abstract class BaseState
     {
         private readonly string _name;
         private bool _value;
         private bool _dirty;
+
+       
 
         public string Name => _name;
 
@@ -34,9 +25,7 @@ namespace WestLakeShape.Motion
         }
 
         public abstract bool ReadOnly { get; }
-       
-        
-       
+
 
         public virtual bool Get()
         {
@@ -68,21 +57,9 @@ namespace WestLakeShape.Motion
             _dirty = false;
         }
 
-
         public override string ToString()
         {
             return $"{_name}:{_value}";
-        }
-
-        void IWritable.Set(bool value)
-        {
-            Set(value);
-        }
-
-
-        bool IReadable.Get()
-        {
-            return Get();
         }
     }
 

@@ -29,6 +29,9 @@ namespace NanoImprinter.ViewModels
         private PointXZ _uvIrradiationPosition;
         private double _uvXWorkVel;
         private double _uvYWorkVel;
+        private int _uvPreheatTime;
+        private int _uvExposureTime;
+        private ImprintPlatformConfig _platformConfig;
         private UVControlConfig _uvConfig;
         private double _uvZDirSafePosition;
 
@@ -55,7 +58,7 @@ namespace NanoImprinter.ViewModels
             set => SetProperty(ref _cameraWaitHeight, value);
         }
 
-        public double TakePictureHeight
+        public double CameraTakePictureHeight
         {
             get => _takePictureHeight;
             set => SetProperty(ref _takePictureHeight, value);
@@ -97,11 +100,18 @@ namespace NanoImprinter.ViewModels
             set => SetProperty(ref _uvYWorkVel, value);
         }
 
-        public UVControlConfig UVConfig
+        public int UVPreheatTime
         {
-            get => _uvConfig;
-            set => SetProperty(ref _uvConfig, value);
+            get => _uvPreheatTime;
+            set => SetProperty(ref _uvPreheatTime, value);
         }
+        public int UVExposureTime
+        {
+            get => _uvExposureTime;
+            set => SetProperty(ref _uvExposureTime, value);
+        }
+
+
         public double UVZDirSafePosition
         {
             get => _uvZDirSafePosition;
@@ -112,10 +122,10 @@ namespace NanoImprinter.ViewModels
 
 
         #region Command
-        public DelegateCommand SaveParamCommand => new DelegateCommand(MaskZGoHome);
+        public DelegateCommand SaveParamCommand => new DelegateCommand(SaveParam);
         public DelegateCommand ReloadParamCommand => new DelegateCommand(ReloadParam);
-        public DelegateCommand MoveToPreprintPositionCommand =>new DelegateCommand(MoveToMaskPreprintHeight);
-        public DelegateCommand MoveToTakePicturePositionCommand => new DelegateCommand(MoveToTakePictureHeight);
+        public DelegateCommand MoveToMaskPreprintPositionCommand =>new DelegateCommand(MoveToMaskPreprintHeight);
+        public DelegateCommand MoveToCameraTakePicturePositionCommand => new DelegateCommand(MoveToCameraTakePictureHeight);
         public DelegateCommand MaskZGoHomeCommand =>  new DelegateCommand(MaskZGoHome);
         public DelegateCommand ResetAlarmCommand =>  new DelegateCommand(ResetAlarm);
         public DelegateCommand MoveToUVWaitPositionCommand =>  new DelegateCommand(MoveToUVWaitPosition);
@@ -131,11 +141,13 @@ namespace NanoImprinter.ViewModels
         {
             _machine = machine;
             _plate = machine.GetPlatform(typeof(ImprintPlatform).Name) as ImprintPlatform;
+            _platformConfig = _machine.Config.ImprintPlatform;
             Axes = new ObservableCollection<IAxis>();
             Axes.Add(_plate.MaskZAxis);
             Axes.Add(_plate.CameraZAxis);
             Axes.Add(_plate.UVXAxis);
             Axes.Add(_plate.UVZAxis);
+            ReloadParam();
         }
 
         private void MaskZGoHome()
@@ -146,7 +158,7 @@ namespace NanoImprinter.ViewModels
         {
             _plate.MoveToMaskPreprintHeight();
         }
-        private void MoveToTakePictureHeight()
+        private void MoveToCameraTakePictureHeight()
         {
             _plate.MoveToTakePictureHeight();
         }
@@ -160,37 +172,37 @@ namespace NanoImprinter.ViewModels
 
         private void SaveParam()
         {
-            _machine.Config.ImprintPlatform.MaskWaitHeight = MaskWaitHeight;
-            _machine.Config.ImprintPlatform.MaskPreprintHeight = MaskPreprintHeight;
-            _machine.Config.ImprintPlatform.MaskZWorkVel = MaskZWorkVel;
-            _machine.Config.ImprintPlatform.CameraWaitHeight = CameraWaitHeight;
-            _machine.Config.ImprintPlatform.TakePictureHeight = TakePictureHeight;
-            _machine.Config.ImprintPlatform.CameraZWorkVel = CameraZWorkVel;
-            _machine.Config.ImprintPlatform.XDirSafePosition = XDirSafePosition;
-            _machine.Config.ImprintPlatform.UVWaitPosition = UVWaitPosition;
-            _machine.Config.ImprintPlatform.UVIrradiationPosition = UVIrradiationPosition;
-            _machine.Config.ImprintPlatform.UVXWorkVel = UVXWorkVel;
-            _machine.Config.ImprintPlatform.UVYWorkVel = UVYWorkVel;
-            _machine.Config.ImprintPlatform.UVConfig = UVConfig;
-            _machine.Config.ImprintPlatform.UVZDirSafePosition = UVZDirSafePosition;
+            _platformConfig.MaskWaitHeight = MaskWaitHeight;
+            _platformConfig.MaskPreprintHeight = MaskPreprintHeight;
+            _platformConfig.MaskZWorkVel = MaskZWorkVel;
+            _platformConfig.CameraWaitHeight = CameraWaitHeight;
+            _platformConfig.CameraTakePictureHeight = CameraTakePictureHeight;
+            _platformConfig.CameraZWorkVel = CameraZWorkVel;
+            _platformConfig.CameraXDirSafePosition = XDirSafePosition;
+            _platformConfig.UVWaitPosition = UVWaitPosition;
+            _platformConfig.UVIrradiationPosition = UVIrradiationPosition;
+            _platformConfig.UVXWorkVel = UVXWorkVel;
+            _platformConfig.UVYWorkVel = UVYWorkVel;
+            _platformConfig.UVConfig.PreheatTime = UVPreheatTime;
+            _platformConfig.UVConfig.ExposureTime = UVExposureTime;
+            _platformConfig.UVZDirSafePosition = UVZDirSafePosition;
             _machine.SaveParam();
         }
 
         private void ReloadParam()
         {
-           MaskWaitHeight =_machine.Config.ImprintPlatform.MaskWaitHeight;
-           MaskPreprintHeight =_machine.Config.ImprintPlatform.MaskPreprintHeight;
-           MaskZWorkVel = _machine.Config.ImprintPlatform.MaskZWorkVel;
-           CameraWaitHeight =_machine.Config.ImprintPlatform.CameraWaitHeight;
-           TakePictureHeight = _machine.Config.ImprintPlatform.TakePictureHeight;
-           CameraZWorkVel = _machine.Config.ImprintPlatform.CameraZWorkVel ;
-           XDirSafePosition = _machine.Config.ImprintPlatform.XDirSafePosition ;
-           UVWaitPosition = _machine.Config.ImprintPlatform.UVWaitPosition ;
-           UVIrradiationPosition = _machine.Config.ImprintPlatform.UVIrradiationPosition ;
-           UVXWorkVel = _machine.Config.ImprintPlatform.UVXWorkVel;
-           UVYWorkVel = _machine.Config.ImprintPlatform.UVYWorkVel ;
-           UVConfig = _machine.Config.ImprintPlatform.UVConfig;
-           UVZDirSafePosition = _machine.Config.ImprintPlatform.UVZDirSafePosition ;
+           MaskWaitHeight = _platformConfig.MaskWaitHeight;
+           MaskPreprintHeight = _platformConfig.MaskPreprintHeight;
+           MaskZWorkVel = _platformConfig.MaskZWorkVel;
+           CameraWaitHeight = _platformConfig.CameraWaitHeight;
+           CameraTakePictureHeight = _platformConfig.CameraTakePictureHeight;
+           CameraZWorkVel = _platformConfig.CameraZWorkVel ;
+           XDirSafePosition = _platformConfig.CameraXDirSafePosition ;
+           UVWaitPosition = _platformConfig.UVWaitPosition ;
+           UVIrradiationPosition = _platformConfig.UVIrradiationPosition ;
+           UVXWorkVel = _platformConfig.UVXWorkVel;
+           UVYWorkVel = _platformConfig.UVYWorkVel ;
+           UVZDirSafePosition = _platformConfig.UVZDirSafePosition ;
         }
 
         private void MoveToUVWaitPosition()

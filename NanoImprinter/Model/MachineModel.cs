@@ -21,7 +21,7 @@ namespace NanoImprinter.Model
         /// </summary>
         int ProcedureIndex { get; set; }
 
-        ImprinterIO IO { get;}
+        ImprinterIO IOStates { get;}
         ImprinterAxis Axes { get; }
 
         MachineModelConfig Config { get; }
@@ -33,12 +33,12 @@ namespace NanoImprinter.Model
     public class MachineModel : IMachineModel
     {
         private readonly string Config_File_Name = "MachineConfig.config";
-        private readonly string _rootFolder = "C:\\NanoImprinterConfig";
+        private readonly string _rootFolder = @"D:\NanoImprinterConfig\";
         
         /// <summary>
         /// 所有IO卡
         /// </summary>
-        public ImprinterIO IO { get; private set; }
+        public ImprinterIO IOStates { get; private set; }
         /// <summary>
         /// 所有轴
         /// </summary>
@@ -67,7 +67,7 @@ namespace NanoImprinter.Model
             if (!Directory.Exists(folder))
                 Directory.CreateDirectory(folder);
 
-            File.WriteAllText(path, JsonConvert.SerializeObject(Config), Constants.Encoding);
+            File.WriteAllText(path, JsonConvert.SerializeObject(Config,Formatting.Indented), Constants.Encoding);
         }
 
         public void LoadParam()
@@ -75,7 +75,7 @@ namespace NanoImprinter.Model
             //var model = new NanoImprinterModel();
             var configFile = Path.Combine(_rootFolder, Config_File_Name);
           
-            if (Directory.Exists(configFile))
+            if (File.Exists(configFile))
             {
                 var content = File.ReadAllText(configFile, Constants.Encoding);
                 Config = JsonConvert.DeserializeObject<MachineModelConfig>(content);
@@ -83,9 +83,10 @@ namespace NanoImprinter.Model
             else
             {
                 Config = new MachineModelConfig();
+                SaveParam();
             }
 
-            IO = new ImprinterIO(Config.ImprinterIO);
+            IOStates = new ImprinterIO(Config.ImprinterIO);
             Axes = new ImprinterAxis(Config.ImprinterAxis);
             //MacroPlatform = new MacroPlatform(config.MacroPlatform,
             //                               Axes.MacroPlatformAxes());

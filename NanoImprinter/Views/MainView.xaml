@@ -16,8 +16,11 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <cts:EnumToProcedureStatusConverter x:Key="BackgroundConverter" />
+            <cts:LogEventToStringConverter x:Key="LogConverter" />
         </ResourceDictionary>
     </UserControl.Resources>
+    
+    
     <Grid>
         <!--  界面显示  -->
         <Grid.ColumnDefinitions>
@@ -39,21 +42,19 @@
 
             <!--  日志  -->
             <Border Grid.Column="1"
-                    Margin="5,0"
+                    Margin="5,10"
                     BorderBrush="Black"
                     BorderThickness="1"
                     CornerRadius="5">
-                <ces:DisplayLogBox Margin="5"
-                                   HorizontalAlignment="Stretch"
-                                   VerticalAlignment="Stretch"
-                                   Background="Transparent"
-                                   FontSize="16"
-                                   Foreground="WhiteSmoke"
-                                   Text="{Binding MsgInfo}"
-                                   TextColor="{Binding MsgColor}"
-                                   VerticalScrollBarVisibility="Visible">
-                    <FlowDocument Focusable="True" LineHeight="1" />
-                </ces:DisplayLogBox>
+                <ListBox ItemsSource="{Binding LogEvents}" Margin="0,5"
+                         FontSize="20">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Converter={StaticResource LogConverter}}"
+                                       TextWrapping="Wrap" />
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </Border>
 
             <cvs:WafeDisplayView Grid.Row="1" Margin="10,0" />

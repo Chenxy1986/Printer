@@ -1,4 +1,5 @@
-﻿using Prism.Regions;
+﻿using NanoImprinter.Model;
+using Prism.Regions;
 using System;
 using System.Windows;
 using System.Windows.Input;
@@ -10,9 +11,11 @@ namespace NanoImprinter.Views
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow(IRegionManager regionManager)
+        private IMachineModel _machine;
+        public MainWindow(IRegionManager regionManager, IMachineModel machine)
         {
             InitializeComponent();
+            _machine = machine;
             regionManager.RegisterViewWithRegion("ContentRegion", typeof(MainView));
 
             this.btnMin.Click += (s, e) => { this.WindowState = WindowState.Minimized; };
@@ -23,7 +26,7 @@ namespace NanoImprinter.Views
                 else
                     this.WindowState = WindowState.Maximized;
             };
-            this.btnClose.Click += (s, e) => { this.Close(); };
+            this.btnClose.Click += (s, e) => { this.Close(); _machine.SaveParam(); };
 
             //this.gridTitle.MouseDoubleClick += (s, e)=>
             //{
