@@ -15,7 +15,6 @@ namespace NanoImprinter.Model
     {
         public AfmPlatform(AfmPlatformConfig config)
         {
-
         }
 
         public bool GoHome()

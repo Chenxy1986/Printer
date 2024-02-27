@@ -220,7 +220,7 @@ namespace NanoImprinter.Model
         [DisplayName("UV等待位")]
         public PointXZ UVWaitPosition 
         {
-            get => _uvWaitPosition;
+            get => _uvWaitPosition?? new PointXZ(0,0);
             set => SetProperty(ref _uvWaitPosition, value);
         }
 
@@ -228,7 +228,7 @@ namespace NanoImprinter.Model
         [DisplayName("UV照射位")]
         public PointXZ UVIrradiationPosition
         {
-            get => _uvIrradiationPosition;
+            get => _uvIrradiationPosition ?? new PointXZ(0, 0);
             set => SetProperty(ref _uvIrradiationPosition, value);
         }
 
@@ -252,7 +252,7 @@ namespace NanoImprinter.Model
         [DisplayName("UV配置参数")]
         public UVControlConfig UVConfig
         {
-            get => _uvConfig;
+            get => _uvConfig ?? new UVControlConfig();
             set => SetProperty(ref _uvConfig, value);
         } 
 

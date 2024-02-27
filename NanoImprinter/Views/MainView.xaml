@@ -93,7 +93,7 @@
                               PositionColor="{Binding PositionStatus, Converter={StaticResource BackgroundConverter}}"
                               PreprintColor="{Binding PreprintStatus, Converter={StaticResource BackgroundConverter}}"
                               UVColor="{Binding UVStatus, Converter={StaticResource BackgroundConverter}}" />
-            <cvs:SystemOperatorView Grid.Row="1"
+            <!--<cvs:SystemOperatorView Grid.Row="1"
                                     Margin="15,0"
                                     EmergencyCommand="{Binding EmergencyCommand}"
                                     EvacuateCommand="{Binding EvacuateCommand}"
@@ -101,7 +101,7 @@
                                     IsAuto="{Binding IsAuto, Mode=TwoWay}"
                                     ResetCommand="{Binding ResetCommand}"
                                     StartCommand="{Binding StartCommand}"
-                                    VacuumCommand="{Binding VacuumCommand}" />
+                                    VacuumCommand="{Binding VacuumCommand}" />-->
         </Grid>
     </Grid>
 </UserControl>

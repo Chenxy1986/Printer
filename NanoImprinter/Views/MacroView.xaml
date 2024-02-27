@@ -249,7 +249,7 @@
                 <StackPanel Orientation="Horizontal">
                     <ces:ParameterDisplayControl ParamName="X轴工作速度"
                                                  ParamUnit="mm/s"
-                                                 ParamValue="{Binding XWorkVel}" />
+                                                 ParamValue="{Binding XWorkVel, Mode=TwoWay}" />
                 </StackPanel>
 
                 <StackPanel Grid.Row="0"
@@ -257,12 +257,12 @@
                             Orientation="Horizontal">
                     <ces:ParameterDisplayControl ParamName="Y轴工作速度"
                                                  ParamUnit="mm/s"
-                                                 ParamValue="{Binding YWorkVel}" />
+                                                 ParamValue="{Binding YWorkVel, Mode=TwoWay}" />
                 </StackPanel>
                 <StackPanel Grid.Row="1" Orientation="Horizontal">
                     <ces:ParameterDisplayControl ParamName="R轴工作速度"
                                                  ParamUnit="mm/s"
-                                                 ParamValue="{Binding RWorkVel}" />
+                                                 ParamValue="{Binding RWorkVel, Mode=TwoWay}" />
                 </StackPanel>
                 <UniformGrid Grid.Row="2"
                              Grid.ColumnSpan="2"

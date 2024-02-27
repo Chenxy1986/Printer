@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using WestLakeShape.Common.WpfCommon;
 
@@ -6,13 +7,10 @@ namespace WestLakeShape.Motion
 {
     public abstract class Axis<TAxisConfig> : IAxis<TAxisConfig>
         where TAxisConfig : AxisConfig
-    {
+    { 
         public abstract double Position { get; }
-
         public abstract double Speed { get; }
-
         public TAxisConfig Config { get; set; }
-
         public string Name { get; }
 
         public Axis(TAxisConfig config)
@@ -22,7 +20,6 @@ namespace WestLakeShape.Motion
 
         public abstract bool GoHome();
 
-       
         public abstract bool MoveTo(double position);
 
         public abstract void ServoOff();

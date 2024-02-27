@@ -234,11 +234,16 @@ namespace NanoImprinter.ViewModels
         #endregion
 
 
-        public MainViewModel(IMachineModel machine, ProcedureManager manager,IEventAggregator eventAggregator)
+        public MainViewModel(IEventAggregator eventAggregator,
+            IMachineModel machine, 
+            ProcedureManager manager,
+            IRefreshDataService refreshDataService)
         {
             _machine = machine;
             _manager = manager;
             eventAggregator.GetEvent<ProcedureInfoEvent>().Subscribe(ProcedureInfoChanged);
+
+            refreshDataService.Register(RefreshData);
 
             LogEvents = new ObservableCollection<LogEvent>();
             if (Application.Current is App app)
@@ -268,14 +273,17 @@ namespace NanoImprinter.ViewModels
             switch (_status)
             {
                 case WorkStatus.Emergency:
+                    Log.Information("进入急停状态");
                     throw new InvalidOperationException("急停状态下，必须先复位才能再次启动");
                 case WorkStatus.Terminated:
+                    Log.Information("纳米压印启动");
                     _workDoneEvent.Wait();
                     Status = WorkStatus.Running;
                     StartContent = "暂停";
                     ThreadPool.QueueUserWorkItem(o => StartLoop());
                     break;
                 case WorkStatus.Running:
+                    Log.Information("纳米压印暂停");
                     Status = WorkStatus.Paused;
                     StartContent = "启动";
                     return;
@@ -287,6 +295,7 @@ namespace NanoImprinter.ViewModels
 
         private void Reset()
         {
+            Log.Information("复位，所有任务终止");
             Status = WorkStatus.Terminated;
 
             _machine.Axes.All().ForEach(o => o.ResetAlarm());
@@ -294,6 +303,7 @@ namespace NanoImprinter.ViewModels
 
         private void GoHome()
         {
+            Log.Information("系统开始回零");
             Status = WorkStatus.Terminated;
 
             //先脱模
@@ -302,6 +312,8 @@ namespace NanoImprinter.ViewModels
 
             foreach (var plate in _machine.Platforms)
                 plate.Value.GoHome();
+            
+            Log.Information("系统回零完成");
         }
 
 
@@ -325,10 +337,13 @@ namespace NanoImprinter.ViewModels
             try
             {
                 //放wafe
+                Log.Information("放Wafe");
                 _manager.ExcuteProcedureByName(typeof(LoadProcedure).Name);
                 //定位wafe圆心
+                Log.Information("定位Wafe圆心");
                 _manager.ExcuteProcedureByName(typeof(FindRotateCenterProcedure).Name);
                 //定位初次压印位置
+                Log.Information("定位Wafe初次压印位置");
                 _manager.ExcuteProcedureByName(typeof(PositionProcedure).Name);
 
                 while (true)
@@ -352,11 +367,14 @@ namespace NanoImprinter.ViewModels
             }
             catch (Exception ex)
             {
+                Log.Information(ex.Message);
                 throw ex;
             }
             finally
             {
+                Log.Information("任务结束");
                 _workDoneEvent.Release();
+                _status = WorkStatus.Terminated;
             }
         }
         
@@ -438,7 +456,9 @@ namespace NanoImprinter.ViewModels
                     break;
             }
         }
-
+        private void RefreshData()
+        { 
+        }
     }
 
 

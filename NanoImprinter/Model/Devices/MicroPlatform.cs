@@ -235,7 +235,7 @@ namespace NanoImprinter.Model
         [DisplayName("jiec")]
         public PointZRXY DemoldPosition 
         {
-            get => _demoldPosition;
+            get => _demoldPosition??new PointZRXY(0,0,0);
             set => SetProperty(ref _demoldPosition, value);
         }
 
@@ -243,7 +243,7 @@ namespace NanoImprinter.Model
         [DisplayName("调平位置")]
         public PointZRXY LevelPosition
         {
-            get => _levelPosition;
+            get => _levelPosition??new PointZRXY(0,0,0);
             set => SetProperty(ref _levelPosition, value);
         }
 

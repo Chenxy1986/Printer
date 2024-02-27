@@ -46,6 +46,7 @@ namespace NanoImprinter.Model
         {
             return _ioSource.InputStates[name.ToString()];
         }
+
     }
 
     public class ImprinterIOConfig:NotifyPropertyChanged

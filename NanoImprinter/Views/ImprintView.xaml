@@ -50,37 +50,37 @@
                 <ces:ParameterDisplayControl x:Name="tbImprintVel"
                                              ParamName="压印速度"
                                              ParamUnit="mm/s"
-                                             ParamValue="{Binding MaskZWorkVel}" />
+                                             ParamValue="{Binding MaskZWorkVel, Mode=TwoWay}" />
                 <ces:ParameterDisplayControl x:Name="tbCameraMoveVel"
                                              Grid.Row="0"
                                              Grid.Column="1"
                                              ParamName="拍照速度"
                                              ParamUnit="mm"
-                                             ParamValue="{Binding CameraZWorkVel}" />
+                                             ParamValue="{Binding CameraZWorkVel, Mode=TwoWay}" />
                 <ces:ParameterDisplayControl x:Name="tbPreprintHeight"
                                              Grid.Row="1"
                                              Grid.Column="0"
                                              ParamName="预压印位"
                                              ParamUnit="mm"
-                                             ParamValue="{Binding MaskPreprintHeight}" />
+                                             ParamValue="{Binding MaskPreprintHeight, Mode=TwoWay}" />
                 <ces:ParameterDisplayControl x:Name="tbTakePictureHeight"
                                              Grid.Row="1"
                                              Grid.Column="1"
                                              ParamName="拍照位"
                                              ParamUnit="mm"
-                                             ParamValue="{Binding CameraTakePictureHeight}" />
+                                             ParamValue="{Binding CameraTakePictureHeight, Mode=TwoWay}" />
                 <ces:ParameterDisplayControl x:Name="tbMaskWaitHeight"
                                              Grid.Row="2"
                                              Grid.Column="0"
                                              ParamName="压印等待位"
                                              ParamUnit="mm"
-                                             ParamValue="{Binding MaskWaitHeight}" />
+                                             ParamValue="{Binding MaskWaitHeight, Mode=TwoWay}" />
                 <ces:ParameterDisplayControl x:Name="tbCameraWaitHeight"
                                              Grid.Row="2"
                                              Grid.Column="1"
                                              ParamName="拍照等待位"
                                              ParamUnit="mm"
-                                             ParamValue="{Binding CameraWaitHeight}" />
+                                             ParamValue="{Binding CameraWaitHeight, Mode=TwoWay}" />
 
                 <Button x:Name="btnMaskSaveParameter"
                         Grid.Row="3"
@@ -155,7 +155,7 @@
                                              Margin="80,20,5,20"
                                              ParamName="等待位"
                                              ParamUnit="mm"
-                                             ParamValue="{Binding UVWaitPosition}" />
+                                             ParamValue="{Binding UVWaitPosition, Mode=TwoWay}" />
 
                 <ces:ParameterDisplayControl x:Name="tbUVIrradiationPosition"
                                              Grid.Row="0"
@@ -163,35 +163,35 @@
                                              Margin="80,20,5,20"
                                              ParamName="照射位"
                                              ParamUnit="mm/s"
-                                             ParamValue="{Binding UVIrradiationPosition}" />
+                                             ParamValue="{Binding UVIrradiationPosition, Mode=TwoWay}" />
                 <ces:ParameterDisplayControl x:Name="tbUVXWorkVel"
                                              Grid.Row="1"
                                              Grid.Column="0"
                                              Margin="5"
                                              ParamName="X轴工作速度"
                                              ParamUnit="mm"
-                                             ParamValue="{Binding UVXWorkVel}" />
+                                             ParamValue="{Binding UVXWorkVel, Mode=TwoWay}" />
                 <ces:ParameterDisplayControl x:Name="tbUVYWorkVel"
                                              Grid.Row="1"
                                              Grid.Column="1"
                                              Margin="5"
                                              ParamName="Y轴工作速度"
                                              ParamUnit="mm"
-                                             ParamValue="{Binding UVYWorkVel}" />
+                                             ParamValue="{Binding UVYWorkVel, Mode=TwoWay}" />
                 <ces:ParameterDisplayControl x:Name="tbUVPreheatTime"
                                              Grid.Row="2"
                                              Grid.Column="0"
                                              Margin="5"
                                              ParamName="UV保压时间"
                                              ParamUnit="ms"
-                                             ParamValue="{Binding UVPreheatTime}" />
+                                             ParamValue="{Binding UVPreheatTime, Mode=TwoWay}" />
                 <ces:ParameterDisplayControl x:Name="tbUVExposureTime"
                                              Grid.Row="2"
                                              Grid.Column="1"
                                              Margin="5"
                                              ParamName="UV曝光时间"
                                              ParamUnit="ms"
-                                             ParamValue="{Binding UVExposureTime}" />
+                                             ParamValue="{Binding UVExposureTime, Mode=TwoWay}" />
 
                 <Button x:Name="btnUVSaveParameter"
                         Grid.Row="3"

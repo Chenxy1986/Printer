@@ -189,19 +189,19 @@
                                              ParamName="蠕动距离" 
                                              ParamUnit="nm"
                                              Grid.Row="1"
-                                             ParamValue="{Binding ZCreepDistance}"/>
+                                             ParamValue="{Binding ZCreepDistance, Mode=TwoWay}"/>
                 <ces:ParameterDisplayControl ParamName="压力值上限"
                                              ParamUnit="N"
                                              Grid.Row="2"
-                                             ParamValue="{Binding MaxPressure}" />
+                                             ParamValue="{Binding MaxPressure, Mode=TwoWay}" />
                 <ces:ParameterDisplayControl ParamName="压力值下限"
                                              ParamUnit="N"
                                              Grid.Row="3"
-                                             ParamValue="{Binding MinPressure}" />
+                                             ParamValue="{Binding MinPressure, Mode=TwoWay}" />
                 <ces:ParameterDisplayControl ParamName="当前压力值"
                                              ParamUnit="N"
                                              Grid.Row="4"
-                                             ParamValue="{Binding CurrentPressure}" />
+                                             ParamValue="{Binding CurrentPressure, Mode=TwoWay}" />
             </Grid>
         </GroupBox>
 

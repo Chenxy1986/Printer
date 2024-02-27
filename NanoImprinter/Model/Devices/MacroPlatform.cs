@@ -184,7 +184,7 @@ namespace NanoImprinter.Model
         [DisplayName("压印位置")]
         public Point2D ImprintPosition 
         {
-            get => _imprintPosition;
+            get => _imprintPosition ?? new Point2D(0, 0);
             set => SetProperty(ref _imprintPosition, value);
         }
 
@@ -192,7 +192,7 @@ namespace NanoImprinter.Model
         [DisplayName("圆心左监测点")]
         public Point2D LeftCenterPosition 
         {
-            get => _leftCenterPosition;
+            get => _leftCenterPosition ?? new Point2D(0, 0);
             set => SetProperty(ref _leftCenterPosition, value);
         }
 
@@ -200,7 +200,7 @@ namespace NanoImprinter.Model
         [DisplayName("圆心右监测点")]
         public Point2D RightCenterPosition
         {
-            get => _rightCenterPosition;
+            get => _rightCenterPosition??new Point2D(0,0);
             set => SetProperty(ref _rightCenterPosition, value);
         }
 
@@ -209,7 +209,7 @@ namespace NanoImprinter.Model
         [DisplayName("圆心上监测点")]
         public Point2D UpCenterPosition
         {
-            get => _upCenterPosition;
+            get => _upCenterPosition ?? new Point2D(0, 0);
             set => SetProperty(ref _upCenterPosition, value);
         }
 
@@ -217,7 +217,7 @@ namespace NanoImprinter.Model
         [DisplayName("圆心下监测点")]
         public Point2D DownCenterPosition
         {
-            get => _downCenterPosition;
+            get => _downCenterPosition ?? new Point2D(0, 0);
             set => SetProperty(ref _downCenterPosition, value);
         }
 

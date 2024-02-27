@@ -78,7 +78,9 @@
     <Compile Include="Converters\LogEventToStringConverter.cs" />
     <Compile Include="Converters\NameToLineMarginConverter.cs" />
     <Compile Include="Events\MessageFromMainViewEvent.cs" />
+    <Compile Include="Events\RefreshDataEvent.cs" />
     <Compile Include="Model\IPlatform.cs" />
+    <Compile Include="Model\IRefreshDataService.cs" />
     <Compile Include="Procedures\ImprintProcedure.cs" />
     <Compile Include="Procedures\PositionProcedure.cs" />
     <Compile Include="Procedures\UVCurePorcedure.cs" />

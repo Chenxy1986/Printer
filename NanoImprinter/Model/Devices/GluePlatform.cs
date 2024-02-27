@@ -83,7 +83,7 @@ namespace NanoImprinter.Model
         private double _gluePosition;
         private double _waitPosition;
         private double _workVel;
-        private GlueControlConfig _glueConfig = new GlueControlConfig();
+        private GlueControlConfig _glueConfig ;
 
         [Category("GluePlatform"), Description("点胶高度")]
         [DisplayName("点胶高度")]
@@ -114,7 +114,7 @@ namespace NanoImprinter.Model
         [DisplayName("点胶配置参数")]
         public GlueControlConfig GlueConfig 
         {
-            get => _glueConfig;
+            get => _glueConfig??new GlueControlConfig();
             set => SetProperty(ref _glueConfig, value);
         }
 

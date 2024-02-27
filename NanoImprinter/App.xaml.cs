@@ -19,7 +19,6 @@ namespace NanoImprinter
     {
         private IObservable<LogEvent> _logEventStream;
         private ISubject<LogEvent> _logEventSubject = new Subject<LogEvent>();
-
         public IObservable<LogEvent> LogEventStream => _logEventStream;
 
         protected override Window CreateShell()
@@ -39,7 +38,8 @@ namespace NanoImprinter
             containerRegistry.RegisterForNavigation<OtherView>();
             containerRegistry.RegisterSingleton<IMachineModel, MachineModel>();
             containerRegistry.RegisterSingleton<ProcedureManager>();
-           
+            containerRegistry.RegisterSingleton<IRefreshDataService, RefreshDataService>();
+
             //containerRegistry.RegisterSingleton<ILogService, LogService>();
         }
 

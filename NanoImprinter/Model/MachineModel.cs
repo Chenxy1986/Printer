@@ -120,16 +120,18 @@ namespace NanoImprinter.Model
 
     public class MachineModelConfig
     {
+        public WafeInfo WafeInfo { get; set; } = new WafeInfo();
+        public MaskInfo MaskInfo { get; set; } = new MaskInfo();
+
+        public ImprinterAxisConfig ImprinterAxis { get; set; } = new ImprinterAxisConfig();
+        public ImprinterIOConfig ImprinterIO { get; set; } = new ImprinterIOConfig();
 
         public AfmPlatformConfig AfmPlatform { get; set; } = new AfmPlatformConfig();
         public GluePlatformConfig GluePlatform { get; set; } = new GluePlatformConfig();
-        public ImprinterAxisConfig ImprinterAxis { get; set; } = new ImprinterAxisConfig();
-        public ImprinterIOConfig ImprinterIO { get; set; } = new ImprinterIOConfig();
         public MacroPlatformConfig MacroPlatform { get; set; } = new MacroPlatformConfig();
         public MicroPlatformConfig MicroPlatform { get; set; } = new MicroPlatformConfig();
         public ImprintPlatformConfig ImprintPlatform { get; set; } = new ImprintPlatformConfig();
-        public WafeInfo WafeInfo { get; set; } = new WafeInfo();
-        public MaskInfo MaskInfo { get; set; } = new MaskInfo();
+      
     }
 
 }

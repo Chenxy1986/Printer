@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using WestLakeShape.Motion;
 using WestLakeShape.Motion.Device;
@@ -10,6 +11,9 @@ namespace NanoImprinter.Model
 {
     public class ImprinterAxis
     {
+        private Timer _timerCallBack;
+        private double[] _positions;
+        
         private ImprinterAxisConfig _config;
 
         private TrioAxis _afmPlatformXAxis;// AFM平台
@@ -31,13 +35,12 @@ namespace NanoImprinter.Model
         private TrioAxis _imprintPlatformCameraAxis;//压印相机轴
 
         private TrioAxis _uvPlatformXAxis;//UV平台轴
-        private TrioAxis _uvPlatformZAxis;
-
+        private TrioAxis _uvPlatformZAxis; 
 
         public ImprinterAxis(ImprinterAxisConfig config)
         {
             _config = config;
-
+           
             _afmPlatformXAxis = new TrioAxis(config.AfmPlatformXAxis);
             _afmPlatformYAxis = new TrioAxis(config.AfmPlatformYAxis);
 
@@ -58,6 +61,10 @@ namespace NanoImprinter.Model
 
             _uvPlatformXAxis = new TrioAxis(config.UVPlatformXAxis);
             _uvPlatformZAxis = new TrioAxis(config.UVPlatformZAxis);
+
+            _positions = new double[10];
+            _timerCallBack = new Timer(new TimerCallback(RefreshAxisValue), null, 10, 1);
+
         }
 
         public List<IAxis> All()
@@ -119,6 +126,24 @@ namespace NanoImprinter.Model
                     _uvPlatformZAxis,
                 };
         }
+
+        public void RefreshAxisValue(object state)
+        {
+            var axes = All();
+            for(int i=0; i<axes.Count; i++)
+            {
+                if (_positions[i] != axes[i].Position)
+                {
+                    OnUpdateStatus(axes[i].Name, axes[i].Position);
+                }
+            }
+        }
+
+        public event EventHandler<AxisStatusEventArgs> UpdataStatusEvent;
+        protected virtual void OnUpdateStatus(string name,double position)
+        {
+            UpdataStatusEvent?.Invoke(this, new AxisStatusEventArgs(name,position));
+        }
     }
 
     public class ImprinterAxisConfig
@@ -155,5 +180,17 @@ namespace NanoImprinter.Model
         /// </summary>
         public TrioAxisConfig UVPlatformXAxis { get; set; } = new TrioAxisConfig() { Name = "UV X轴" };
         public TrioAxisConfig UVPlatformZAxis { get; set; } = new TrioAxisConfig() { Name = "UV Z轴" };
+    }
+
+    public class AxisStatusEventArgs : EventArgs
+    {
+        public double CurrentPosition { get; private set; }
+        public string Name { get; private set; }
+
+        public AxisStatusEventArgs(string name,double currentPosition)
+        {
+            Name = name;
+            CurrentPosition = currentPosition;
+        }
     }
 }
