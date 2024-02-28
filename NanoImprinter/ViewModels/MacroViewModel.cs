@@ -17,15 +17,15 @@ namespace NanoImprinter.ViewModels
         private readonly IMachineModel _machine;
         private MacroPlatform _macroPlatform;
         private double _xWorkVel;
-        public double _yWorkVel;
-        public double _rWorkVel;
-        public Point2D _loadPosition;
-        public Point2D _gluePosition;
-        public Point2D _imprintPosition;
-        public Point2D _leftCenterPosition;
-        public Point2D _rightCenterPosition;
-        public Point2D _upCenterPosition;
-        public Point2D _downCenterPosition;
+        private double _yWorkVel;
+        private double _rWorkVel;
+        private Point2D _loadPosition = new Point2D();
+        private Point2D _gluePosition = new Point2D();
+        private Point2D _imprintPosition = new Point2D();
+        private Point2D _leftCenterPosition = new Point2D();
+        private Point2D _rightCenterPosition = new Point2D();
+        private Point2D _upCenterPosition = new Point2D();
+        private Point2D _downCenterPosition = new Point2D();
         #region property
         public ObservableCollection<IAxis> Axes { get; set; }
 
@@ -112,6 +112,7 @@ namespace NanoImprinter.ViewModels
             Axes.Add(_macroPlatform.XAxis);
             Axes.Add(_macroPlatform.YAxis);
             Axes.Add(_macroPlatform.RAxis);
+        ReloadParam();
         }
 
 

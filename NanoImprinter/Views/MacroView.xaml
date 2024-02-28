@@ -126,61 +126,61 @@
                 <TextBox x:Name="tbMacroWaitPostionX"
                          Grid.Row="1"
                          Grid.Column="1"
-                         Text="{Binding LoadPosition.X}" />
+                         Text="{Binding LoadPosition.X,Mode=TwoWay}" />
                 <TextBox x:Name="tbMacroGluePostionX"
                          Grid.Row="2"
                          Grid.Column="1"
-                         Text="{Binding GluePosition.X}" />
+                         Text="{Binding GluePosition.X,Mode=TwoWay}" />
                 <TextBox x:Name="tbMacroImprintPostionX"
                          Grid.Row="3"
                          Grid.Column="1"
-                         Text="{Binding ImprintPosition.X}" />
+                         Text="{Binding ImprintPosition.X,Mode=TwoWay}" />
                 <TextBox x:Name="tbMacroLeftCenterPositionX"
                          Grid.Row="4"
                          Grid.Column="1"
-                         Text="{Binding LeftCenterPosition.X}" />
+                         Text="{Binding LeftCenterPosition.X,Mode=TwoWay}" />
                 <TextBox x:Name="tbMacroRightCenterPositionX"
                          Grid.Row="5"
                          Grid.Column="1"
-                         Text="{Binding RightCenterPosition.X}" />
+                         Text="{Binding RightCenterPosition.X,Mode=TwoWay}" />
                 <TextBox x:Name="tbMacroUpCenterPositionX"
                          Grid.Row="6"
                          Grid.Column="1"
-                         Text="{Binding UpCenterPosition.X}" />
+                         Text="{Binding UpCenterPosition.X,Mode=TwoWay}" />
                 <TextBox x:Name="tbMacroDownCenterPositionX"
                          Grid.Row="7"
                          Grid.Column="1"
-                         Text="{Binding DownCenterPosition.X}" />
+                         Text="{Binding DownCenterPosition.X,Mode=TwoWay}" />
 
 
                 <TextBox x:Name="tbMacroWaitPostionY"
                          Grid.Row="1"
                          Grid.Column="2"
-                         Text="{Binding LoadPosition.Y}" />
+                         Text="{Binding LoadPosition.Y,Mode=TwoWay}" />
                 <TextBox x:Name="tbMacroGluePostionY"
                          Grid.Row="2"
                          Grid.Column="2"
-                         Text="{Binding GluePosition.Y}" />
+                         Text="{Binding GluePosition.Y,Mode=TwoWay}" />
                 <TextBox x:Name="tbMacroImprintPostionY"
                          Grid.Row="3"
                          Grid.Column="2"
-                         Text="{Binding ImprintPosition.Y}" />
+                         Text="{Binding ImprintPosition.Y,Mode=TwoWay}" />
                 <TextBox x:Name="tbMacroLeftCenterPositionY"
                          Grid.Row="4"
                          Grid.Column="2"
-                         Text="{Binding LeftCenterPosition.Y}" />
+                         Text="{Binding LeftCenterPosition.Y,Mode=TwoWay}" />
                 <TextBox x:Name="tbMacroRightCenterPositionY"
                          Grid.Row="5"
                          Grid.Column="2"
-                         Text="{Binding RightCenterPosition.Y}" />
+                         Text="{Binding RightCenterPosition.Y,Mode=TwoWay}" />
                 <TextBox x:Name="tbMacroUpCenterPositionY"
                          Grid.Row="6"
                          Grid.Column="2"
-                         Text="{Binding UpCenterPosition.Y}" />
+                         Text="{Binding UpCenterPosition.Y,Mode=TwoWay}" />
                 <TextBox x:Name="tbMacroDownCenterPositionY"
                          Grid.Row="7"
                          Grid.Column="2"
-                         Text="{Binding DownCenterPosition.Y}" />
+                         Text="{Binding DownCenterPosition.Y,Mode=TwoWay}" />
 
                 <Button x:Name="btnMacroMoveToLoadPosition"
                         Grid.Row="1"

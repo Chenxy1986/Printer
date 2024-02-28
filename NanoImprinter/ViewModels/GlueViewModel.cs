@@ -111,7 +111,8 @@ namespace NanoImprinter.ViewModels
             _gluePlatform = _machine.GetPlatform(typeof(GluePlatform).Name) as GluePlatform;
             _platformConfig = _machine.Config.GluePlatform;
             Axes = new ObservableCollection<IAxis>();
-            Axes.Add(_gluePlatform.ZAxis);
+            Axes.Add(_gluePlatform.GlueZAxis);
+            ReloadParam();
         }
 
 
@@ -139,7 +140,6 @@ namespace NanoImprinter.ViewModels
             _platformConfig.WaitPosition = WaitPosition;
             _platformConfig.GluePosition = GluePosition;
             _platformConfig.WorkVel = WorkVel;
-
             _platformConfig.GlueConfig.OpenValveTime = OpenTime;
             _platformConfig.GlueConfig.OpenValveIntensity = OpenIntensity;
             _platformConfig.GlueConfig.ClosedValveTime = CloseTime;

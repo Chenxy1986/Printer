@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using WestLakeShape.Common;
 using WestLakeShape.Common.WpfCommon;
 using WestLakeShape.Motion;
@@ -23,8 +24,12 @@ namespace NanoImprinter.Model
         void ResetAxesAlarm();
     }
 
-    public class MacroPlatform:IMacroPlatform,IPlatform
+    public class MacroPlatform:IMacroPlatform,IPlatform,INotifyPropertyChanged
     {
+        private double _currentPositionX;
+        private double _currentPositionY;
+        private double _currentPositionR;
+
         public IAxis XAxis { get; }
         public IAxis YAxis { get; }
         public IAxis RAxis { get; }
@@ -34,15 +39,52 @@ namespace NanoImprinter.Model
             get; set;
         }
 
+        public double CurrentPositionX
+        {
+            get => _currentPositionX;
+            set 
+            {
+                if (_currentPositionX != value)
+                {
+                    _currentPositionX = value;
+                    OnPropertyChanged(nameof(CurrentPositionX));
+                }
+            }
+        }
+        public double CurrentPositionY
+        {
+            get => _currentPositionY;
+            set
+            {
+                if (_currentPositionY != value)
+                {
+                    _currentPositionY = value;
+                    OnPropertyChanged(nameof(CurrentPositionY));
+                }
+            }
+        }
+        public double CurrentPositionR
+        {
+            get => _currentPositionR;
+            set
+            {
+                if (_currentPositionR != value)
+                {
+                    _currentPositionR = value;
+                    OnPropertyChanged(nameof(CurrentPositionR));
+                }
+            }
+        }
+
         public MacroPlatform(MacroPlatformConfig config,IAxis[] axes)
         {
             Config = config;
+
             XAxis = axes[0];
             YAxis = axes[1];
             RAxis = axes[2];
-            //XAxis = new TrioAxis(Config.XAxisConfig);
-            //YAxis = new TrioAxis(Config.YAxisConfig);
-            //RAxis = new TrioAxis(Config.RAxisConfig);
+
+            RefreshDataService.Instance.Register(RefreshRealtimeData);
         }
 
         public List<IAxis> Axes()
@@ -65,6 +107,7 @@ namespace NanoImprinter.Model
             return MoveBy(offsetValue.X,
                           offsetValue.Y,
                           offsetValue.R);
+           
         }
 
         /// <summary>
@@ -129,20 +172,40 @@ namespace NanoImprinter.Model
             Task.WaitAll(xMovement, yMovement, rMovement);
             return true;
         }
+        private void RefreshRealtimeData()
+        {
+            if (_currentPositionX != XAxis.Position)
+                CurrentPositionX = XAxis.Position;
+            if (_currentPositionY != YAxis.Position)
+                CurrentPositionY = YAxis.Position;
+            if (_currentPositionR != RAxis.Position)
+                CurrentPositionR = RAxis.Position;
+        }
 
-
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            var handler = PropertyChanged;
+            if (handler != null)
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    handler(this, new PropertyChangedEventArgs(propertyName));
+                });
+            }
+        }
     }
 
 
     public class MacroPlatformConfig:NotifyPropertyChanged
     {
-        private Point2D _loadPosition;
-        private Point2D _gluePosition;
-        private Point2D _imprintPosition;
-        private Point2D _leftCenterPosition;
-        private Point2D _rightCenterPosition;
-        private Point2D _upCenterPosition;
-        private Point2D _downCenterPosition;
+        private Point2D _loadPosition = new Point2D(0, 0);
+        private Point2D _gluePosition = new Point2D(0, 0);
+        private Point2D _imprintPosition = new Point2D(0, 0);
+        private Point2D _leftCenterPosition = new Point2D(0, 0);
+        private Point2D _rightCenterPosition = new Point2D(0, 0);
+        private Point2D _upCenterPosition = new Point2D(0, 0);
+        private Point2D _downCenterPosition = new Point2D(0, 0);
         private double _xWorkVel;
         private double _yWorkVel;
         private double _rWorkVel;
@@ -184,7 +247,7 @@ namespace NanoImprinter.Model
         [DisplayName("压印位置")]
         public Point2D ImprintPosition 
         {
-            get => _imprintPosition ?? new Point2D(0, 0);
+            get => _imprintPosition ;
             set => SetProperty(ref _imprintPosition, value);
         }
 
@@ -192,7 +255,7 @@ namespace NanoImprinter.Model
         [DisplayName("圆心左监测点")]
         public Point2D LeftCenterPosition 
         {
-            get => _leftCenterPosition ?? new Point2D(0, 0);
+            get => _leftCenterPosition ;
             set => SetProperty(ref _leftCenterPosition, value);
         }
 
@@ -200,7 +263,7 @@ namespace NanoImprinter.Model
         [DisplayName("圆心右监测点")]
         public Point2D RightCenterPosition
         {
-            get => _rightCenterPosition??new Point2D(0,0);
+            get => _rightCenterPosition;
             set => SetProperty(ref _rightCenterPosition, value);
         }
 
@@ -209,7 +272,7 @@ namespace NanoImprinter.Model
         [DisplayName("圆心上监测点")]
         public Point2D UpCenterPosition
         {
-            get => _upCenterPosition ?? new Point2D(0, 0);
+            get => _upCenterPosition;
             set => SetProperty(ref _upCenterPosition, value);
         }
 
@@ -217,7 +280,7 @@ namespace NanoImprinter.Model
         [DisplayName("圆心下监测点")]
         public Point2D DownCenterPosition
         {
-            get => _downCenterPosition ?? new Point2D(0, 0);
+            get => _downCenterPosition;
             set => SetProperty(ref _downCenterPosition, value);
         }
 

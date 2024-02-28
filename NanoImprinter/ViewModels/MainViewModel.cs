@@ -236,14 +236,11 @@ namespace NanoImprinter.ViewModels
 
         public MainViewModel(IEventAggregator eventAggregator,
             IMachineModel machine, 
-            ProcedureManager manager,
-            IRefreshDataService refreshDataService)
+            ProcedureManager manager)
         {
             _machine = machine;
             _manager = manager;
             eventAggregator.GetEvent<ProcedureInfoEvent>().Subscribe(ProcedureInfoChanged);
-
-            refreshDataService.Register(RefreshData);
 
             LogEvents = new ObservableCollection<LogEvent>();
             if (Application.Current is App app)

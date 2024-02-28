@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using WestLakeShape.Common;
 using WestLakeShape.Common.WpfCommon;
 using WestLakeShape.Motion;
@@ -21,7 +22,7 @@ namespace NanoImprinter.Model
         void ResetAxesAlarm();
     }
 
-    public class ImprintPlatform:IImprintPlatform,IPlatform
+    public class ImprintPlatform:IImprintPlatform,IPlatform,INotifyPropertyChanged
     {
         private ImprintPlatformConfig _config;
         private IAxis _maskZAxis;
@@ -30,6 +31,15 @@ namespace NanoImprinter.Model
         private IAxis _uvZAxis;
         private ForceSensorControl _forceControl;
         private UVControl _uvControl;
+        
+        private double _currentPositionMaskZ;
+        private double _currentPositionCameraZ;
+        private double _currentPositionUVX;
+        private double _currentPositionUVZ;
+        private double _forceValue0;
+        private double _forceValue1;
+        private double _forceValue2;
+        private double _forceValue3;
 
         public ImprintPlatformConfig Config
         {
@@ -42,6 +52,108 @@ namespace NanoImprinter.Model
         public IAxis UVXAxis => _uvXAxis;
         public IAxis UVZAxis => _uvZAxis;
 
+        #region 实时数据
+        public double CurrentPositionMaskZ
+        {
+            get => _currentPositionMaskZ;
+            set
+            {
+                if (_currentPositionMaskZ != value)
+                {
+                    _currentPositionMaskZ = value;
+                    OnPropertyChanged(nameof(CurrentPositionMaskZ));
+                }
+            }
+        }
+
+        public double CurrentPositionCameraZ
+        {
+            get => _currentPositionCameraZ;
+            set
+            {
+                if (_currentPositionCameraZ != value)
+                {
+                    _currentPositionCameraZ = value;
+                    OnPropertyChanged(nameof(CurrentPositionCameraZ));
+                }
+            }
+        }
+
+        public double CurrentPositionUVX
+        {
+            get => _currentPositionUVX;
+            set
+            {
+                if (_currentPositionUVX != value)
+                {
+                    _currentPositionUVX = value;
+                    OnPropertyChanged(nameof(CurrentPositionUVX));
+                }
+            }
+        }
+        public double CurrentPositionUVZ
+        {
+            get => _currentPositionUVZ;
+            set
+            {
+                if (_currentPositionUVZ != value)
+                {
+                    _currentPositionUVZ = value;
+                    OnPropertyChanged(nameof(CurrentPositionUVZ));
+                }
+            }
+        }
+
+        public double ForceValue0
+        {
+            get => _forceValue0;
+            set
+            {
+                if (_forceValue0 != value)
+                {
+                    _forceValue0 = value;
+                    OnPropertyChanged(nameof(ForceValue0));
+                }
+            }
+        }
+        public double ForceValue1
+        {
+            get => _forceValue1;
+            set
+            {
+                if (_forceValue1 != value)
+                {
+                    _forceValue1 = value;
+                    OnPropertyChanged(nameof(ForceValue1));
+                }
+            }
+        }
+        public double ForceValue2
+        {
+            get => _forceValue2;
+            set
+            {
+                if (_forceValue2 != value)
+                {
+                    _forceValue2 = value;
+                    OnPropertyChanged(nameof(ForceValue2));
+                }
+            }
+        }
+        public double ForceValue3
+        {
+            get => _forceValue3;
+            set
+            {
+                if (_forceValue3 != value)
+                {
+                    _forceValue3 = value;
+                    OnPropertyChanged(nameof(ForceValue3));
+                }
+            }
+        }
+
+        #endregion
 
         public ImprintPlatform(ImprintPlatformConfig config,IAxis[] axes)
         {
@@ -56,6 +168,7 @@ namespace NanoImprinter.Model
             //_cameraZAxis = new TrioAxis(_config.CameraZAxisConfig);
             //_uvXAxis = new TrioAxis(_config.UVXAxisConfig);
             //_uvYAxis = new TrioAxis(_config.UVYAxisConfig);
+            RefreshDataService.Instance.Register(RefreshRealtimeData);
         }
 
         public bool GoHome()
@@ -126,7 +239,7 @@ namespace NanoImprinter.Model
 
         public double[] GetForceValue()
         {
-           return _forceControl.RefreshValue();
+           return _forceControl.RefreshValues();
         }
 
         public bool UVIrradiate()
@@ -135,6 +248,37 @@ namespace NanoImprinter.Model
             Thread.Sleep(_config.UVConfig.PreheatTime);
             _uvControl.TurnOff();
             return true;
+        }
+
+        private void RefreshRealtimeData()
+        {
+            if (_currentPositionCameraZ != _cameraZAxis.Position)
+                _currentPositionCameraZ = _cameraZAxis.Position;
+            if (_currentPositionMaskZ != _maskZAxis.Position)
+                _currentPositionMaskZ = _maskZAxis.Position;
+            if (_currentPositionUVX != _uvXAxis.Position)
+                _currentPositionUVX = _uvXAxis.Position;
+            if (_forceValue0 != _forceControl.ForceValue0)
+                _forceValue0 = _forceControl.ForceValue0;
+            if (_forceValue1 != _forceControl.ForceValue1)
+                _forceValue1 = _forceControl.ForceValue1;
+            if (_forceValue2 != _forceControl.ForceValue2)
+                _forceValue2 = _forceControl.ForceValue2;
+            if (_forceValue3 != _forceControl.ForceValue3)
+                _forceValue3 = _forceControl.ForceValue3;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            var handler = PropertyChanged;
+            if (handler != null)
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    handler(this, new PropertyChangedEventArgs(propertyName));
+                });
+            }
         }
     }
 
@@ -147,8 +291,8 @@ namespace NanoImprinter.Model
         private double _cameraTakePictureHeight;
         private double _cameraZWorkVel;
         private double _cameraXDirSafePosition;
-        private PointXZ _uvWaitPosition;
-        private PointXZ _uvIrradiationPosition;
+        private PointXZ _uvWaitPosition = new PointXZ(0, 0);
+        private PointXZ _uvIrradiationPosition = new PointXZ(0, 0);
         private double _uvXWorkVel;
         private double _uvYWorkVel;
         private UVControlConfig _uvConfig = new UVControlConfig();
@@ -220,7 +364,7 @@ namespace NanoImprinter.Model
         [DisplayName("UV等待位")]
         public PointXZ UVWaitPosition 
         {
-            get => _uvWaitPosition?? new PointXZ(0,0);
+            get => _uvWaitPosition;
             set => SetProperty(ref _uvWaitPosition, value);
         }
 
@@ -228,7 +372,7 @@ namespace NanoImprinter.Model
         [DisplayName("UV照射位")]
         public PointXZ UVIrradiationPosition
         {
-            get => _uvIrradiationPosition ?? new PointXZ(0, 0);
+            get => _uvIrradiationPosition ;
             set => SetProperty(ref _uvIrradiationPosition, value);
         }
 

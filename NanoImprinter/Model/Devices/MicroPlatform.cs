@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using WestLakeShape.Common;
 using WestLakeShape.Common.WpfCommon;
 using WestLakeShape.Motion.Device;
@@ -25,12 +26,15 @@ namespace NanoImprinter.Model
         bool JogBackward(ChannelNo index, double position);
     }
 
-    public class MicroPlatform:IMicroPlatform,IPlatform
+    public class MicroPlatform:IMicroPlatform,IPlatform,INotifyPropertyChanged
     {
         private MicroPlatformConfig _config;
         private PiezoActuator _piezo;
         private bool _isconnected;
-        private PointZRXY _currentPosition;
+
+        private double _currentPositionZ;
+        private double _currentPositionRX;
+        private double _currentPositionRY;
 
         public bool IsConnected => _piezo.IsConnected;
         public ChannelNo ZAxis => ChannelNo.Third;
@@ -43,14 +47,50 @@ namespace NanoImprinter.Model
             set => _config = value;
         }
 
-        public PointZRXY CurrentPosition => _currentPosition;
-
+        public double CurrentPositionZ
+        {
+            get => _currentPositionZ;
+            set
+            {
+                if (_currentPositionZ != value)
+                {
+                    _currentPositionZ = value;
+                    OnPropertyChanged(nameof(CurrentPositionZ));
+                }
+            }
+        }
+        public double CurrentPositionRX
+        {
+            get => _currentPositionRX;
+            set
+            {
+                if (_currentPositionRX != value)
+                {
+                    _currentPositionRX = value;
+                    OnPropertyChanged(nameof(CurrentPositionRX));
+                }
+            }
+        }
+        public double CurrentPositionRY
+        {
+            get => _currentPositionRY;
+            set
+            {
+                if (_currentPositionRY != value)
+                {
+                    _currentPositionRY = value;
+                    OnPropertyChanged(nameof(CurrentPositionRY));
+                }
+            }
+        }
 
         public MicroPlatform(MicroPlatformConfig config)
         {
             _config = config;
             _piezo = new PiezoActuator(_config.PortName);
-            _currentPosition = new PointZRXY(0, 0, 0);
+            CurrentPositionZ = 0;
+            CurrentPositionRX = 0;
+            CurrentPositionRY = 0;
         }
 
 
@@ -60,7 +100,7 @@ namespace NanoImprinter.Model
             {
                 _piezo.Connect();
                 Thread.Sleep(100);
-                _currentPosition = RefreshStates();
+                ReadPositions();
             }
         }
 
@@ -153,7 +193,7 @@ namespace NanoImprinter.Model
             _piezo.WriteDisplace(index, position);
             Thread.Sleep(100);
 
-            RefreshStates();
+            ReadPositions();
         }
 
         /// <summary>
@@ -165,15 +205,20 @@ namespace NanoImprinter.Model
             _piezo.WriteMultiDisplace(new double[] { position.RX, position.RY, position.Z });
             Thread.Sleep(100);
 
-            RefreshStates();
+            ReadPositions();
         }
 
 
-        private PointZRXY RefreshStates()
+        private bool ReadPositions()
         {
+            ///写太久忘记移动后如何判断是否移动完毕
+            ///后期待定
             var position = _piezo.ReadMultiDisplace();
+            CurrentPositionZ = position[0];
+            CurrentPositionRX = position[1];
+            CurrentPositionRY = position[2];
 
-            return new PointZRXY(position[0], position[1], position[2]);
+            return true;
         }
 
         private double CalculateDisplace(ChannelNo index, double postion)
@@ -182,18 +227,32 @@ namespace NanoImprinter.Model
             switch (index)
             {
                 case ChannelNo.One:
-                    position = _currentPosition.RX + postion;
+                    position = _currentPositionRX + postion;
                     break;
                 case ChannelNo.Two:
 
-                    position = _currentPosition.RY + postion;
+                    position = _currentPositionRY + postion;
                     break;
                 case ChannelNo.Third:
-                    position = _currentPosition.Z + postion;
+                    position = _currentPositionZ + postion;
                     break;
             }
 
             return position;
+        }
+
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            var handler = PropertyChanged;
+            if (handler != null)
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    handler(this, new PropertyChangedEventArgs(propertyName));
+                });
+            }
         }
 
     }
@@ -202,8 +261,8 @@ namespace NanoImprinter.Model
         private string _portName = "Com1";
         private double _contactPosition;
         private double _zCreepDistance;
-        private PointZRXY _levelPosition;
-        private PointZRXY _demoldPosition;
+        private PointZRXY _levelPosition = new PointZRXY(0, 0, 0);
+        private PointZRXY _demoldPosition = new PointZRXY(0, 0, 0);
         private double _maxPressure;
         private double _minPressure;
 
@@ -235,7 +294,7 @@ namespace NanoImprinter.Model
         [DisplayName("jiec")]
         public PointZRXY DemoldPosition 
         {
-            get => _demoldPosition??new PointZRXY(0,0,0);
+            get => _demoldPosition;
             set => SetProperty(ref _demoldPosition, value);
         }
 
@@ -243,7 +302,7 @@ namespace NanoImprinter.Model
         [DisplayName("调平位置")]
         public PointZRXY LevelPosition
         {
-            get => _levelPosition??new PointZRXY(0,0,0);
+            get => _levelPosition;
             set => SetProperty(ref _levelPosition, value);
         }
 
@@ -264,4 +323,5 @@ namespace NanoImprinter.Model
             set => SetProperty(ref _minPressure, value);
         }
     }
+
 }

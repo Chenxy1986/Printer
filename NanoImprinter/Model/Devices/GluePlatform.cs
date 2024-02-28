@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using WestLakeShape.Common.WpfCommon;
 using WestLakeShape.Motion;
 using WestLakeShape.Motion.Device;
@@ -21,31 +22,45 @@ namespace NanoImprinter.Model
         void ResetAxesAlarm();
     }
 
-    public class GluePlatform:IGluePlatform, IPlatform
+    public class GluePlatform:IGluePlatform, IPlatform, INotifyPropertyChanged
     {
         private GluePlatformConfig _config;
-
-        private IAxis _zAxis;
+        private IAxis _glueZAxis;
         private GlueControl _glueControl;
+        private double _currentPositionGlueZ;
 
-        public IAxis ZAxis => _zAxis;
-
+        public IAxis GlueZAxis => _glueZAxis;
         public GluePlatformConfig Config
         {
             get => _config;
             set => _config = value;
         }
+
+        public double CurrentPositionGlueZ
+        {
+            get => _currentPositionGlueZ;
+            set
+            {
+                if (_currentPositionGlueZ != value)
+                {
+                    _currentPositionGlueZ = value;
+                    OnPropertyChanged(nameof(CurrentPositionGlueZ));
+                }
+            }
+        }
+
         public GluePlatform(GluePlatformConfig config,IAxis[] axes)
         {
             _config = config;
             //_zAxis = new TrioAxis(config.AxisConfig);
-            _zAxis = axes[0];
+            _glueZAxis = axes[0];
             _glueControl = new GlueControl(config.GlueConfig);
+
         }
 
         public bool GoHome()
         {
-             return _zAxis.GoHome();
+             return _glueZAxis.GoHome();
         }
 
         public bool MoveToWaitPosition()
@@ -59,9 +74,13 @@ namespace NanoImprinter.Model
 
         private bool MoveBy(double position)
         {
-            _zAxis.MoveTo(position);
+            _glueZAxis.MoveTo(position);
             return true;
         }
+        /// <summary>
+        /// 点胶
+        /// </summary>
+        /// <returns></returns>
         public bool Glue()
         {
             _glueControl.StartDispense();
@@ -72,9 +91,29 @@ namespace NanoImprinter.Model
 
         public void ResetAxesAlarm()
         {
-            ((TrioAxis)_zAxis).ResetAlarm();
+            ((TrioAxis)_glueZAxis).ResetAlarm();
         }
 
+        private void RefreshRealtimeData()
+        {
+            if (_currentPositionGlueZ != _glueZAxis.Position)
+                CurrentPositionGlueZ = _glueZAxis.Position;
+        }
+
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            var handler = PropertyChanged;
+            if (handler != null)
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    handler(this, new PropertyChangedEventArgs(propertyName));
+                });
+            }
+        }
+    
     }
 
 
@@ -83,7 +122,7 @@ namespace NanoImprinter.Model
         private double _gluePosition;
         private double _waitPosition;
         private double _workVel;
-        private GlueControlConfig _glueConfig ;
+        private GlueControlConfig _glueConfig = new GlueControlConfig() ;
 
         [Category("GluePlatform"), Description("点胶高度")]
         [DisplayName("点胶高度")]
@@ -114,7 +153,7 @@ namespace NanoImprinter.Model
         [DisplayName("点胶配置参数")]
         public GlueControlConfig GlueConfig 
         {
-            get => _glueConfig??new GlueControlConfig();
+            get => _glueConfig;
             set => SetProperty(ref _glueConfig, value);
         }
 

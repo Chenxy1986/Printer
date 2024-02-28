@@ -15,24 +15,18 @@ namespace NanoImprinter.ViewModels
     public class OtherViewModel
     {
         private readonly IMachineModel _machine;
-        private readonly IRefreshDataService _refreshDataService;
+        
         public DelegateCommand<string> SetOutputValueCommand => new DelegateCommand<string>(SetOutputValue);
 
         public ObservableCollection<StateValue> InputIOs { get; private set; }
         public ObservableCollection<StateValue> OutputIOs { get;  set; }
-        public OtherViewModel(IMachineModel machine, IRefreshDataService refreshDataService)
+        public OtherViewModel(IMachineModel machine)
         {
             _machine = machine;
             InputIOs = new ObservableCollection<StateValue>();
             OutputIOs = new ObservableCollection<StateValue>();
             Initial();
-            _refreshDataService = refreshDataService;
-            refreshDataService.Register(RefreshState);
-        }
-
-        ~OtherViewModel()
-        {
-            _refreshDataService.Unregister(RefreshState);
+            RefreshDataService.Instance.Register(RefreshIOState);
         }
 
         private void Initial()
@@ -49,7 +43,7 @@ namespace NanoImprinter.ViewModels
         }
 
 
-        private void RefreshState()
+        private void RefreshIOState()
         {
             var states = _machine.IOStates;
             

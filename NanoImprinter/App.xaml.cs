@@ -38,7 +38,7 @@ namespace NanoImprinter
             containerRegistry.RegisterForNavigation<OtherView>();
             containerRegistry.RegisterSingleton<IMachineModel, MachineModel>();
             containerRegistry.RegisterSingleton<ProcedureManager>();
-            containerRegistry.RegisterSingleton<IRefreshDataService, RefreshDataService>();
+            //containerRegistry.RegisterSingleton<IRefreshDataService, RefreshDataService>();
 
             //containerRegistry.RegisterSingleton<ILogService, LogService>();
         }

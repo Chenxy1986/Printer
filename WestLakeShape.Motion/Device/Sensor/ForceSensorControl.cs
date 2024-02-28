@@ -16,6 +16,30 @@ namespace WestLakeShape.Motion.Device
         private SerialPort _port;
         private bool _isConnected;
         private Stream _stream;
+        private List<double> _forceValues;
+
+        public double ForceValue0
+        {
+            get => _forceValues[0];
+            private set => _forceValues[0] = value;
+        }
+        public double ForceValue1
+        {
+            get => _forceValues[1];
+            private set => _forceValues[1] = value;
+        }
+        public double ForceValue2
+        {
+            get => _forceValues[2];
+            private set => _forceValues[2] = value;
+        }
+        public double ForceValue3
+        {
+            get => _forceValues[3];
+            private set => _forceValues[3] = value;
+        }
+
+
 
         public ForceSensorControl(string name)
         {
@@ -28,6 +52,13 @@ namespace WestLakeShape.Motion.Device
                 Parity = Parity.None,
                 ReadTimeout = 1000,
                 WriteTimeout = 1000
+            };
+            _forceValues = new List<double> 
+            {
+                0.1,
+                0.2,
+                0.3,
+                0.4
             };
         }
         public void Connected()
@@ -48,7 +79,7 @@ namespace WestLakeShape.Motion.Device
         }
 
 
-        public double[] RefreshValue()
+        public double[] RefreshValues()
         {
             var buff = new byte[8];
             CreatRequest(buff);
@@ -64,7 +95,10 @@ namespace WestLakeShape.Motion.Device
                 //数据分析
                 var data = new byte[Sensor_Count * Sensor_Register_Count];
                 Array.Copy(receData,3, data, 0, data.Length);
-                return ConvertToDouble(data).ToArray();
+
+                //转化成double保存在_forceValues
+                ConvertToDouble(data);
+                return _forceValues.ToArray();
 
             }
             catch (Exception ex) 
@@ -79,7 +113,7 @@ namespace WestLakeShape.Motion.Device
         /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
-        public List<double> ConvertToDouble(byte[] bytes)
+        public void ConvertToDouble(byte[] bytes)
         {
             var datas = new List<double>();
             ///4个byte为一通道数据
@@ -90,15 +124,15 @@ namespace WestLakeShape.Motion.Device
                 {
                     double k = (bytes[0] & 0x80) == 0x80 ? -1 : 1;
                     var temp = (double)(bytes[0] * 256 + bytes[1] + (bytes[2] * 256 + bytes[3]) * 0.0001);
-                    datas.Add(k * temp);
+                    _forceValues.Add(k * temp);
                 }
             }
             else
             {
                 for (var i = 0; i < bytes.Length; i++)
-                    datas.Add((double)bytes[i]);
+                    _forceValues.Add((double)bytes[i]);
             }
-            return datas;
+           
         }
 
 

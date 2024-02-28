@@ -20,7 +20,7 @@ namespace WestLakeShape.Common
     {
         private double _x;
         private double _y;
-        public Point2D(double x, double y)
+        public Point2D(double x =0, double y =0)
         {
             X = x;
             Y = y;

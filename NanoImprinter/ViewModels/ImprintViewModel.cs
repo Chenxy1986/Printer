@@ -28,7 +28,7 @@ namespace NanoImprinter.ViewModels
         private PointXZ _uvWaitPosition;
         private PointXZ _uvIrradiationPosition;
         private double _uvXWorkVel;
-        private double _uvYWorkVel;
+        private double _uvZWorkVel;
         private int _uvPreheatTime;
         private int _uvExposureTime;
         private ImprintPlatformConfig _platformConfig;
@@ -94,10 +94,10 @@ namespace NanoImprinter.ViewModels
             set => SetProperty(ref _uvXWorkVel, value);
         }
 
-        public double UVYWorkVel
+        public double UVZWorkVel
         {
-            get => _uvYWorkVel;
-            set => SetProperty(ref _uvYWorkVel, value);
+            get => _uvZWorkVel;
+            set => SetProperty(ref _uvZWorkVel, value);
         }
 
         public int UVPreheatTime
@@ -147,6 +147,8 @@ namespace NanoImprinter.ViewModels
             Axes.Add(_plate.CameraZAxis);
             Axes.Add(_plate.UVXAxis);
             Axes.Add(_plate.UVZAxis);
+            _uvWaitPosition = new PointXZ(0,0);
+            _uvIrradiationPosition = new PointXZ(0,0);
             ReloadParam();
         }
 
@@ -182,7 +184,7 @@ namespace NanoImprinter.ViewModels
             _platformConfig.UVWaitPosition = UVWaitPosition;
             _platformConfig.UVIrradiationPosition = UVIrradiationPosition;
             _platformConfig.UVXWorkVel = UVXWorkVel;
-            _platformConfig.UVYWorkVel = UVYWorkVel;
+            _platformConfig.UVYWorkVel = UVZWorkVel;
             _platformConfig.UVConfig.PreheatTime = UVPreheatTime;
             _platformConfig.UVConfig.ExposureTime = UVExposureTime;
             _platformConfig.UVZDirSafePosition = UVZDirSafePosition;
@@ -191,18 +193,20 @@ namespace NanoImprinter.ViewModels
 
         private void ReloadParam()
         {
-           MaskWaitHeight = _platformConfig.MaskWaitHeight;
-           MaskPreprintHeight = _platformConfig.MaskPreprintHeight;
-           MaskZWorkVel = _platformConfig.MaskZWorkVel;
-           CameraWaitHeight = _platformConfig.CameraWaitHeight;
-           CameraTakePictureHeight = _platformConfig.CameraTakePictureHeight;
-           CameraZWorkVel = _platformConfig.CameraZWorkVel ;
-           XDirSafePosition = _platformConfig.CameraXDirSafePosition ;
-           UVWaitPosition = _platformConfig.UVWaitPosition ;
-           UVIrradiationPosition = _platformConfig.UVIrradiationPosition ;
-           UVXWorkVel = _platformConfig.UVXWorkVel;
-           UVYWorkVel = _platformConfig.UVYWorkVel ;
-           UVZDirSafePosition = _platformConfig.UVZDirSafePosition ;
+            MaskWaitHeight = _platformConfig.MaskWaitHeight;
+            MaskPreprintHeight = _platformConfig.MaskPreprintHeight;
+            MaskZWorkVel = _platformConfig.MaskZWorkVel;
+            CameraWaitHeight = _platformConfig.CameraWaitHeight;
+            CameraTakePictureHeight = _platformConfig.CameraTakePictureHeight;
+            CameraZWorkVel = _platformConfig.CameraZWorkVel;
+            XDirSafePosition = _platformConfig.CameraXDirSafePosition;
+            UVWaitPosition = _platformConfig.UVWaitPosition;
+            UVIrradiationPosition = _platformConfig.UVIrradiationPosition;
+            UVXWorkVel = _platformConfig.UVXWorkVel;
+            UVZWorkVel = _platformConfig.UVYWorkVel;
+            UVPreheatTime = _platformConfig.UVConfig.PreheatTime;
+            UVExposureTime = _platformConfig.UVConfig.ExposureTime;
+            UVZDirSafePosition = _platformConfig.UVZDirSafePosition;
         }
 
         private void MoveToUVWaitPosition()
