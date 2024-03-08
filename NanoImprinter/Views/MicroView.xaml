@@ -170,21 +170,7 @@
                     <ColumnDefinition Width="1*" />
                     <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal"
-                            Margin="50,10">
-                    <Label Content="Com端口号：" />
-                    <ComboBox x:Name="cbComIndex"
-                              BorderBrush="White"
-                              DisplayMemberPath="."
-                              ItemsSource="{Binding PortNames}"
-                              SelectedItem="{Binding PortName, Mode=TwoWay}">
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="DropDownOpened">
-                                <prism:InvokeCommandAction Command="{Binding RefreshPortNamesCommand}" />
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </ComboBox>
-                </StackPanel>
+             
                 <ces:ParameterDisplayControl 
                                              ParamName="蠕动距离" 
                                              ParamUnit="nm"
@@ -202,6 +188,7 @@
                                              ParamUnit="N"
                                              Grid.Row="4"
                                              ParamValue="{Binding CurrentPressure, Mode=TwoWay}" />
+               
             </Grid>
         </GroupBox>
 
@@ -225,7 +212,31 @@
                     <ColumnDefinition Width="1*" />
                     <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal">
+                
+                <StackPanel Orientation="Horizontal"
+                            Margin="50,10">
+                    <Label Content="Com端口号：" />
+                    <ComboBox x:Name="cbComIndex"
+                              BorderBrush="White"
+                              DisplayMemberPath="."
+                              ItemsSource="{Binding PortNames}"
+                              SelectedItem="{Binding PortName, Mode=TwoWay}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="DropDownOpened">
+                                <prism:InvokeCommandAction Command="{Binding RefreshPortNamesCommand}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </ComboBox>
+                </StackPanel>
+
+                <Button Grid.Column="1"
+                        Margin="100,20"
+                        Command="{Binding ConnectedCommand}"
+                        Content="连接" />
+
+                <StackPanel Orientation="Horizontal"
+                            Grid.Row="1"
+                            HorizontalAlignment="Center">
                     <Label Content="通道号：" />
                     <ComboBox x:Name="cbChannelIndex"
                               BorderBrush="White"
@@ -233,25 +244,26 @@
                               ItemsSource="{Binding ChannelIndex}"
                               SelectedItem="{Binding SelectedChannel, Mode=TwoWay}" />
                 </StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <StackPanel Grid.Column="1" Orientation="Horizontal"
+                            Grid.Row="1">
                     <Label Content="距离" />
                     <TextBox x:Name="tbMicroJogDistance" Text="{Binding CurrentPressure}" />
                 </StackPanel>
 
 
                 <Button x:Name="btnMicroCreep"
-                        Grid.Row="1"
+                        Grid.Row="2"
                         Margin="30,10"
                         Command="{Binding CreepCommand}"
                         Content="蠕动" />
 
                 <Button x:Name="btnJogForward"
-                        Grid.Row="2"
+                        Grid.Row="3"
                         Margin="30,10"
                         Command="{Binding JogForwardCommand}"
                         Content="Jog+" />
                 <Button x:Name="btnJogBack"
-                        Grid.Row="2"
+                        Grid.Row="3"
                         Grid.Column="1"
                         Margin="30,10"
                         Command="{Binding JogBackwardCommand}"

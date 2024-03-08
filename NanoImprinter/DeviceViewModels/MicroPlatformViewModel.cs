@@ -72,7 +72,7 @@ namespace NanoImprinter.DeviceViewModels
         public MicroPlatformViewModel(MicroPlatform device)
         {
             _device = device;
-            ConnectedCommand = new RelayCommand(_device.OnConnecting);
+            ConnectedCommand = new RelayCommand(_device.Connected);
             //GoHomeCommand = new RelayCommand(_device.GoHome);
             //DisconnectedCommand = new AsyncRelayCommand(_device.OnDisconnecting);
             //ImprintCommand = new AsyncRelayCommand(_device.Imprint);

@@ -140,6 +140,7 @@ namespace NanoImprinter.ViewModels
         public DelegateCommand SaveParamCommand => new DelegateCommand(SaveParam);
         public DelegateCommand ReloadParamCommand => new DelegateCommand(ReloadParam);
         public DelegateCommand RefreshPortNamesCommand => new DelegateCommand(RefreshPortNames);
+        public DelegateCommand ConnectedCommand => new DelegateCommand(Connected);
 
         #endregion
 
@@ -185,11 +186,6 @@ namespace NanoImprinter.ViewModels
 
         }
 
-        private void RefreshPressure()
-        {
-
-        }
-
         private void RefreshPortNames()
         {
             PortNames.Clear();
@@ -197,13 +193,11 @@ namespace NanoImprinter.ViewModels
             {
                 PortNames.Add(port);
             }
-            PortNames.Add("Com2");
-            PortNames.Add("Com3");
         }
 
         private void SaveParam()
         {
-            _microPlatformConfig.PortName = PortName;
+            _microPlatformConfig.PiezoActuatorConfig.PortName = _portName;
             _microPlatformConfig.ContactPosition = ContactPosition;
             _microPlatformConfig.ZCreepDistance = ZCreepDistance;
             _microPlatformConfig.DemoldPosition = new PointZRXY(_demoldPositionZ, _demoldPositionRX, _demoldPositionRY);
@@ -211,10 +205,11 @@ namespace NanoImprinter.ViewModels
             _microPlatformConfig.MaxPressure = MaxPressure;
             _microPlatformConfig.MinPressure = MinPressure;
             _machine.SaveParam();
+            _microPlatform.ReloadConfig();
         }
         private void ReloadParam()
         {
-            PortName = _microPlatformConfig.PortName;
+            PortName = _microPlatformConfig.PiezoActuatorConfig.PortName;
             ContactPosition = _microPlatformConfig.ContactPosition;
             ZCreepDistance = _microPlatformConfig.ZCreepDistance;
             DemoldPositionZ = _microPlatformConfig.DemoldPosition.Z;
@@ -225,6 +220,11 @@ namespace NanoImprinter.ViewModels
             LevelPositionRY = _microPlatformConfig.LevelPosition.RY;
             MaxPressure = _microPlatformConfig.MaxPressure;
             MinPressure = _microPlatformConfig.MinPressure;
+        }
+
+        private void Connected()
+        {
+            _microPlatform.Connected();
         }
     }
 }

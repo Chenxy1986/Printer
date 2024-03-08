@@ -74,7 +74,7 @@
   <ItemGroup>
     <Compile Include="Axis\Axis.cs" />
     <Compile Include="Axis\IAxis.cs" />
-    <Compile Include="Device\Sensor\ForceSensorControl.cs" />
+    <Compile Include="Device\ForceSensor\ForceSensorControl.cs" />
     <Compile Include="Device\GlueControl\GlueControl.cs" />
     <Compile Include="Device\GlueControl\GlueControlPort.cs" />
     <Compile Include="Device\GlueControl\GlueControlTest.cs" />

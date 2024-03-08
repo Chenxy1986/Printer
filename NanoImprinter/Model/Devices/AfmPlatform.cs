@@ -17,6 +17,16 @@ namespace NanoImprinter.Model
         {
         }
 
+        public void Connected()
+        {
+           
+        }
+
+        public void Disconnected()
+        { 
+
+        }
+
         public bool GoHome()
         {
             throw new NotImplementedException();

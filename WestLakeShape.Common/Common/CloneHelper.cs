@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WestLakeShape.Common.Common
+namespace WestLakeShape.Common
 {
     public static class CloneHelper
     {

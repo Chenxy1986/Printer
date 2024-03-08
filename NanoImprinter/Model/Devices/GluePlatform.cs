@@ -113,7 +113,16 @@ namespace NanoImprinter.Model
                 });
             }
         }
-    
+
+        public void Connected()
+        {
+            _glueControl.Connect();
+        }
+
+        public void Disconnected()
+        {
+            _glueControl.Disconnected();
+        }
     }
 
 

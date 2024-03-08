@@ -35,6 +35,10 @@ namespace WestLakeShape.Motion.Device
         {
             _port.Disconnected();
         }
+        public void ReloadConfig()
+        {
+            _port.PortName = _config.PortName;
+        }
 
         public void StartPreheat()
         {

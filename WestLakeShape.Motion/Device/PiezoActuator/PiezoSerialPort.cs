@@ -35,22 +35,30 @@ namespace WestLakeShape.Motion.Device
             _port = new SerialPort()
             {
                 PortName = name,
-                BaudRate = 115200,
+                BaudRate = 9600,
                 DataBits = 8,
                 StopBits =StopBits.One,
                 Parity = Parity.None,
-                ReadTimeout=2000,
-                WriteTimeout =2000
+                ReadTimeout=5000,
+                WriteTimeout =5000
             };
         }
 
 
         public void Connected()
         {
-            if(!_isConnected)
-               _port.Open();
-            _isConnected = true;
-            _stream = _port.BaseStream;
+            try
+            {
+                if (!_isConnected)
+                    _port.Open();
+                _isConnected = true;
+                _stream = _port.BaseStream;
+
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"微动平台连接失败，{e.Message}");
+            }
         }
         
 
@@ -80,7 +88,11 @@ namespace WestLakeShape.Motion.Device
         /// <returns></returns>
         public bool WriteCommand(B3Commands command,int[] values= null)
         {
-            var buff = new byte[5 + values.Length + 1];
+            int size =0 ;
+            if (values != null)
+                size = values.Length;
+
+            var buff = new byte[5 + size + 1];
             buff[0] = Start_Bytes;          //起始字节
             buff[1] = Mcu_Address;          //地址
             buff[2] = (byte)buff.Length;    //包长
@@ -110,24 +122,52 @@ namespace WestLakeShape.Motion.Device
         /// <param name="channelNo"></param>
         /// <param name="channelNum"></param>
         /// <returns></returns>
-        public double[] ReceiveMessage(B3Commands command, int channelNo,int channelNum)
+        public double[] ReceiveValues(B3Commands command, int channelNo,int channelNum)
         {
-            //后期是否考虑对比command，校验位，保证信息的完整性
-            //可通过消息的第三个字节获取到消息长度。
-            _port.DiscardInBuffer();
-            var size = channelNum * 4;
-            
-            var buff = new byte[5 + size + 1];
-            
-            _stream.Read(buff,0,buff.Length);
+            try
+            {
+                //后期是否考虑对比command，校验位，保证信息的完整性
+                //可通过消息的第三个字节获取到消息长度。
+                _port.DiscardInBuffer();
+                var size = channelNum * 4;
 
-            ///拷贝数据到数组
-            var bytes = new byte[size];
-            Array.Copy(buff, Pdu_Offset, bytes, 0, size);
+                var buff = new byte[5 + size + 1];
 
-            return ConvertToDouble(bytes).ToArray();
+                _stream.Read(buff, 0, buff.Length);
+
+                ///拷贝数据到数组
+                var bytes = new byte[size];
+                Array.Copy(buff, Pdu_Offset, bytes, 0, size);
+
+                return ConvertToDouble(bytes).ToArray();
+            }
+            catch (Exception e)
+            {
+                throw e;  
+            }
         }
 
+        public byte ReceiveFlag(B3Commands command, int channelNo, int channelNum)
+        {
+            try
+            {
+                //后期是否考虑对比command，校验位，保证信息的完整性
+                //可通过消息的第三个字节获取到消息长度。
+                _port.DiscardInBuffer();
+                var size = 2;
+
+                var buff = new byte[5 + size + 1];
+
+                _stream.Read(buff, 0, buff.Length);
+
+
+                return buff[Pdu_Offset];
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
 
        /// <summary>
        /// 创建PDU

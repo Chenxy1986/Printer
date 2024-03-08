@@ -58,17 +58,43 @@ namespace NanoImprinter
                 .WriteTo.Observers(o=>o.Subscribe(_logEventSubject))
                 .CreateLogger();
             base.OnStartup(e);
+
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomainUnhandledException;
+            Application.Current.DispatcherUnhandledException += CurrentDispatcherUnhandledException;
         }
+        
         //protected override void OnInitialized()
         //{
         //    base.OnInitialized();
         //    var loggerConfigguany
         //}
+
         protected override void OnExit(ExitEventArgs e)
         {
             Log.Information("退出程序");
             Log.CloseAndFlush();
             base.OnExit(e);
+        }
+
+        private void CurrentDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            ShowException(e.ExceptionObject as Exception);
+        }
+
+        private void CurrentDispatcherUnhandledException(object sender,System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            ShowException(e.Exception);
+            e.Handled = true;//防止应用程序崩溃
+        }
+
+        private void ShowException(Exception ex)
+        {
+            if (ex != null)
+            {
+                var message = $"异常消息{ex.Message}；堆栈跟踪{ex.StackTrace}";
+                Log.Error("message");
+                MessageBox.Show($"发生异常：{ex.Message}", "异常", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }

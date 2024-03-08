@@ -17,10 +17,11 @@
         <ResourceDictionary>
             <cts:EnumToProcedureStatusConverter x:Key="BackgroundConverter" />
             <cts:LogEventToStringConverter x:Key="LogConverter" />
+            <cts:BoolToContentConverter x:Key="BoolConverter" />
         </ResourceDictionary>
     </UserControl.Resources>
-    
-    
+
+
     <Grid>
         <!--  界面显示  -->
         <Grid.ColumnDefinitions>
@@ -46,12 +47,12 @@
                     BorderBrush="Black"
                     BorderThickness="1"
                     CornerRadius="5">
-                <ListBox ItemsSource="{Binding LogEvents}" Margin="0,5"
-                         FontSize="20">
+                <ListBox Margin="0,5"
+                         FontSize="20"
+                         ItemsSource="{Binding LogEvents}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Converter={StaticResource LogConverter}}"
-                                       TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding Converter={StaticResource LogConverter}}" TextWrapping="Wrap" />
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
@@ -84,7 +85,9 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="300" />
                 <RowDefinition Height="*" />
+                <RowDefinition Height="100" />
             </Grid.RowDefinitions>
+
             <cvs:WorkFlowView Margin="10,0"
                               DemoldColor="{Binding DemoldStatus, Converter={StaticResource BackgroundConverter}}"
                               GlueColor="{Binding GlueStatus, Converter={StaticResource BackgroundConverter}}"
@@ -93,6 +96,17 @@
                               PositionColor="{Binding PositionStatus, Converter={StaticResource BackgroundConverter}}"
                               PreprintColor="{Binding PreprintStatus, Converter={StaticResource BackgroundConverter}}"
                               UVColor="{Binding UVStatus, Converter={StaticResource BackgroundConverter}}" />
+
+            <UniformGrid Grid.Row="2" Columns="2">
+                <ces:IconButton Margin="40,10"
+                                Command="{Binding ConnectedCommand}"
+                                PathData="{StaticResource Icon.Connect}"
+                                PathFill="Black"
+                                Style="{StaticResource IconButton.LeftRight}"
+                                TextContent="{Binding IsChecked,RelativeSource={RelativeSource Self},Converter={StaticResource BoolConverter},ConverterParameter='连接:未连接'}"
+                                IsChecked="{Binding IsConnected}"/>
+             
+            </UniformGrid>
             <!--<cvs:SystemOperatorView Grid.Row="1"
                                     Margin="15,0"
                                     EmergencyCommand="{Binding EmergencyCommand}"
@@ -102,6 +116,7 @@
                                     ResetCommand="{Binding ResetCommand}"
                                     StartCommand="{Binding StartCommand}"
                                     VacuumCommand="{Binding VacuumCommand}" />-->
+
         </Grid>
     </Grid>
 </UserControl>

@@ -31,7 +31,7 @@ namespace NanoImprinter.Model
         public MicroPlatformAsync(MicroPlatformAsyncConfig config)
         {
             _config = config;
-            _piezo = new PiezoActuator(_config.ComName);
+            //_piezo = new PiezoActuator(_config.ComName);
             _currentPosition = new PointZRXY(0, 0, 0);
         }
 

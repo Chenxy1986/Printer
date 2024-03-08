@@ -38,7 +38,7 @@ namespace NanoImprinter.Procedures
                 return false;
 
             //等待取走晶圆
-            _io.GetInputIO(ImprinterIOName.HasWafe).SyncWait();
+            _io.GetInputIO(InputIOName.HasWafe.ToString()).SyncWait();
 
             //间隔一定时间
             Thread.Sleep(10);
@@ -47,7 +47,7 @@ namespace NanoImprinter.Procedures
                 return false;
 
             //等待放入新的晶圆
-            _io.GetInputIO(ImprinterIOName.HasWafe).SyncWait(false);
+            _io.GetInputIO(InputIOName.HasWafe.ToString()).SyncWait(false);
 
             return true;
         }

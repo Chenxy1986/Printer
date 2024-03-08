@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ces="clr-namespace:NanoImprinter.ControlExtensions"
              xmlns:cvs="clr-namespace:NanoImprinter.ControlViews"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:prism="http://prismlibrary.com/"
@@ -116,8 +117,6 @@
                 </UniformGrid>
             </Grid>
         </GroupBox>
-
-
 
         <GroupBox Grid.Row="1"
                   Grid.Column="1"
@@ -241,8 +240,73 @@
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
-                <cvs:AxisControl Grid.Row="0" Axes="{Binding Axes}" />
+                <cvs:AxisControl Grid.Row="0"
+                                 Axes="{Binding Axes}" />
             </Grid>
+        </GroupBox>
+
+        <GroupBox Grid.Row="3"
+                  Grid.Column="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50" />
+                    <RowDefinition Height="50" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                    <Label Content="UV串口：" />
+                    <ComboBox x:Name="cbComIndex"
+                              BorderBrush="White"
+                              DisplayMemberPath="."
+                              ItemsSource="{Binding PortNames}"
+                              SelectedItem="{Binding UVPortName, Mode=TwoWay}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="DropDownOpened">
+                                <prism:InvokeCommandAction Command="{Binding RefreshPortNamesCommand}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </ComboBox>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal"
+                            Grid.Column="1"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                    <Label Content="力传感器串口：" />
+                    <ComboBox BorderBrush="White"
+                              DisplayMemberPath="."
+                              ItemsSource="{Binding PortNames}"
+                              SelectedItem="{Binding ForceSensorPortName, Mode=TwoWay}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="DropDownOpened">
+                                <prism:InvokeCommandAction Command="{Binding RefreshPortNamesCommand}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </ComboBox>
+                </StackPanel>
+
+
+                <Button Margin="100,5"
+                        Command="{Binding ConnectedUVControlCommand}"
+                        Content="连接UV"
+                        FontSize="20"
+                        Grid.Row="1"
+                        Grid.Column="0" />
+                <Button Margin="100,5"
+                        Command="{Binding ConnectedForceControlCommand}"
+                        Content="连接压力传感器"
+                        FontSize="20"
+                        Grid.Row="1"
+                        Grid.Column="1" />
+            </Grid>
+
+
         </GroupBox>
     </Grid>
 </UserControl>

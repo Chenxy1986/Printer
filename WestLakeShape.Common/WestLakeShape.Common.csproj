@@ -67,6 +67,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\BigEndianBitConverter.cs" />
     <Compile Include="Common\CloneHelper.cs" />
     <Compile Include="Common\Constant.cs" />
     <Compile Include="Common\Point.cs" />

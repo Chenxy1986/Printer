@@ -15,6 +15,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 using WestLakeShape.Common.LogService;
 
 namespace NanoImprinter.ViewModels
@@ -25,6 +26,7 @@ namespace NanoImprinter.ViewModels
         private readonly SemaphoreSlim _workDoneEvent = new SemaphoreSlim(1, 1);
         private static readonly ILogger Log = LogHelper.For<MainViewModel>();
         private const int Max_Log_Count = 15;
+        private DispatcherTimer _timer;
 
         private ProcedureManager _manager;
         //private IEventAggregator _eventAggregator;
@@ -38,12 +40,11 @@ namespace NanoImprinter.ViewModels
 
         private WorkStatus _status;
 
-        private bool _isAuto = false;
+        private bool _isConnected = false;
         private string _startContent = "启动";
 
         private int _currentRow;
         private int _currentCol;
-
 
         #region property
         public int MaskUsageCount
@@ -141,10 +142,10 @@ namespace NanoImprinter.ViewModels
             set => SetProperty(ref _status, value);
         }
         
-        public bool IsAuto
+        public bool IsConnected
         {
-            get => _isAuto;
-            set => SetProperty(ref _isAuto, value);
+            get => _isConnected;
+            set => SetProperty(ref _isConnected, value);
         }
         
         public string StartContent
@@ -225,6 +226,10 @@ namespace NanoImprinter.ViewModels
 
 
         #region command
+
+        public DelegateCommand ConnectedCommand => new DelegateCommand(Connected);
+      
+        //后期考虑使用屏幕按钮
         public DelegateCommand StartCommand => new DelegateCommand(Start);
         public DelegateCommand EmergencyCommand => new DelegateCommand(Emergency);
         public DelegateCommand ResetCommand => new DelegateCommand(Reset);
@@ -241,6 +246,9 @@ namespace NanoImprinter.ViewModels
             _machine = machine;
             _manager = manager;
             eventAggregator.GetEvent<ProcedureInfoEvent>().Subscribe(ProcedureInfoChanged);
+            _timer = new DispatcherTimer();
+            _timer.Interval = TimeSpan.FromSeconds(5);
+            _timer.Tick += TimerClick;
 
             LogEvents = new ObservableCollection<LogEvent>();
             if (Application.Current is App app)
@@ -453,8 +461,43 @@ namespace NanoImprinter.ViewModels
                     break;
             }
         }
-        private void RefreshData()
-        { 
+
+        private int i = 0;
+        private void Connected()
+        {
+            if (_timer.IsEnabled == true)
+                _timer.Stop();
+
+           
+            if(IsConnected != true)
+                _machine.ConnectedPlatform();
+            else
+                _machine.DisconnectedPlatform();
+            //IsConnected = _machine.IsConnected;
+
+
+            i++;
+            if (i % 2 == 0)
+                IsConnected = true;
+            else
+                IsConnected = false;
+            //_timer.Start();
+        }
+        private void Disconnected()
+        {
+            
+            if (_timer.IsEnabled == true)
+                _timer.Stop();
+
+            //_machine.DisconnectedPlatform();
+            IsConnected = _machine.IsConnected;
+            
+            //_timer.Start();
+        }
+
+        private void TimerClick(object sender, EventArgs e)
+        {
+            //_timer.Stop();
         }
     }
 

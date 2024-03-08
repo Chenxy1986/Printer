@@ -48,7 +48,6 @@ namespace WestLakeShape.Motion
 
         protected override void OnConnecting() 
         {
-            
         }
 
         private void LoadStates()
@@ -68,9 +67,13 @@ namespace WestLakeShape.Motion
         {
             while (IsConnected)
             {
+                //修改标志位写入outputBuff
                 RefreshOutputs();
+                
                 WriteOutputs(_outputBuffer);
+
                 _outputIOs.ForEach(o => o.HasChanged());
+                
                 ReadInputs(_inputBuffer);
             }
            
@@ -102,12 +105,6 @@ namespace WestLakeShape.Motion
         /// 从缓冲区写入输出状态
         /// </summary>
         protected abstract bool WriteOutputs(byte[] buffer);
-
-
-        public bool State(string name)
-        {
-            return InputStates[name].Get();
-        }
 
         public class IOState : BaseState
         {

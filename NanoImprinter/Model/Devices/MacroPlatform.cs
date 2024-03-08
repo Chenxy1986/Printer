@@ -194,6 +194,14 @@ namespace NanoImprinter.Model
                 });
             }
         }
+
+        public void Connected()
+        {
+        }
+
+        public void Disconnected()
+        {
+        }
     }
 
 

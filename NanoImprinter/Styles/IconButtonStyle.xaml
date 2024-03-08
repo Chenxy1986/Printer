@@ -31,7 +31,8 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ces:IconButton">
-                    <Border Background="Transparent"
+                    <Border x:Name="border"
+                            Background="Transparent"
                             BorderBrush="Black"
                             BorderThickness="2"
                             CornerRadius="10">
@@ -56,6 +57,14 @@
                                        TextAlignment="Center" />
                         </Grid>
                     </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="Transparent" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="False">
+                            <Setter TargetName="border" Property="Background" Value="lightgray" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -72,7 +81,8 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ces:IconButton">
-                    <Border Background="#616e89"
+                    <Border x:Name="border"
+                            Background="#616e89"
                             BorderBrush="#9DA2AC"
                             BorderThickness="2"
                             CornerRadius="5">
@@ -109,6 +119,15 @@
                                   Stretch="Uniform" />
                         </Grid>
                     </Border>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="SkyBlue" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="False">
+                            <Setter TargetName="border" Property="Background" Value="Transparent" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

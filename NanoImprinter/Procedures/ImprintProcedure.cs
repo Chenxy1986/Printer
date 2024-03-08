@@ -47,7 +47,9 @@ namespace NanoImprinter.Procedures
                 Thread.Sleep(5);
 
                 //获取压力传感器压力值
-                var forceValues = _imprintPlatform.GetForceValue();
+                var forceValues = new double[] {_imprintPlatform.ForceValue0,
+                                                _imprintPlatform.ForceValue1,
+                                                _imprintPlatform.ForceValue2 };
                 //数据处理
                 foreValue = CalculateForce(forceValues);
                 //换算成数据

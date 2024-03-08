@@ -29,7 +29,7 @@ namespace NanoImprinter.Model
         private IAxis _cameraZAxis;
         private IAxis _uvXAxis;
         private IAxis _uvZAxis;
-        private ForceSensorControl _forceControl;
+        private ForceSensorControl _forceSensorControl;
         private UVControl _uvControl;
         
         private double _currentPositionMaskZ;
@@ -162,7 +162,7 @@ namespace NanoImprinter.Model
             _cameraZAxis = axes[1];
             _uvXAxis = axes[2];
             _uvZAxis = axes[3];
-            _forceControl = new ForceSensorControl("com1");
+            _forceSensorControl = new ForceSensorControl(_config.ForceSensorControlConfig);
             _uvControl = new UVControl(_config.UVConfig);
             //_maskZAxis = new TrioAxis(_config.MaskZAxisConfig);
             //_cameraZAxis = new TrioAxis(_config.CameraZAxisConfig);
@@ -170,6 +170,26 @@ namespace NanoImprinter.Model
             //_uvYAxis = new TrioAxis(_config.UVYAxisConfig);
             RefreshDataService.Instance.Register(RefreshRealtimeData);
         }
+
+        public void Connected()
+        {
+            _forceSensorControl.Connected();
+            _uvControl.OnConnecting();
+        }
+        public void ConnectedForceControl()
+        {
+            _forceSensorControl.Connected();
+        }
+        public void ConnectedUVControl()
+        {
+            _uvControl.OnConnecting();
+        }
+        public void Disconnected()
+        {
+            _forceSensorControl.Disconnected();
+            _uvControl.OnDisconnecting();
+        }
+
 
         public bool GoHome()
         {
@@ -180,6 +200,11 @@ namespace NanoImprinter.Model
             return _maskZAxis.GoHome();
         }
 
+        public void ReloadConfig()
+        {
+            _uvControl.ReloadConfig();
+            _forceSensorControl.ReloadConfig();
+        }
 
         public bool MoveToMaskPreprintHeight()
         {
@@ -237,11 +262,6 @@ namespace NanoImprinter.Model
             ((TrioAxis)_cameraZAxis).ResetAlarm();
         }
 
-        public double[] GetForceValue()
-        {
-           return _forceControl.RefreshValues();
-        }
-
         public bool UVIrradiate()
         {
             _uvControl.TurnOn();
@@ -253,19 +273,19 @@ namespace NanoImprinter.Model
         private void RefreshRealtimeData()
         {
             if (_currentPositionCameraZ != _cameraZAxis.Position)
-                _currentPositionCameraZ = _cameraZAxis.Position;
+                CurrentPositionCameraZ = _cameraZAxis.Position;
             if (_currentPositionMaskZ != _maskZAxis.Position)
-                _currentPositionMaskZ = _maskZAxis.Position;
+                CurrentPositionMaskZ = _maskZAxis.Position;
             if (_currentPositionUVX != _uvXAxis.Position)
-                _currentPositionUVX = _uvXAxis.Position;
-            if (_forceValue0 != _forceControl.ForceValue0)
-                _forceValue0 = _forceControl.ForceValue0;
-            if (_forceValue1 != _forceControl.ForceValue1)
-                _forceValue1 = _forceControl.ForceValue1;
-            if (_forceValue2 != _forceControl.ForceValue2)
-                _forceValue2 = _forceControl.ForceValue2;
-            if (_forceValue3 != _forceControl.ForceValue3)
-                _forceValue3 = _forceControl.ForceValue3;
+                CurrentPositionUVX = _uvXAxis.Position;
+            if (_forceValue0 != _forceSensorControl.ForceValue0)
+                ForceValue0 = _forceSensorControl.ForceValue0;
+            if (_forceValue1 != _forceSensorControl.ForceValue1)
+                ForceValue1 = _forceSensorControl.ForceValue1;
+            if (_forceValue2 != _forceSensorControl.ForceValue2)
+                ForceValue2 = _forceSensorControl.ForceValue2;
+            if (_forceValue3 != _forceSensorControl.ForceValue3)
+                ForceValue3 = _forceSensorControl.ForceValue3;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -296,10 +316,11 @@ namespace NanoImprinter.Model
         private double _uvXWorkVel;
         private double _uvYWorkVel;
         private UVControlConfig _uvConfig = new UVControlConfig();
+        private ForceSensorControlConfig _forceSensorConfig = new ForceSensorControlConfig();
         private double _uvZDirSafePosition;
 
         //掩膜组件
-        [Category("PrintPlatform"), Description("掩膜等待高度")]
+        [Category("ImprintPlatform"), Description("掩膜等待高度")]
         [DisplayName("掩膜等待高度")]
         public double MaskWaitHeight 
         {
@@ -308,7 +329,7 @@ namespace NanoImprinter.Model
         }
 
         //掩膜组件
-        [Category("PrintPlatform"), Description("掩膜预压印高度")]
+        [Category("ImprintPlatform"), Description("掩膜预压印高度")]
         [DisplayName("掩膜预压印高度")]
         public double MaskPreprintHeight 
         {
@@ -316,7 +337,7 @@ namespace NanoImprinter.Model
             set => SetProperty(ref _maskPrepintHeight, value);
         }
 
-        [Category("PrintPlatform"), Description("压印速度")]
+        [Category("ImprintPlatform"), Description("压印速度")]
         [DisplayName("压印速度")]
         public double MaskZWorkVel
         {
@@ -326,7 +347,7 @@ namespace NanoImprinter.Model
 
 
         //拍照组件参数
-        [Category("PrintPlatform"), Description("等待拍照高度")]
+        [Category("ImprintPlatform"), Description("等待拍照高度")]
         [DisplayName("等待拍照高度")]
         public double CameraWaitHeight
         {
@@ -334,7 +355,7 @@ namespace NanoImprinter.Model
             set => SetProperty(ref _cameraWaitHeight, value);
         }
 
-        [Category("PrintPlatform"), Description("拍照高度")]
+        [Category("ImprintPlatform"), Description("拍照高度")]
         [DisplayName("拍照高度")]
         public double CameraTakePictureHeight
         {
@@ -342,7 +363,7 @@ namespace NanoImprinter.Model
             set => SetProperty(ref _cameraTakePictureHeight, value);
         }
 
-        [Category("PrintPlatform"), Description("移动拍照位速度")]
+        [Category("ImprintPlatform"), Description("移动拍照位速度")]
         [DisplayName("移动拍照位速度")]
         public double CameraZWorkVel
         {
@@ -350,7 +371,7 @@ namespace NanoImprinter.Model
             set => SetProperty(ref _cameraZWorkVel, value);
         }
 
-        [Category("PrintPlatform"), Description("相机移动过程中，X方向UV发生碰撞的位置")]
+        [Category("ImprintPlatform"), Description("相机移动过程中，X方向UV发生碰撞的位置")]
         [DisplayName("X方向安全位置")]
         public double CameraXDirSafePosition
         {
@@ -360,7 +381,7 @@ namespace NanoImprinter.Model
 
 
         //UV组件参数
-        [Category("PrintPlatform"), Description("UV等待位")]
+        [Category("ImprintPlatform"), Description("UV等待位")]
         [DisplayName("UV等待位")]
         public PointXZ UVWaitPosition 
         {
@@ -368,7 +389,7 @@ namespace NanoImprinter.Model
             set => SetProperty(ref _uvWaitPosition, value);
         }
 
-        [Category("PrintPlatform"), Description("UV照射位")]
+        [Category("ImprintPlatform"), Description("UV照射位")]
         [DisplayName("UV照射位")]
         public PointXZ UVIrradiationPosition
         {
@@ -376,7 +397,7 @@ namespace NanoImprinter.Model
             set => SetProperty(ref _uvIrradiationPosition, value);
         }
 
-        [Category("PrintPlatform"), Description("UVX轴工作速度")]
+        [Category("ImprintPlatform"), Description("UVX轴工作速度")]
         [DisplayName("UVX轴工作速度")]
         public double UVXWorkVel 
         {
@@ -384,7 +405,7 @@ namespace NanoImprinter.Model
             set => SetProperty(ref _uvXWorkVel, value);
         }
 
-        [Category("PrintPlatform"), Description("UVY轴工作速度")]
+        [Category("ImprintPlatform"), Description("UVY轴工作速度")]
         [DisplayName("UVY轴工作速度")]
         public double UVYWorkVel
         {
@@ -392,13 +413,21 @@ namespace NanoImprinter.Model
             set => SetProperty(ref _uvYWorkVel, value);
         }
 
-        [Category("PrintPlatform"), Description("UV配置参数")]
+        [Category("ImprintPlatform"), Description("UV配置参数")]
         [DisplayName("UV配置参数")]
         public UVControlConfig UVConfig
         {
-            get => _uvConfig ?? new UVControlConfig();
+            get => _uvConfig?? new UVControlConfig();
             set => SetProperty(ref _uvConfig, value);
-        } 
+        }
+        [Category("ImprintPlatform"), Description("力传感器配置参数")]
+        [DisplayName("力传感器参数")]
+        public ForceSensorControlConfig ForceSensorControlConfig
+        {
+            get => _forceSensorConfig;
+            set => SetProperty(ref _forceSensorConfig, value);
+        }
+
 
         [Category("PrintPlatform"), Description("UV移动过程中，Z方向相机发生碰撞的位置")]
         [DisplayName("Z方向安全位置")]

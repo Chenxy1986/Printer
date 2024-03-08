@@ -15,9 +15,6 @@ namespace NanoImprinter.Model
     public interface IMicroPlatform
     {
         MicroPlatformConfig Config { get; set; }
-
-        void OnConnecting();
-        void OnDisconnecting();
         bool MoveToContactPosition();
         bool Demold();
         bool Creep(ChannelNo index,double distance);
@@ -87,16 +84,15 @@ namespace NanoImprinter.Model
         public MicroPlatform(MicroPlatformConfig config)
         {
             _config = config;
-            _piezo = new PiezoActuator(_config.PortName);
+            _piezo = new PiezoActuator(_config.PiezoActuatorConfig);
             CurrentPositionZ = 0;
             CurrentPositionRX = 0;
             CurrentPositionRY = 0;
         }
 
-
-        public void OnConnecting()
+        public void Connected()
         {
-            if (_isconnected)
+            if (!_isconnected)
             {
                 _piezo.Connect();
                 Thread.Sleep(100);
@@ -104,11 +100,10 @@ namespace NanoImprinter.Model
             }
         }
 
-        public void OnDisconnecting()
+        public void Disconnected()
         {
-            if (!_isconnected)
+            if (_isconnected)
                 _piezo.Disconnected();
-
         }
 
         /// <summary>
@@ -208,6 +203,10 @@ namespace NanoImprinter.Model
             ReadPositions();
         }
 
+        public void ReloadConfig()
+        {
+            _piezo.ReloadConfig();
+        }
 
         private bool ReadPositions()
         {
@@ -254,25 +253,18 @@ namespace NanoImprinter.Model
                 });
             }
         }
-
     }
+
     public class MicroPlatformConfig:NotifyPropertyChanged
     {
-        private string _portName = "Com1";
+
         private double _contactPosition;
         private double _zCreepDistance;
         private PointZRXY _levelPosition = new PointZRXY(0, 0, 0);
         private PointZRXY _demoldPosition = new PointZRXY(0, 0, 0);
         private double _maxPressure;
         private double _minPressure;
-
-        [Category("MicroPlatform"), Description("串口名称")]
-        [DisplayName("串口名称")]
-        public string PortName 
-        {
-            get => _portName;
-            set => SetProperty(ref _portName, value);
-        } 
+        private PiezoActuatorConfig _piezoActuatorConfig = new PiezoActuatorConfig();
 
         [Category("MicroPlatform"), Description("接触位置")]
         [DisplayName("接触位置")]
@@ -322,6 +314,13 @@ namespace NanoImprinter.Model
             get => _minPressure;
             set => SetProperty(ref _minPressure, value);
         }
+
+        public PiezoActuatorConfig PiezoActuatorConfig
+        {
+            get => _piezoActuatorConfig;
+            set => SetProperty(ref _piezoActuatorConfig, value);
+        }
+
     }
 
 }

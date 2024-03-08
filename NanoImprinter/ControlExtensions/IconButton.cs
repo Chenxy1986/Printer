@@ -9,7 +9,7 @@ using System.Windows.Media;
 
 namespace NanoImprinter.ControlExtensions
 {
-    public class IconButton : Button
+    public class IconButton : RadioButton
     {
         public static readonly DependencyProperty IconImageProperty = DependencyProperty.Register(
           "IconImage",

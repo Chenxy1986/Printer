@@ -12,7 +12,6 @@ namespace NanoImprinter.Model
     public class ImprinterAxis
     {
         private Timer _timerCallBack;
-        private double[] _positions;
         
         private ImprinterAxisConfig _config;
 
@@ -61,9 +60,6 @@ namespace NanoImprinter.Model
 
             _uvPlatformXAxis = new TrioAxis(config.UVPlatformXAxis);
             _uvPlatformZAxis = new TrioAxis(config.UVPlatformZAxis);
-
-            _positions = new double[10];
-            _timerCallBack = new Timer(new TimerCallback(RefreshAxisValue), null, 10, 1);
 
         }
 
@@ -127,23 +123,23 @@ namespace NanoImprinter.Model
                 };
         }
 
-        public void RefreshAxisValue(object state)
-        {
-            var axes = All();
-            for(int i=0; i<axes.Count; i++)
-            {
-                if (_positions[i] != axes[i].Position)
-                {
-                    OnUpdateStatus(axes[i].Name, axes[i].Position);
-                }
-            }
-        }
+        //public void RefreshAxisValue(object state)
+        //{
+        //    var axes = All();
+        //    for(int i=0; i<axes.Count; i++)
+        //    {
+        //        if (_positions[i] != axes[i].Position)
+        //        {
+        //            OnUpdateStatus(axes[i].Name, axes[i].Position);
+        //        }
+        //    }
+        //}
 
-        public event EventHandler<AxisStatusEventArgs> UpdataStatusEvent;
-        protected virtual void OnUpdateStatus(string name,double position)
-        {
-            UpdataStatusEvent?.Invoke(this, new AxisStatusEventArgs(name,position));
-        }
+        //public event EventHandler<AxisStatusEventArgs> UpdataStatusEvent;
+        //protected virtual void OnUpdateStatus(string name,double position)
+        //{
+        //    UpdataStatusEvent?.Invoke(this, new AxisStatusEventArgs(name,position));
+        //}
     }
 
     public class ImprinterAxisConfig

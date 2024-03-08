@@ -74,6 +74,7 @@
     <Compile Include="ControlViews\WorkFlowView.xaml.cs">
       <DependentUpon>WorkFlowView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters\BoolToContentConverter.cs" />
     <Compile Include="Converters\EnumToProcedureStatusConverter.cs" />
     <Compile Include="Converters\LogEventToStringConverter.cs" />
     <Compile Include="Converters\NameToLineMarginConverter.cs" />

@@ -4,6 +4,7 @@ using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +18,9 @@ namespace NanoImprinter.ViewModels
     {
         private readonly IMachineModel _machine;
         private ImprintPlatform _plate;
+        private ImprintPlatformConfig _platformConfig;
+        private string _uvPortName;
+        private string _forceSensorPortName;
 
         private double _maskWaitHeight;
         private double _maskPreprintHeight;
@@ -30,12 +34,21 @@ namespace NanoImprinter.ViewModels
         private double _uvXWorkVel;
         private double _uvZWorkVel;
         private int _uvPreheatTime;
-        private int _uvExposureTime;
-        private ImprintPlatformConfig _platformConfig;
-        private UVControlConfig _uvConfig;
+        private int _uvExposureTime;       
         private double _uvZDirSafePosition;
 
         #region property
+        public string UVPortName 
+        {
+            get => _uvPortName;
+            set => SetProperty(ref _uvPortName, value);
+        }
+        public string ForceSensorPortName
+        {
+            get => _forceSensorPortName;
+            set => SetProperty(ref _forceSensorPortName, value);
+        }
+
         public double MaskWaitHeight
         {
             get => _maskWaitHeight;
@@ -122,6 +135,9 @@ namespace NanoImprinter.ViewModels
 
 
         #region Command
+        public DelegateCommand ConnectedUVControlCommand => new DelegateCommand(ConnectedUVControl);
+        public DelegateCommand ConnectedForceControlCommand => new DelegateCommand(ConnectedForceControl);
+
         public DelegateCommand SaveParamCommand => new DelegateCommand(SaveParam);
         public DelegateCommand ReloadParamCommand => new DelegateCommand(ReloadParam);
         public DelegateCommand MoveToMaskPreprintPositionCommand =>new DelegateCommand(MoveToMaskPreprintHeight);
@@ -131,10 +147,11 @@ namespace NanoImprinter.ViewModels
         public DelegateCommand MoveToUVWaitPositionCommand =>  new DelegateCommand(MoveToUVWaitPosition);
         public DelegateCommand MoveToUVIrradiationPositionCommand => new DelegateCommand(MoveToUVIrradiationPosition);
         public DelegateCommand UVGoHomeCommand => new DelegateCommand(UVGoHome);
+        public DelegateCommand RefreshPortNamesCommand => new DelegateCommand(RefreshPortNames);
 
         #endregion
 
-
+        public ObservableCollection<string> PortNames { get; set; }
         public ObservableCollection<IAxis> Axes { get; set; }
 
         public ImprintViewModel(IMachineModel machine)
@@ -143,6 +160,7 @@ namespace NanoImprinter.ViewModels
             _plate = machine.GetPlatform(typeof(ImprintPlatform).Name) as ImprintPlatform;
             _platformConfig = _machine.Config.ImprintPlatform;
             Axes = new ObservableCollection<IAxis>();
+            PortNames = new ObservableCollection<string>();
             Axes.Add(_plate.MaskZAxis);
             Axes.Add(_plate.CameraZAxis);
             Axes.Add(_plate.UVXAxis);
@@ -188,7 +206,10 @@ namespace NanoImprinter.ViewModels
             _platformConfig.UVConfig.PreheatTime = UVPreheatTime;
             _platformConfig.UVConfig.ExposureTime = UVExposureTime;
             _platformConfig.UVZDirSafePosition = UVZDirSafePosition;
+            _platformConfig.UVConfig.PortName = _uvPortName;
+            _platformConfig.ForceSensorControlConfig.PortName = _forceSensorPortName;
             _machine.SaveParam();
+            _plate.ReloadConfig();
         }
 
         private void ReloadParam()
@@ -207,8 +228,18 @@ namespace NanoImprinter.ViewModels
             UVPreheatTime = _platformConfig.UVConfig.PreheatTime;
             UVExposureTime = _platformConfig.UVConfig.ExposureTime;
             UVZDirSafePosition = _platformConfig.UVZDirSafePosition;
+            UVPortName = _platformConfig.UVConfig.PortName;
+            ForceSensorPortName =_platformConfig.ForceSensorControlConfig.PortName;
         }
 
+        private void ConnectedUVControl()
+        {
+            _plate.ConnectedUVControl();
+        }
+        private void ConnectedForceControl()
+        {
+            _plate.ConnectedForceControl();
+        }
         private void MoveToUVWaitPosition()
         {
             _plate.MoveToUVWaitPositon(); 
@@ -222,6 +253,13 @@ namespace NanoImprinter.ViewModels
             _plate.UVXAxis.GoHome();
             _plate.UVZAxis.GoHome();
         }
-
+        private void RefreshPortNames()
+        {
+            PortNames.Clear();
+            foreach (var port in SerialPort.GetPortNames())
+            {
+                PortNames.Add(port);
+            }
+        }
     }
 }

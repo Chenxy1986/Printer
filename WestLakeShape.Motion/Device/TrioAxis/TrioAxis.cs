@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TrioMotion.TrioPC_NET;
-using WestLakeShape.Common.Common;
+using WestLakeShape.Common;
 using WestLakeShape.Common.LogService;
 
 namespace WestLakeShape.Motion.Device

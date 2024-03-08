@@ -20,7 +20,7 @@ namespace NanoImprinter.Model
         /// 上次流程执行到的步骤
         /// </summary>
         int ProcedureIndex { get; set; }
-
+        bool IsConnected { get; }
         ImprinterIO IOStates { get;}
         ImprinterAxis Axes { get; }
 
@@ -28,13 +28,15 @@ namespace NanoImprinter.Model
         void LoadParam();
         void SaveParam();
         IPlatform GetPlatform(string name);
+        void ConnectedPlatform();
+        void DisconnectedPlatform();
     }
 
     public class MachineModel : IMachineModel
     {
         private readonly string Config_File_Name = "MachineConfig.config";
         private readonly string _rootFolder = @"D:\NanoImprinterConfig\";
-        
+        private bool _isConnected;
         /// <summary>
         /// 所有IO卡
         /// </summary>
@@ -52,6 +54,8 @@ namespace NanoImprinter.Model
         public MachineModelConfig Config { get; private set; }
 
         public Dictionary<string, IPlatform> Platforms { get; private set; }
+
+        public bool IsConnected => _isConnected;
 
         public MachineModel()
         {
@@ -105,7 +109,7 @@ namespace NanoImprinter.Model
             Platforms.Add(typeof(MicroPlatform).Name, new MicroPlatform(Config.MicroPlatform));
             Platforms.Add(typeof(MacroPlatform).Name, new MacroPlatform(Config.MacroPlatform,
                                                                         Axes.MacroPlatformAxes()));
-            //Instance = model;lei
+            //Instance = model;
         }
 
         public IPlatform GetPlatform(string type)
@@ -116,6 +120,27 @@ namespace NanoImprinter.Model
             }
             return platform;
         }
+
+        public void ConnectedPlatform()
+        {
+            foreach (var pairs in Platforms)
+            {
+                pairs.Value.Connected();
+            }
+
+            _isConnected = true;
+        }
+
+        public void DisconnectedPlatform()
+        {
+            foreach (var pairs in Platforms)
+            {
+                pairs.Value.Disconnected();
+            }
+
+            _isConnected = false;
+        }
+
     }
 
     public class MachineModelConfig

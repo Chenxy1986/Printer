@@ -48,7 +48,7 @@
                 <ColumnDefinition Width="1*" />
                 <ColumnDefinition Width="1*" />
             </Grid.ColumnDefinitions>
-            <Label Margin="50,0,0,0" Content="IO名称" />
+            <Label Margin="50,0,0,0" Content="输入IO名称" />
             <Label Grid.Column="1"
                    Margin="0,0,100,0"
                    HorizontalAlignment="Right"
@@ -57,7 +57,7 @@
 
             <ListBox Grid.Row="1"
                      Grid.ColumnSpan="2"
-                     ItemsSource="{Binding InputIOs}">
+                     ItemsSource="{Binding IOStates.InputIOs}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Grid>
@@ -95,6 +95,9 @@
             </ListBox>
         </Grid>
 
+        <GroupBox Content="其他" Grid.Column="1">
+        </GroupBox>
+
         <Grid Grid.Row="2"
               Grid.Column="0"
               Margin="5,0">
@@ -106,7 +109,7 @@
                 <ColumnDefinition Width="1*" />
                 <ColumnDefinition Width="1*" />
             </Grid.ColumnDefinitions>
-            <Label Margin="50,0,0,0" Content="IO名称" />
+            <Label Margin="50,0,0,0" Content="输出IO名称" />
             <Label Grid.Column="1"
                    Margin="0,0,100,0"
                    HorizontalAlignment="Right"
@@ -115,7 +118,7 @@
 
             <ListBox Grid.Row="1"
                      Grid.ColumnSpan="2"
-                     ItemsSource="{Binding OutputIOs, Mode=TwoWay}">
+                     ItemsSource="{Binding IOStates.OutputIOs, Mode=TwoWay}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Grid>
@@ -170,5 +173,6 @@
                 </ListBox.ItemTemplate>
             </ListBox>
         </Grid>
+   
     </Grid>
 </UserControl>
