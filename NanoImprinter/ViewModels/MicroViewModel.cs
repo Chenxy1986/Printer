@@ -33,12 +33,19 @@ namespace NanoImprinter.ViewModels
         private double _levelPositionRY;
         private double _maxPressure;
         private double _minPressure;
+        private bool _isClosedLoop;
         #region property
 
         public string PortName
         {
             get => _portName;
             set => SetProperty(ref _portName, value);
+        }
+
+        public bool IsClosedLoop
+        {
+            get => _isClosedLoop;
+            set => SetProperty(ref _isClosedLoop, value);
         }
 
         /// <summary>

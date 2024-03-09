@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -18,8 +19,8 @@ namespace WestLakeShape.Motion.Device
         private PiezoActuatorConfig _config;
         private PiezoSerialPort _piezoPort;
 
-        private readonly int Closed_Loop_Flag = 67;
-        private readonly int Opened_Loop_Flag = 79;
+        private readonly byte Closed_Loop_Flag = 0x43;
+        private readonly byte Opened_Loop_Flag = 0x4F;
         public bool IsConnected => _piezoPort.IsConnected;
 
         public bool this[int i]
@@ -38,7 +39,10 @@ namespace WestLakeShape.Motion.Device
         public void Connect()
         {
             _piezoPort.Connected();
+            //获取当前闭环开环状态
             ReadClosedLoopFlag();
+            //获取当前数值信息
+            ReadMultiDisplace();
         }
 
         public void Disconnected()
@@ -51,24 +55,24 @@ namespace WestLakeShape.Motion.Device
             _piezoPort.PortName = _config.PortName;
         }
 
-        public void EnableClosedLoop(int channelNo)
+        public void SetClosedLoop(int channelNo,bool isClosedLoop)
         {
+            var value = isClosedLoop ? Closed_Loop_Flag : Opened_Loop_Flag;
+            //发送修改ClosedLoop的命令，
+            _piezoPort.WriteCommand(B3Commands.EnableClosedLoop, new int[] { channelNo, value });
+            
+            ReadClosedLoopFlag();
+        }
+        public void SetAllChannelClosedLoop(bool isClosedLoop)
+        {
+            var value = isClosedLoop ? Closed_Loop_Flag : Opened_Loop_Flag;
             var openChannels = ClassifyChannels(false);
-            openChannels.ForEach(index => 
+            openChannels.ForEach(index =>
             {
-                _piezoPort.WriteCommand(B3Commands.EnableClosedLoop, new int[] { index, Closed_Loop_Flag });
+                _piezoPort.WriteCommand(B3Commands.EnableClosedLoop, new int[] { index, value });
                 _isClosedLoop[index] = true;
             });
-        }
-        
-        public void DisableClosedLoop()
-        {
-            var closedChannels = ClassifyChannels(true);
-            closedChannels.ForEach(index =>
-            {
-                _piezoPort.WriteCommand(B3Commands.EnableClosedLoop, new int[] { index, Opened_Loop_Flag });
-                _isClosedLoop[index] = false;
-            });
+           
         }
 
         /// <summary>
@@ -175,12 +179,11 @@ namespace WestLakeShape.Motion.Device
             {
                 //发送数据
                 _piezoPort.WriteCommand(B3Commands.ReadClosedLoopFlag, new int[] { (int)index });
+               
                 //读取数据
-                var temp = _piezoPort.ReceiveFlag(B3Commands.ReadClosedLoopFlag, (int)index, 1);
+                var flag = _piezoPort.ReceiveFlag(B3Commands.ReadClosedLoopFlag, (int)index, 1);
                 //数据转化
-                _isClosedLoop[(int)index] = temp[0] == Closed_Loop_Flag ? true : false;
-
-                Thread.Sleep(100);
+                _isClosedLoop[(int)index] = (flag& Closed_Loop_Flag) == Closed_Loop_Flag ? true : false;
             });
 
             return true;
@@ -206,7 +209,7 @@ namespace WestLakeShape.Motion.Device
         private string _name;
         public string PortName
         {
-            get => _name??"COM1";
+            get => _name ?? "COM1";
             set => SetProperty(ref _name, value);
         }
     }

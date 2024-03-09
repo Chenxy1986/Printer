@@ -6,6 +6,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ces="clr-namespace:NanoImprinter.ControlExtensions"
              xmlns:cvs="clr-namespace:NanoImprinter.ControlViews"
+             xmlns:cts="clr-namespace:NanoImprinter.Converters"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:prism="http://prismlibrary.com/"
              d:DesignHeight="1010"
@@ -13,6 +14,12 @@
              prism:ViewModelLocator.AutoWireViewModel="True"
              Background="AliceBlue"
              mc:Ignorable="d">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <cts:BoolToContentConverter x:Key="BoolConverter" />
+        </ResourceDictionary>
+    </UserControl.Resources>
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height=" 35" />
@@ -229,11 +236,23 @@
                     </ComboBox>
                 </StackPanel>
 
-                <Button Grid.Column="1"
-                        Margin="100,20"
-                        Command="{Binding ConnectedCommand}"
-                        Content="连接" />
-
+                <UniformGrid Grid.Column="1"
+                             Columns="2">
+                    <Button Grid.Column="1"
+                            Margin="20"
+                            Command="{Binding ConnectedCommand}"
+                            Content="连接" />
+                    <CheckBox HorizontalAlignment="Center"
+                              VerticalAlignment="Center"
+                              Content="{Binding IsChecked,RelativeSource={RelativeSource Self},Converter={StaticResource BoolConverter},ConverterParameter='开环:闭环'}"
+                              IsChecked="{Binding IsClosedLoop}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Checked">
+                                <i:InvokeCommandAction Command="{Binding ChangedLoopTypeCommand}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </CheckBox>
+                </UniformGrid>
                 <StackPanel Orientation="Horizontal"
                             Grid.Row="1"
                             HorizontalAlignment="Center">

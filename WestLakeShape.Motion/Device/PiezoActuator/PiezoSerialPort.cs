@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace WestLakeShape.Motion.Device
@@ -110,7 +112,8 @@ namespace WestLakeShape.Motion.Device
             buff[buff.Length - 1] = ParityCheck(buff);
 
             _stream.Write(buff, 0, buff.Length);
-            
+            Debug.WriteLine($"通道{buff[5]}的发送数据");
+            DebugInfo(buff);
             return true;
         }
 
@@ -149,24 +152,45 @@ namespace WestLakeShape.Motion.Device
 
         public byte ReceiveFlag(B3Commands command, int channelNo, int channelNum)
         {
+            var right = 0;
+            var buff = new byte[32];
             try
             {
-                //后期是否考虑对比command，校验位，保证信息的完整性
-                //可通过消息的第三个字节获取到消息长度。
-                _port.DiscardInBuffer();
-                var size = 2;
+                while (right < 8)
+                {
+                    var count = buff.Length - right;
+                    if (count <= 0)
+                        throw new BufferFullException();
 
-                var buff = new byte[5 + size + 1];
+                    var size = _stream.Read(buff, right, count);
 
-                _stream.Read(buff, 0, buff.Length);
-
-
+                    right += size;
+                    //读取不到完整的回复消息，则break
+                    if (size == 0 && right != 8)
+                        break;
+                    //后期是否考虑对比command，校验位，保证信息的完整性
+                    //可通过消息的第三个字节获取到消息长度。
+                    Debug.WriteLine($"通道{channelNo}");
+                    DebugInfo(buff);
+                }
                 return buff[Pdu_Offset];
             }
-            catch (Exception e)
+            catch (TimeoutException ex)
             {
-                throw e;
+                throw ex;
             }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        private void DebugInfo(byte[] data)
+        {
+            foreach (var b in data)
+            {
+                Debug.WriteLine($"数据为：{b.ToString("X2")}");
+            }
+          
         }
 
        /// <summary>

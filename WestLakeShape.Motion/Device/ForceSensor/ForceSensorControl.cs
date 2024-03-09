@@ -146,7 +146,7 @@ namespace WestLakeShape.Motion.Device
             //var recDataSize = 3 + 4 * 3 + 2;
             try
             {
-                while (right!=17)
+                while (right<17)
                 {
                     var count = buffer.Length - right;
                     if (count <= 0)
@@ -155,8 +155,8 @@ namespace WestLakeShape.Motion.Device
                     var size = _stream.Read(buffer, right, count);
                    
                     right += size;
-                    //已知数据长度，未达到长度一直等待
-                    if (size == 0 && right!=17)
+                    //读取不到完整的回复消息，则break
+                    if (size == 0 && right!=17 )
                         break;
                     Debug.WriteLine($"当前接受数据时，数据起始{right}");
                 }

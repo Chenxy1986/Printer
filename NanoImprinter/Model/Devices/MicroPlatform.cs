@@ -27,7 +27,8 @@ namespace NanoImprinter.Model
     {
         private MicroPlatformConfig _config;
         private PiezoActuator _piezo;
-        private bool _isconnected;
+        private bool _isConnected;
+        private bool _isClosedLoop;
 
         private double _currentPositionZ;
         private double _currentPositionRX;
@@ -37,6 +38,8 @@ namespace NanoImprinter.Model
         public ChannelNo ZAxis => ChannelNo.Third;
         public ChannelNo RXAxis => ChannelNo.One;
         public ChannelNo RYAxis => ChannelNo.Two;
+
+        public bool IsClosedLoop => _isClosedLoop;
 
         public MicroPlatformConfig Config
         {
@@ -90,20 +93,21 @@ namespace NanoImprinter.Model
             CurrentPositionRY = 0;
         }
 
-        public void Connected()
+
+        public void SetClosedLoop(int channelNo,bool isClosedLoop)
         {
-            if (!_isconnected)
-            {
-                _piezo.Connect();
-                Thread.Sleep(100);
-                ReadPositions();
-            }
+
+            _piezo.EnableClosedLoop(channelNo);
+        }
+
+        public void Connected()
+        {            
+            _piezo.Connect();
         }
 
         public void Disconnected()
         {
-            if (_isconnected)
-                _piezo.Disconnected();
+            _piezo.Disconnected();
         }
 
         /// <summary>
