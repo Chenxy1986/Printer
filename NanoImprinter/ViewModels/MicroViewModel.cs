@@ -148,7 +148,7 @@ namespace NanoImprinter.ViewModels
         public DelegateCommand ReloadParamCommand => new DelegateCommand(ReloadParam);
         public DelegateCommand RefreshPortNamesCommand => new DelegateCommand(RefreshPortNames);
         public DelegateCommand ConnectedCommand => new DelegateCommand(Connected);
-
+        public DelegateCommand ChangedLoopCommand => new DelegateCommand(ChangedLoop);
         #endregion
 
 
@@ -186,11 +186,11 @@ namespace NanoImprinter.ViewModels
 
         private void JogForward()
         {
-
+            _microPlatform.JogForward(SelectedChannel, MoveDistance);
         }
         private void JogBackward()
         {
-
+            _microPlatform.JogBackward(SelectedChannel, MoveDistance);
         }
 
         private void RefreshPortNames()
@@ -229,9 +229,15 @@ namespace NanoImprinter.ViewModels
             MinPressure = _microPlatformConfig.MinPressure;
         }
 
+        private void ChangedLoop()
+        {
+            _microPlatform.SetClosedLoop(!_isClosedLoop);
+            IsClosedLoop = _microPlatform.IsClosedLoop;
+        }
         private void Connected()
         {
             _microPlatform.Connected();
         }
+      
     }
 }

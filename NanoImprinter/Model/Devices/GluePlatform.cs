@@ -77,6 +77,7 @@ namespace NanoImprinter.Model
             _glueZAxis.MoveTo(position);
             return true;
         }
+
         /// <summary>
         /// 点胶
         /// </summary>
@@ -100,6 +101,10 @@ namespace NanoImprinter.Model
                 CurrentPositionGlueZ = _glueZAxis.Position;
         }
 
+        public void ReloadConfig()
+        {
+            
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)

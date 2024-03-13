@@ -17,6 +17,7 @@ namespace NanoImprinter.ViewModels
         private GluePlatform _gluePlatform;
         private GluePlatformConfig _platformConfig;
 
+        private string _portName;
         private bool _isReady;       //Z轴是否Ready
         private bool _isAlaram;      //Z轴是否报警
         private bool _isConnected;   //点胶机是否连接
@@ -31,6 +32,12 @@ namespace NanoImprinter.ViewModels
 
 
         #region property
+        public string PortName
+        {
+            get => _portName;
+            set => SetProperty(ref _portName, value);
+        }
+
         public bool IsReady 
         {
             get => _isReady; 
@@ -94,7 +101,6 @@ namespace NanoImprinter.ViewModels
         #endregion
 
         #region command
-
         public DelegateCommand GoHomeCommand => new DelegateCommand(GoHome).ObservesCanExecute(() => IsReady);
         public DelegateCommand ClearAlarmCommand => new DelegateCommand(ResetAlarm).ObservesCanExecute(() => IsAlarm);
         public DelegateCommand MoveToWaitPositionCommand => new DelegateCommand(MoveToWaitPosition).ObservesCanExecute(() => IsReady);
@@ -137,20 +143,24 @@ namespace NanoImprinter.ViewModels
 
         public void SaveParam()
         {
+            
             _platformConfig.WaitPosition = WaitPosition;
             _platformConfig.GluePosition = GluePosition;
             _platformConfig.WorkVel = WorkVel;
+            _platformConfig.GlueConfig.PortName = PortName;
             _platformConfig.GlueConfig.OpenValveTime = OpenTime;
             _platformConfig.GlueConfig.OpenValveIntensity = OpenIntensity;
             _platformConfig.GlueConfig.ClosedValveTime = CloseTime;
             _platformConfig.GlueConfig.TargetTemperatore = Temperature;
             _machine.SaveParam();
+            _gluePlatform.ReloadConfig();
         }
         public void ReloadParam()
         {
             WaitPosition = _platformConfig.WaitPosition;
             GluePosition = _platformConfig.GluePosition;
             WorkVel = _platformConfig.WorkVel;
+            PortName = _platformConfig.GlueConfig.PortName;
             OpenTime = _platformConfig.GlueConfig.OpenValveTime;
             OpenIntensity = _platformConfig.GlueConfig.OpenValveIntensity;
             CloseTime = _platformConfig.GlueConfig.ClosedValveTime;

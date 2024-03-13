@@ -112,7 +112,7 @@ namespace NanoImprinter.ViewModels
             Axes.Add(_macroPlatform.XAxis);
             Axes.Add(_macroPlatform.YAxis);
             Axes.Add(_macroPlatform.RAxis);
-        ReloadParam();
+            ReloadParam();
         }
 
 

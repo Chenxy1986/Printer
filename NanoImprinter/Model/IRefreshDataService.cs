@@ -28,7 +28,7 @@ namespace NanoImprinter.Model
 
         private RefreshDataService()
         {
-            _timer = new Timer(new TimerCallback(RefreshData), null, 10, 2);
+            _timer = new Timer(new TimerCallback(RefreshData), null, 100, 2);
         }
 
 

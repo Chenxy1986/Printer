@@ -248,11 +248,15 @@
                               IsChecked="{Binding IsClosedLoop}">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Checked">
-                                <i:InvokeCommandAction Command="{Binding ChangedLoopTypeCommand}" />
+                                <i:InvokeCommandAction Command="{Binding ChangedLoopCommand}" />
+                            </i:EventTrigger>
+                            <i:EventTrigger EventName="Unchecked">
+                                <i:InvokeCommandAction Command="{Binding ChangedLoopCommand}" />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </CheckBox>
                 </UniformGrid>
+                
                 <StackPanel Orientation="Horizontal"
                             Grid.Row="1"
                             HorizontalAlignment="Center">
@@ -266,7 +270,8 @@
                 <StackPanel Grid.Column="1" Orientation="Horizontal"
                             Grid.Row="1">
                     <Label Content="距离" />
-                    <TextBox x:Name="tbMicroJogDistance" Text="{Binding CurrentPressure}" />
+                    <TextBox x:Name="tbMicroJogDistance"
+                             Text="{Binding MoveDistance}" />
                 </StackPanel>
 
 

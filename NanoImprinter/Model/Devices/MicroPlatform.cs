@@ -39,7 +39,7 @@ namespace NanoImprinter.Model
         public ChannelNo RXAxis => ChannelNo.One;
         public ChannelNo RYAxis => ChannelNo.Two;
 
-        public bool IsClosedLoop => _isClosedLoop;
+        public bool IsClosedLoop => _piezo.IsClosedLoop;
 
         public MicroPlatformConfig Config
         {
@@ -91,18 +91,23 @@ namespace NanoImprinter.Model
             CurrentPositionZ = 0;
             CurrentPositionRX = 0;
             CurrentPositionRY = 0;
+            RefreshDataService.Instance.Register(RefreshRealtimeData);
         }
 
 
-        public void SetClosedLoop(int channelNo,bool isClosedLoop)
+        public void SetClosedLoop(bool isClosedLoop)
         {
-
-            _piezo.EnableClosedLoop(channelNo);
+            _piezo.SetClosedLoop(1, isClosedLoop);
+           // _piezo.SetAllChannelClosedLoop(isClosedLoop);
         }
 
         public void Connected()
         {            
             _piezo.Connect();
+            //获取当前闭环开环状态
+            _piezo.ReadClosedLoopFlag();
+            //获取当前数值信息
+            ReadPositions();
         }
 
         public void Disconnected()
@@ -138,7 +143,7 @@ namespace NanoImprinter.Model
         /// <returns></returns>
         public bool Creep(ChannelNo index,double distance)
         {
-            _piezo.WriteDisplace(index, distance);
+            MoveTo(index, distance);
             return true;
         }
 
@@ -190,9 +195,14 @@ namespace NanoImprinter.Model
         private void MoveTo(ChannelNo index, double position)
         {
             _piezo.WriteDisplace(index, position);
-            Thread.Sleep(100);
 
-            ReadPositions();
+            while ((index == ChannelNo.One&&position!=CurrentPositionZ)||
+                   (index == ChannelNo.Two && position != CurrentPositionRX) ||
+                   (index == ChannelNo.Third && position != CurrentPositionRY))
+            {
+                Thread.Sleep(20);
+                ReadPositions();
+            }
         }
 
         /// <summary>
@@ -201,10 +211,15 @@ namespace NanoImprinter.Model
         /// <param name="position"></param>
         public void MoveTo(PointZRXY position)
         {
-            _piezo.WriteMultiDisplace(new double[] { position.RX, position.RY, position.Z });
-            Thread.Sleep(100);
-
-            ReadPositions();
+            _piezo.WriteMultiDisplace(new double[] { position.Z,position.RX, position.RY});
+            
+            while (position.Z!=CurrentPositionZ||
+                   position.RX!=CurrentPositionRX||
+                   position.RY!=CurrentPositionRY)
+            {
+                Thread.Sleep(20);
+                ReadPositions();
+            }
         }
 
         public void ReloadConfig()
@@ -214,12 +229,10 @@ namespace NanoImprinter.Model
 
         private bool ReadPositions()
         {
-            ///写太久忘记移动后如何判断是否移动完毕
-            ///后期待定
             var position = _piezo.ReadMultiDisplace();
-            CurrentPositionZ = position[0];
-            CurrentPositionRX = position[1];
-            CurrentPositionRY = position[2];
+            _currentPositionZ = position[0];
+            _currentPositionRX = position[1];
+            _currentPositionRY = position[2];
 
             return true;
         }
@@ -240,8 +253,14 @@ namespace NanoImprinter.Model
                     position = _currentPositionZ + postion;
                     break;
             }
-
             return position;
+        }
+
+        private void RefreshRealtimeData()
+        {
+            CurrentPositionRX = _currentPositionRX;
+            CurrentPositionRY = _currentPositionRX;
+            CurrentPositionZ = _currentPositionZ;
         }
 
 

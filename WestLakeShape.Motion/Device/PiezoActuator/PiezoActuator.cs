@@ -19,8 +19,14 @@ namespace WestLakeShape.Motion.Device
         private PiezoActuatorConfig _config;
         private PiezoSerialPort _piezoPort;
 
-        private readonly byte Closed_Loop_Flag = 0x43;
-        private readonly byte Opened_Loop_Flag = 0x4F;
+        private readonly byte Read_Closed_Loop_Flag = 0x43;
+        private readonly byte Read_Opened_Loop_Flag = 0x4F;
+        private readonly byte Write_Closed_Loop_Flag = 0xC;
+        private readonly byte Write_Opened_Loop_Flag =0x0;
+
+        private double[] _positions;
+
+
         public bool IsConnected => _piezoPort.IsConnected;
 
         public bool this[int i]
@@ -28,6 +34,8 @@ namespace WestLakeShape.Motion.Device
             get => _isClosedLoop[i];
             set => _isClosedLoop[i] = value;
         }
+
+        public bool IsClosedLoop => _isClosedLoop[1];
 
         public PiezoActuator(PiezoActuatorConfig config)
         {
@@ -39,10 +47,6 @@ namespace WestLakeShape.Motion.Device
         public void Connect()
         {
             _piezoPort.Connected();
-            //获取当前闭环开环状态
-            ReadClosedLoopFlag();
-            //获取当前数值信息
-            ReadMultiDisplace();
         }
 
         public void Disconnected()
@@ -57,20 +61,21 @@ namespace WestLakeShape.Motion.Device
 
         public void SetClosedLoop(int channelNo,bool isClosedLoop)
         {
-            var value = isClosedLoop ? Closed_Loop_Flag : Opened_Loop_Flag;
+            var value = isClosedLoop ? Read_Closed_Loop_Flag : Read_Opened_Loop_Flag;
             //发送修改ClosedLoop的命令，
-            _piezoPort.WriteCommand(B3Commands.EnableClosedLoop, new int[] { channelNo, value });
+            _piezoPort.SendCommand(B3Commands.EnableClosedLoop, new int[] { channelNo, value });
             
             ReadClosedLoopFlag();
         }
         public void SetAllChannelClosedLoop(bool isClosedLoop)
         {
-            var value = isClosedLoop ? Closed_Loop_Flag : Opened_Loop_Flag;
+            var value = isClosedLoop ? Write_Closed_Loop_Flag : Write_Opened_Loop_Flag;
             var openChannels = ClassifyChannels(false);
             openChannels.ForEach(index =>
             {
-                _piezoPort.WriteCommand(B3Commands.EnableClosedLoop, new int[] { index, value });
-                _isClosedLoop[index] = true;
+                _piezoPort.SendCommand(B3Commands.EnableClosedLoop, new int[] { index, value });
+                
+                ReadClosedLoopFlag();
             });
            
         }
@@ -82,7 +87,7 @@ namespace WestLakeShape.Motion.Device
         /// <param name="disp"></param>
         public void WriteDisplace(ChannelNo no,double disp)
         {
-            _piezoPort.WriteData(B3Commands.WriteSingleChannelDisp, (int)no, new double[] { disp });    
+            _piezoPort.SendData(B3Commands.WriteSingleChannelDisp, (int)no, new double[] { disp });
         }
 
         /// <summary>
@@ -91,7 +96,7 @@ namespace WestLakeShape.Motion.Device
         /// <param name="disp"></param>
         public void WriteMultiDisplace(double[] disp)
         {
-            _piezoPort.WriteData(B3Commands.WriteMultiChannelsDisp, (int)ChannelNo.One, disp);
+            _piezoPort.SendData(B3Commands.WriteMultiChannelsDisp, (int)ChannelNo.One, disp);
         }
 
         /// <summary>
@@ -101,8 +106,7 @@ namespace WestLakeShape.Motion.Device
         /// <returns></returns>
         public double ReadDisplace(ChannelNo no)
         {
-            _piezoPort.WriteCommand(B3Commands.ReadSingleChannelDisp, new int[] { (int)no });
-
+            _piezoPort.SendCommand(B3Commands.ReadSingleChannelDisp, new int[] { (int)no });
             var temp = _piezoPort.ReceiveValues(B3Commands.ReadSingleChannelDisp, (int)no, 1);
            
             return temp[0];
@@ -115,9 +119,21 @@ namespace WestLakeShape.Motion.Device
         /// <returns></returns>
         public double[] ReadMultiDisplace()
         {
-            _piezoPort.WriteCommand(B3Commands.ReadMultiChannelDispOrV);
-            var temp = _piezoPort.ReceiveValues(B3Commands.ReadMultiChannelDispOrV, 0, 3);
-            return temp;
+            //_piezoPort.SendCommand(B3Commands.ReadMultiChannelDispOrV);
+            //var temp = _piezoPort.ReceiveValues(B3Commands.ReadMultiChannelDispOrV, 0, 3);
+            //return temp;
+
+            var positions = new double[3];
+            
+            foreach (var no in Enum.GetValues(typeof(ChannelNo)))
+            {
+                var i = (int)no;
+                _piezoPort.SendCommand(B3Commands.ReadSingleChannelDisp, new int[] { (int)no });
+                var temp = _piezoPort.ReceiveValues(B3Commands.ReadSingleChannelDisp, (int)no, 1);
+                positions[(int)no] = temp[0];
+            }
+
+            return positions;
         }
 
         /// <summary>
@@ -128,7 +144,7 @@ namespace WestLakeShape.Motion.Device
         /// <returns></returns>
         public bool LoadCalib(ChannelNo no,double loadValue)
         {
-            _piezoPort.WriteData(B3Commands.LoadCalib, (int)no, new double[] { loadValue });
+            _piezoPort.SendData(B3Commands.LoadCalib, (int)no, new double[] { loadValue });
             return true;
         }
 
@@ -140,7 +156,7 @@ namespace WestLakeShape.Motion.Device
         /// <returns></returns>
         public bool SetDisplaceSoftLimit(ChannelNo no,double position)
         {
-            _piezoPort.WriteData(B3Commands.DisplaceSoftLimit,(int)no,new double[] {position});
+            _piezoPort.SendData(B3Commands.DisplaceSoftLimit,(int)no,new double[] {position});
             return true;
         }
 
@@ -151,7 +167,7 @@ namespace WestLakeShape.Motion.Device
         /// <returns></returns>
         public double ReadDisplaceSoftLimt(ChannelNo no)
         {
-            _piezoPort.WriteCommand(B3Commands.DisplaceSoftLimit, new int[] { (int)no });
+            _piezoPort.SendCommand(B3Commands.DisplaceSoftLimit, new int[] { (int)no });
 
             //var temp = _piezoPort.ReceiveMessage(B3Commands.DisplaceSoftLimit, (int)no, 1,false);
             //return temp[0];
@@ -164,7 +180,7 @@ namespace WestLakeShape.Motion.Device
         /// <returns></returns>
         public bool ClearMultiChannel()
         {
-            _piezoPort.WriteCommand(B3Commands.ClearMultiChannels);
+            _piezoPort.SendCommand(B3Commands.ClearMultiChannels);
             return true;
         }
 
@@ -172,18 +188,18 @@ namespace WestLakeShape.Motion.Device
         /// 读取通道的开闭环状态
         /// </summary>
         /// <returns></returns>
-        private bool ReadClosedLoopFlag()
+        public bool ReadClosedLoopFlag()
         {
             var channels = ((ChannelNo[])Enum.GetValues(typeof(ChannelNo))).ToList();
             channels.ForEach(index =>
             {
                 //发送数据
-                _piezoPort.WriteCommand(B3Commands.ReadClosedLoopFlag, new int[] { (int)index });
+                _piezoPort.SendCommand(B3Commands.ReadClosedLoopFlag, new int[] { (int)index });
                
                 //读取数据
                 var flag = _piezoPort.ReceiveFlag(B3Commands.ReadClosedLoopFlag, (int)index, 1);
                 //数据转化
-                _isClosedLoop[(int)index] = (flag& Closed_Loop_Flag) == Closed_Loop_Flag ? true : false;
+                _isClosedLoop[(int)index] = (flag & Read_Closed_Loop_Flag) == Read_Closed_Loop_Flag ? true : false;
             });
 
             return true;
@@ -215,7 +231,7 @@ namespace WestLakeShape.Motion.Device
     }
 
 
-    public enum ChannelNo : byte
+    public enum ChannelNo : int
     {
         One = 0,
         Two = 1,
