@@ -35,6 +35,7 @@ namespace WestLakeShape.Motion.Device
 
         public GlueControl(GlueControlConfig config)
         {
+            _config = config;
             _port = new GlueControlPort(config.PortName);
         }
 
@@ -56,7 +57,8 @@ namespace WestLakeShape.Motion.Device
         /// <returns></returns>
         public bool StartDispense()
         {
-            WriteCommand(RegisterNo.StartDispense, CommandValue.Start_Dispense);
+            ReadParam(RegisterNo.StartDispense, CommandValue.Start_Dispense);
+            WriteParam(RegisterNo.StartDispense, 0);
             return true;
         }
 
@@ -66,7 +68,7 @@ namespace WestLakeShape.Motion.Device
         /// <returns></returns>
         public bool StopDispense()
         {
-             WriteCommand(RegisterNo.StartDispense, CommandValue.Stop_Dispense);
+             ReadParam(RegisterNo.StartDispense, CommandValue.Stop_Dispense);
             return true;
         }
 
@@ -76,8 +78,13 @@ namespace WestLakeShape.Motion.Device
         /// <returns></returns>
         public bool SaveParam()
         {
-            WriteCommand(RegisterNo.SaveParamter, CommandValue.Save_Param);
+            ReadParam(RegisterNo.SaveParamter, CommandValue.Save_Param);
             return true;
+        }
+
+        public void ReloadConfig()
+        {
+            _port.Name=_config.PortName;
         }
 
         /// <summary>
@@ -86,20 +93,22 @@ namespace WestLakeShape.Motion.Device
         /// <returns></returns>
         public bool WriteDispensingDeleyTime()
         {
-            WriteParamValue(RegisterNo.DispensingDelayTime, _config.DispensingDelayTime);
+            
+            WriteParam(RegisterNo.DispensingDelayTime, _config.DispensingDelayTime);
             return true;
         }
 
 
 
-        private  bool WriteCommand(RegisterNo registerNo, ushort command)
+        private byte[] ReadParam(RegisterNo registerNo, ushort command)
         {
-            _port.WriteSingleRegister(Slave_ID, (ushort)registerNo, command);
-            return true;
+            return _port.ReadSingleRegister(8194);
+            //return  _port.ReadSingleRegister((ushort)registerNo);
         }
-        private bool WriteParamValue(RegisterNo registerNo, int val)
+        private bool WriteParam(RegisterNo registerNo, int val)
         {
-            _port.WriteSingleRegister(Slave_ID, (ushort)registerNo, (ushort)val);
+            _port.WriteSingleRegister(8713, 1);
+            //_port.WriteSingleRegister((ushort)registerNo, (ushort)val);
             return true;
         }
 
@@ -115,7 +124,7 @@ namespace WestLakeShape.Motion.Device
             if (Enum.IsDefined(typeof(RegisterNo), registerName))
             {
                 var registerNo = (RegisterNo)Enum.Parse(typeof(RegisterNo), registerName, true);
-                WriteParamValue(registerNo, registerValue);
+                WriteParam(registerNo, registerValue);
                 return true;
             }
             else
@@ -139,7 +148,7 @@ namespace WestLakeShape.Motion.Device
                 {
                     var registerNo = (RegisterNo)Enum.Parse(typeof(RegisterNo), propertyName, true);
                     var registerValue = (int)property.GetValue(_config);
-                    WriteParamValue(registerNo, registerValue);
+                    WriteParam(registerNo, registerValue);
                 }
             }
             return true;

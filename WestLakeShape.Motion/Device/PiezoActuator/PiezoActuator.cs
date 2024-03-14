@@ -24,9 +24,6 @@ namespace WestLakeShape.Motion.Device
         private readonly byte Write_Closed_Loop_Flag = 0xC;
         private readonly byte Write_Opened_Loop_Flag =0x0;
 
-        private double[] _positions;
-
-
         public bool IsConnected => _piezoPort.IsConnected;
 
         public bool this[int i]

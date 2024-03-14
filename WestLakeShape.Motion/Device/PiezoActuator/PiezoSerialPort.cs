@@ -25,7 +25,7 @@ namespace WestLakeShape.Motion.Device
         private readonly byte B4_Alt_Command = 0;
         private readonly int Pdu_Offset = 5;
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
-        public bool IsConnected => _isConnected;
+        public bool IsConnected => _port.IsOpen;
 
         public string PortName
         {
@@ -133,8 +133,7 @@ namespace WestLakeShape.Motion.Device
 
                 _stream.Write(buff, 0, buff.Length);
                
-                Debug.WriteLine($"通道{buff[5]}的发送数据");
-                DebugInfo(buff);
+               
             }
             catch (Exception ex)
             {

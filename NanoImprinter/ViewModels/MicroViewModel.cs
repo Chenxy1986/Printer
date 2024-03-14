@@ -128,11 +128,7 @@ namespace NanoImprinter.ViewModels
 
         public IList<ChannelNo> ChannelIndex { get; }
 
-        public ObservableCollection<string> PortNames
-        {
-            get;
-            set;
-        }
+        public ObservableCollection<string> PortNames { get; set; }
         #endregion
 
 

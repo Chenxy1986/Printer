@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
@@ -8,15 +9,17 @@ using System.Threading.Tasks;
 
 namespace WestLakeShape.Motion.Device
 {
+    /// <summary>
+    /// 当前通信采用自定义协议
+    /// </summary>
     public class GlueControlPort
     {
         private readonly ushort Head_Length = 1;
         private readonly ushort Tail_Length = 2;
-        private readonly byte Slave_ID = 1;
-        private ManualResetEventSlim _signal = new ManualResetEventSlim(false);
+        private readonly byte Slave_ID = 8;
         private SerialPort _port;
-        private byte[] _receiveDataBuff;
-
+        private Stream _stream;
+        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
 
         public bool IsConnected => _port.IsOpen;
         
@@ -40,18 +43,26 @@ namespace WestLakeShape.Motion.Device
                 DataBits = 8,
                 StopBits = StopBits.One,
                 Parity = Parity.None,
-                ReadTimeout = 2000,
-                WriteTimeout = 2000
+                ReadTimeout = 1000,
+                WriteTimeout = 1000
             };
-            _port.DataReceived += new SerialDataReceivedEventHandler(DataReceived);
         }
 
 
 
         public void Connected()
         {
-            if (!_port.IsOpen)
-                _port.Open();
+            try
+            {
+                if (!_port.IsOpen)
+                    _port.Open();
+                _stream = _port.BaseStream;
+
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"点胶控制器连接失败，{e.Message}");
+            }
         }
 
         public void Disconnected()
@@ -61,90 +72,119 @@ namespace WestLakeShape.Motion.Device
         }
 
 
-        public byte[] WriteSingleRegister(byte slaveId, ushort address, ushort value)
+        public bool WriteSingleRegister(ushort address, ushort value)
         {
-            var request = new byte[Head_Length + 5 + Tail_Length]; ;
-            request[Head_Length + 0] = FunctionCodes.WriteSingleRegister;
-            request[Head_Length + 1] = (byte)(address >> 8);
-            request[Head_Length + 2] = (byte)(address & 0xff);
-            request[Head_Length + 3] = (byte)(value >> 8);
-            request[Head_Length + 4] = (byte)(value & 0xff);
-
-            return SendData(request);
-        }
-
-
-        private byte[] SendData(byte[] data)
-        {
-            _signal.Reset();
-            _receiveDataBuff = null;
-
-            UpdateCrc16(data);
-
-            _port.Write(data, 0, data.Length);
-            
-            if (!_signal.Wait(5000))
-                throw new Exception($"{_port.PortName}通信超时");
-            
-            return _receiveDataBuff;
-        }
-
-
-        private void DataReceived(object sender, SerialDataReceivedEventArgs e)
-        {
-            var buff = new byte[256];
-            var start = 0;
-            bool needReceive = true;
-            while (needReceive)
+            try
             {
-                var size = _port.BytesToRead;
-                _port.Read(buff, start, size);
-                if (size == 0)
-                    break;
-                start += size;
+                var request = new byte[11]; ;
+                request[0] = Slave_ID;
+                request[1] = FunctionCodes.WriteRegisters;
+                request[2] = (byte)(address >> 8);//寄存器地址
+                request[3] = (byte)(address & 0xff);
+                request[4] = 00;//寄存器数量
+                request[5] = 01;
+                request[6] = 02;//字节数
+                request[7] = (byte)(value >> 8);
+                request[8] = (byte)(value & 0xff);
+                SendData(request, 8);
+                return true;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
 
-                //获取单个消息
-                needReceive = TryTakeMessage(buff);
-                if (!needReceive)
-                    _signal.Set();
+        public byte[] ReadSingleRegister(ushort address)
+        {
+            try
+            {
+                var request = new byte[Head_Length + 5 + Tail_Length]; ;
+                request[0] = Slave_ID;
+                request[1] = FunctionCodes.ReadHoldingRegisters;
+                request[2] = (byte)(address >> 8);
+                request[3] = (byte)(address & 0xff);
+                request[4] = 00;
+                request[5] = 01;
+
+                return SendData(request, 7);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        private byte[] SendData(byte[] data, int receiveDataSize)
+        {
+            _semaphore.Wait();
+            try
+            {
+                UpdateCrc16(data);
+                _stream.Write(data, 0, data.Length);
+                var ret = DataReceived(receiveDataSize);
+                return ret;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            finally
+            {
+                _semaphore.Release();
             }
         }
 
 
-
-        /// <summary>
-        /// 试图从缓冲区取出一条完整的回复消息
-        /// </summary>
-        private bool TryTakeMessage(byte[] buffer)
+        private byte[] DataReceived(int receiveDataSize)
         {
-            var offset = Head_Length;
-            var tail = Tail_Length;
+            var buff = new byte[16];
+            var right = 0;
+           
+            try
+            {
+                _port.DiscardInBuffer();
+                while (right < receiveDataSize)
+                {
+                    var count = buff.Length - right;
+                    if (count <= 0)
+                        throw new BufferFullException();
 
-            var minLength = offset + tail + 1;
-            if (buffer.Length < minLength)
-                return false;
+                    var size = _stream.Read(buff, right, count);
 
-            var functionCode = buffer[offset];
-            int messageLength;
+                    right += size;
+                    //读取不到完整的回复消息，则break
+                    if (size == 0 && right != receiveDataSize)
+                        break;
+                }
+                return TakeMessage(buff);
+            }
+            catch (TimeoutException ex)
+            {
+                throw ex;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+           
+           
+        }
+
+        private byte[] TakeMessage(byte[] buffer)
+        {
+            var functionCode = buffer[Head_Length];
+            int index = 0;
             if (functionCode < 0x80)
             {
                 // No exception
                 switch (functionCode)
                 {
-                    case FunctionCodes.ReadInputRegisters:
-                        {
-                            // 0: Function Code, 1: Byte Count, 2+ Data
-                            var byteCount = buffer[offset + 1];
-                            messageLength = offset + 2 + byteCount + tail;
-                        }
-                        break;
-                    case FunctionCodes.WriteSingleCoil:
-                            // 0: Function Code, 1-2: Register Address, 3-4: Data Value
-                            messageLength = offset + 5 + tail;
+                    case FunctionCodes.ReadHoldingRegisters:
+                        index =3;   //获取寄存器数量
                         break;
                     case FunctionCodes.WriteRegisters:
-                            // 0: Function Code, 1-2: Start Address, 3-4: Data Count
-                            messageLength = offset + 5 + tail;
+                        index = 2;  //获取寄存器地址
                         break;
                     default:
                         throw new UnexpectedValueException(functionCode);
@@ -154,18 +194,13 @@ namespace WestLakeShape.Motion.Device
             {
                 throw new UnexpectedValueException(functionCode);
             }
+            //检查CRC校验
+            if (!ValidateCrc16(buffer))
+                throw new CrcValidateException();
 
-            if (0 < messageLength && messageLength == buffer.Length)
-            {
-                _receiveDataBuff = new byte[messageLength];
-                Array.Copy(buffer, 0, _receiveDataBuff, 0, messageLength);
-
-                if (!ValidateCrc16(_receiveDataBuff))
-                    throw new CrcValidateException();
-                
-                return true;
-            }
-            return false;
+            var values = new byte[2];
+            Array.Copy(buffer, index, values, 0, 2);
+            return values;
         }
 
         /// <summary>

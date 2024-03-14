@@ -4,6 +4,7 @@ using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -97,7 +98,7 @@ namespace NanoImprinter.ViewModels
         }
 
         public ObservableCollection<IAxis> Axes { get; set; }
-        
+        public ObservableCollection<string> PortNames{ get; set; }
         #endregion
 
         #region command
@@ -107,7 +108,9 @@ namespace NanoImprinter.ViewModels
         public DelegateCommand MoveToGluePositionCommand => new DelegateCommand(MoveToTakePicturePosition).ObservesCanExecute(() => IsReady);
         public DelegateCommand SaveParamCommand => new DelegateCommand(SaveParam);
         public DelegateCommand ReloadParamCommand => new DelegateCommand(ReloadParam);
-        public DelegateCommand GlueCommmand => new DelegateCommand(Glue).ObservesCanExecute(()=>IsConnected);
+        public DelegateCommand GlueCommand => new DelegateCommand(Glue);
+        public DelegateCommand RefreshPortNamesCommand => new DelegateCommand(RefreshPortNames);
+        public DelegateCommand ConnectedCommand => new DelegateCommand(Connected);
 
         #endregion
 
@@ -117,31 +120,32 @@ namespace NanoImprinter.ViewModels
             _gluePlatform = _machine.GetPlatform(typeof(GluePlatform).Name) as GluePlatform;
             _platformConfig = _machine.Config.GluePlatform;
             Axes = new ObservableCollection<IAxis>();
+            PortNames = new ObservableCollection<string>();
             Axes.Add(_gluePlatform.GlueZAxis);
             ReloadParam();
         }
 
 
-        public void GoHome()
+        private void GoHome()
         {
             _gluePlatform.GoHome();
         }
-        public void ResetAlarm()
+        private void ResetAlarm()
         {
             _gluePlatform.ResetAxesAlarm();
         }
 
-        public void MoveToWaitPosition()
+        private void MoveToWaitPosition()
         {
             _gluePlatform.MoveToWaitPosition();
         }
 
-        public void MoveToTakePicturePosition()
+        private void MoveToTakePicturePosition()
         {
             _gluePlatform.MoveToGluePosition();
         }
 
-        public void SaveParam()
+        private void SaveParam()
         {
             
             _platformConfig.WaitPosition = WaitPosition;
@@ -155,7 +159,8 @@ namespace NanoImprinter.ViewModels
             _machine.SaveParam();
             _gluePlatform.ReloadConfig();
         }
-        public void ReloadParam()
+   
+        private void ReloadParam()
         {
             WaitPosition = _platformConfig.WaitPosition;
             GluePosition = _platformConfig.GluePosition;
@@ -167,10 +172,23 @@ namespace NanoImprinter.ViewModels
             Temperature = _platformConfig.GlueConfig.TargetTemperatore;
         }
 
-        public void Glue()
+        private void Glue()
         {
             _gluePlatform.Glue();
         }
 
+        private void RefreshPortNames()
+        {
+            PortNames.Clear();
+            foreach (var port in SerialPort.GetPortNames())
+            {
+                PortNames.Add(port);
+            }
+        }
+        private void Connected()
+        {
+            _gluePlatform.Connected();
+            IsConnected = true;
+        }
     }
 }

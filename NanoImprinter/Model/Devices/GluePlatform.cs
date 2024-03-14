@@ -85,8 +85,6 @@ namespace NanoImprinter.Model
         public bool Glue()
         {
             _glueControl.StartDispense();
-            Thread.Sleep(10);
-            _glueControl.StopDispense();
             return true;
         }
 
@@ -103,7 +101,7 @@ namespace NanoImprinter.Model
 
         public void ReloadConfig()
         {
-            
+            _glueControl.ReloadConfig();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

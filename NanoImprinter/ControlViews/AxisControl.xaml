@@ -29,7 +29,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*" />
                 <ColumnDefinition Width="2*" />
-                <ColumnDefinition Width="70" />
+                <ColumnDefinition Width="120" />
             </Grid.ColumnDefinitions>
 
             <StackPanel Orientation="Horizontal">
@@ -75,7 +75,7 @@
 
             <TextBox x:Name="TextBoxJogValue"
                      Grid.Column="2"
-                     MinWidth="60"
+                     MinWidth="100"
                      MinHeight="20"
                      HorizontalAlignment="Center"
                      VerticalAlignment="Center"
