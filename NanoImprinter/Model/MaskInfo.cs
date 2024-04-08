@@ -11,20 +11,20 @@ namespace NanoImprinter.Model
 {
     public class MaskInfo : NotifyPropertyChanged
     {
+        private int _imprintRow;
         private int _imprintCol;
         private int _impintCount;
-        private int _imprintRow;
         private int _currentIndex;
         private double _forceRangePercntage;
         private double _forceValue;
-        private double _length;
+      
 
         private int _maskLifetimeCount;
         private int _maskUsageCount;
         private double _width;
+        private double _length;
 
         private double _xOffse;
-
         private double _yOffse;
 
         /// <summary>
@@ -128,6 +128,7 @@ namespace NanoImprinter.Model
             get => _maskUsageCount;
             set => SetProperty(ref _maskUsageCount, value);
         }
+
     }
 
     public class WafeInfo

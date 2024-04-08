@@ -12,6 +12,9 @@ using WestLakeShape.Common.WpfCommon;
 
 namespace WestLakeShape.Motion.Device
 {
+    /// <summary>
+    /// 因为各个元器件串口通信标准未定，前期分仪器封装串口，后续优化通信
+    /// </summary>
     public class ForceSensorControl
     {
         private readonly byte Slave_ID = 1;
@@ -103,7 +106,6 @@ namespace WestLakeShape.Motion.Device
 
         private void TickProc()
         {
-
             while (_isConnected)
             {
                 RefreshValues();

@@ -40,14 +40,17 @@ namespace WestLakeShape.Motion
             _dirtyMasks = new byte[_config.OutputBufferLength];
             _tempBuffer = new byte[_config.OutputBufferLength];
 
+
             InputStates = new Dictionary<string, IOState>();
             OutputStates = new Dictionary<string, IOState>();
+
             LoadStates();
         }
 
 
         protected override void OnConnecting() 
         {
+
         }
 
         private void LoadStates()
@@ -62,6 +65,7 @@ namespace WestLakeShape.Motion
             }
             _outputIOs = OutputStates.Values.Cast<IOState>().ToList();
         }
+
 
         protected override void RefreshStates()
         {

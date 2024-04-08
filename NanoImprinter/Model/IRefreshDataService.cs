@@ -22,7 +22,7 @@ namespace NanoImprinter.Model
         private Timer _timer;
         private List<Action> _actions = new List<Action>();
         private static readonly RefreshDataService _service = new RefreshDataService();
-
+        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
         public static RefreshDataService Instance => _service;
 
 
@@ -34,27 +34,52 @@ namespace NanoImprinter.Model
 
         public void Register(Action action)
         {
-            if (!_actions.Contains(action))
+            _semaphore.Wait();
+            try
             {
-                _actions.Add(action);
+                if (!_actions.Contains(action))
+                {
+                    _actions.Add(action);
+                }
             }
+            finally
+            {
+                _semaphore.Release();
+            }
+            
         }
 
 
         public void Unregister(Action action)
         {
-            if (_actions.Contains(action))
+            _semaphore.Wait();
+            try
             {
-                _actions.Remove(action);
+                if (_actions.Contains(action))
+                {
+                    _actions.Remove(action);
+                }
+            }
+            finally
+            {
+                _semaphore.Release();
             }
         }
 
 
         private void RefreshData(object state)
         {
-            foreach (var action in _actions)
+            _semaphore.Wait();
+            try
             {
-                action?.Invoke();
+                foreach (var action in _actions)
+                {
+                    action?.Invoke();
+                }
+            }
+            finally
+            {
+                _semaphore.Release();
             }
         }
     }

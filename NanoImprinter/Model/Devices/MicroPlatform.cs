@@ -12,7 +12,7 @@ using WestLakeShape.Motion.Device;
 
 namespace NanoImprinter.Model
 {
-    public interface IMicroPlatform
+    public interface IMicroPlatform : INotifyPropertyChanged, IPlatform
     {
         MicroPlatformConfig Config { get; set; }
         bool MoveToContactPosition();
@@ -23,7 +23,7 @@ namespace NanoImprinter.Model
         bool JogBackward(ChannelNo index, double position);
     }
 
-    public class MicroPlatform:IMicroPlatform,IPlatform,INotifyPropertyChanged
+    public class MicroPlatform : IMicroPlatform
     {
         private MicroPlatformConfig _config;
         private PiezoActuator _piezo;
@@ -34,11 +34,14 @@ namespace NanoImprinter.Model
         private double _currentPositionRX;
         private double _currentPositionRY;
 
-        public bool IsConnected => _piezo.IsConnected;
+        public delegate void MessageHandler(string message);
+        public event MessageHandler OnMessage;
+
+        #region
         public ChannelNo ZAxis => ChannelNo.Third;
         public ChannelNo RXAxis => ChannelNo.One;
         public ChannelNo RYAxis => ChannelNo.Two;
-
+        public bool IsConnected => _piezo.IsConnected;
         public bool IsClosedLoop => _piezo.IsClosedLoop;
 
         public MicroPlatformConfig Config
@@ -83,7 +86,9 @@ namespace NanoImprinter.Model
                 }
             }
         }
-
+        
+        #endregion
+        
         public MicroPlatform(MicroPlatformConfig config)
         {
             _config = config;
@@ -168,9 +173,12 @@ namespace NanoImprinter.Model
         public bool JogForward(ChannelNo index, double position)
         {
             var targetPosition = CalculateDisplace(index, position);
-            MoveTo(index, targetPosition);
-
-            return true;
+            if (targetPosition >= 0)
+            {
+                MoveTo(index, targetPosition);
+                return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -182,8 +190,10 @@ namespace NanoImprinter.Model
         public bool JogBackward(ChannelNo index, double position)
         {
             var targetPosition = CalculateDisplace(index, -position);
-            MoveTo(index, targetPosition);
-
+            if (targetPosition >= 0)
+            {
+                MoveTo(index, targetPosition);
+            }
             return true;
         }
 
@@ -243,14 +253,31 @@ namespace NanoImprinter.Model
             switch (index)
             {
                 case ChannelNo.One:
-                    position = _currentPositionRX + postion;
+                    position = _currentPositionZ + postion;
+                    if (position > _config.PiezoActuatorConfig.ZMaxValue ||
+                        position < _config.PiezoActuatorConfig.ZMinValue)
+                    {
+                        OnMessage?.Invoke($"当前目标位置{position}不在行程内，请保证{_config.PiezoActuatorConfig.ZMinValue}<Z<{_config.PiezoActuatorConfig.ZMaxValue}");
+                        position = -1;
+                    } 
                     break;
                 case ChannelNo.Two:
-
-                    position = _currentPositionRY + postion;
+                    position = _currentPositionRX + postion;
+                    if (position > _config.PiezoActuatorConfig.RXMaxValue ||
+                       position < _config.PiezoActuatorConfig.RXMinValue)
+                    {
+                        OnMessage?.Invoke($"当前目标位置{position}不在行程内，请保证{_config.PiezoActuatorConfig.RXMinValue}<RX<{_config.PiezoActuatorConfig.RXMaxValue}");
+                        position = -1;
+                    }
                     break;
                 case ChannelNo.Third:
-                    position = _currentPositionZ + postion;
+                    position = _currentPositionRY + postion;
+                    if (position > _config.PiezoActuatorConfig.RYMaxValue ||
+                       position < _config.PiezoActuatorConfig.RYMinValue)
+                    {
+                        OnMessage?.Invoke($"当前目标位置{position}不在行程内，请保证{_config.PiezoActuatorConfig.RYMinValue}<RY<{_config.PiezoActuatorConfig.RYMaxValue}");
+                        position = -1;
+                    }
                     break;
             }
             return position;

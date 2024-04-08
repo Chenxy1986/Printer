@@ -15,8 +15,8 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height=" 35" />
-            <RowDefinition Height=" 3*" />
             <RowDefinition Height=" 2*" />
+            <RowDefinition Height=" 1*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*" />
@@ -34,11 +34,12 @@
 
         <GroupBox Grid.Row="1"
                   Margin="10"
+                  FontSize="24"
                   Header="平台位置参数"
                   Style="{StaticResource GroupBox.DefaultStyle}">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="50" />
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
@@ -48,10 +49,10 @@
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*" />
-                    <ColumnDefinition Width="1*" />
-                    <ColumnDefinition Width="1*" />
-                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="3*" />
                 </Grid.ColumnDefinitions>
 
                 <Border Grid.Row="1"
@@ -100,7 +101,7 @@
                        Content="Y" />
                 <Label Grid.Column="3"
                        HorizontalAlignment="Center"
-                       Content="移动按钮" />
+                       Content="按钮" />
                 <Label Grid.Row="1"
                        HorizontalAlignment="Right"
                        Content="放料位:" />
@@ -126,102 +127,122 @@
                 <TextBox x:Name="tbMacroWaitPostionX"
                          Grid.Row="1"
                          Grid.Column="1"
-                         Text="{Binding LoadPosition.X,Mode=TwoWay}" />
+                         HorizontalAlignment="Center"
+                         Text="{Binding LoadPosition.X, Mode=TwoWay}" />
                 <TextBox x:Name="tbMacroGluePostionX"
                          Grid.Row="2"
                          Grid.Column="1"
-                         Text="{Binding GluePosition.X,Mode=TwoWay}" />
+                         HorizontalAlignment="Center"
+                         Text="{Binding GluePosition.X, Mode=TwoWay}" />
                 <TextBox x:Name="tbMacroImprintPostionX"
                          Grid.Row="3"
                          Grid.Column="1"
-                         Text="{Binding ImprintPosition.X,Mode=TwoWay}" />
+                         HorizontalAlignment="Center"
+                         Text="{Binding ImprintPosition.X, Mode=TwoWay}" />
                 <TextBox x:Name="tbMacroLeftCenterPositionX"
                          Grid.Row="4"
                          Grid.Column="1"
-                         Text="{Binding LeftCenterPosition.X,Mode=TwoWay}" />
+                         HorizontalAlignment="Center"
+                         Text="{Binding LeftCenterPosition.X, Mode=TwoWay}" />
                 <TextBox x:Name="tbMacroRightCenterPositionX"
                          Grid.Row="5"
                          Grid.Column="1"
-                         Text="{Binding RightCenterPosition.X,Mode=TwoWay}" />
+                         HorizontalAlignment="Center"
+                         Text="{Binding RightCenterPosition.X, Mode=TwoWay}" />
                 <TextBox x:Name="tbMacroUpCenterPositionX"
                          Grid.Row="6"
                          Grid.Column="1"
-                         Text="{Binding UpCenterPosition.X,Mode=TwoWay}" />
+                         HorizontalAlignment="Center"
+                         Text="{Binding UpCenterPosition.X, Mode=TwoWay}" />
                 <TextBox x:Name="tbMacroDownCenterPositionX"
                          Grid.Row="7"
                          Grid.Column="1"
-                         Text="{Binding DownCenterPosition.X,Mode=TwoWay}" />
+                         HorizontalAlignment="Center"
+                         Text="{Binding DownCenterPosition.X, Mode=TwoWay}" />
 
 
                 <TextBox x:Name="tbMacroWaitPostionY"
                          Grid.Row="1"
                          Grid.Column="2"
-                         Text="{Binding LoadPosition.Y,Mode=TwoWay}" />
+                         HorizontalAlignment="Center"
+                         Text="{Binding LoadPosition.Y, Mode=TwoWay}" />
                 <TextBox x:Name="tbMacroGluePostionY"
                          Grid.Row="2"
                          Grid.Column="2"
-                         Text="{Binding GluePosition.Y,Mode=TwoWay}" />
+                         HorizontalAlignment="Center"
+                         Text="{Binding GluePosition.Y, Mode=TwoWay}" />
                 <TextBox x:Name="tbMacroImprintPostionY"
                          Grid.Row="3"
                          Grid.Column="2"
-                         Text="{Binding ImprintPosition.Y,Mode=TwoWay}" />
+                         HorizontalAlignment="Center"
+                         Text="{Binding ImprintPosition.Y, Mode=TwoWay}" />
                 <TextBox x:Name="tbMacroLeftCenterPositionY"
                          Grid.Row="4"
                          Grid.Column="2"
-                         Text="{Binding LeftCenterPosition.Y,Mode=TwoWay}" />
+                         HorizontalAlignment="Center"
+                         Text="{Binding LeftCenterPosition.Y, Mode=TwoWay}" />
                 <TextBox x:Name="tbMacroRightCenterPositionY"
                          Grid.Row="5"
                          Grid.Column="2"
-                         Text="{Binding RightCenterPosition.Y,Mode=TwoWay}" />
+                         HorizontalAlignment="Center"
+                         Text="{Binding RightCenterPosition.Y, Mode=TwoWay}" />
                 <TextBox x:Name="tbMacroUpCenterPositionY"
                          Grid.Row="6"
                          Grid.Column="2"
-                         Text="{Binding UpCenterPosition.Y,Mode=TwoWay}" />
+                         HorizontalAlignment="Center"
+                         Text="{Binding UpCenterPosition.Y, Mode=TwoWay}" />
                 <TextBox x:Name="tbMacroDownCenterPositionY"
                          Grid.Row="7"
                          Grid.Column="2"
-                         Text="{Binding DownCenterPosition.Y,Mode=TwoWay}" />
+                         HorizontalAlignment="Center"
+                         Text="{Binding DownCenterPosition.Y, Mode=TwoWay}" />
 
-                <Button x:Name="btnMacroMoveToLoadPosition"
-                        Grid.Row="1"
+                <Button Grid.Row="1"
                         Grid.Column="3"
-                        Margin="20,10"
+                        Width="120"
+                        Margin="10,10,30,10"
                         Command="{Binding MoveToLoadPositionCommand}"
                         Content="移动" />
                 <Button x:Name="btnMacroMoveToGluePosition"
                         Grid.Row="2"
                         Grid.Column="3"
-                        Margin="20,10"
+                        Width="120"
+                        Margin="10,10,30,10"
                         Command="{Binding MoveToGluePositionCommand}"
                         Content="移动" />
                 <Button x:Name="btnMacroMoveToImprintPosition"
                         Grid.Row="3"
                         Grid.Column="3"
-                        Margin="20,10"
+                        Width="120"
+                        Margin="10,10,30,10"
                         Command="{Binding MoveToImprintPositionCommand}"
                         Content="移动" />
                 <Button x:Name="btnMacroMoveToLeftCenterPosition"
                         Grid.Row="4"
                         Grid.Column="3"
-                        Margin="20,10"
+                        Width="120"
+                        Margin="10,10,30,10"
                         Command="{Binding MoveToLeftCenterPositionCommand}"
                         Content="移动" />
                 <Button x:Name="btnMacroMoveToRightCenterPosition"
                         Grid.Row="5"
                         Grid.Column="3"
-                        Margin="20,10"
+                        Width="120"
+                        Margin="10,10,30,10"
                         Command="{Binding MoveToRightCenterPositionCommand}"
                         Content="移动" />
                 <Button x:Name="btnMacroMoveToUpCenterPosition"
                         Grid.Row="6"
                         Grid.Column="3"
-                        Margin="20,10"
+                        Width="120"
+                        Margin="10,10,30,10"
                         Command="{Binding MoveToUpCenterPositionCommand}"
                         Content="移动" />
                 <Button x:Name="btnMacroMoveToDownCenterPosition"
                         Grid.Row="7"
                         Grid.Column="3"
-                        Margin="20,10"
+                        Width="120"
+                        Margin="10,10,30,10"
                         Command="{Binding MoveToDownCenterPositionCommand}"
                         Content="移动" />
 
@@ -231,12 +252,13 @@
         <GroupBox Grid.Row="1"
                   Grid.Column="1"
                   Margin="10"
+                  FontSize="24"
                   Header="平台运动参数"
                   Style="{StaticResource GroupBox.DefaultStyle}">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="50" />
-                    <RowDefinition Height="50" />
+                    <RowDefinition Height="80" />
+                    <RowDefinition Height="80" />
                     <RowDefinition Height="100" />
                     <RowDefinition Height="100" />
                     <RowDefinition Height="*" />
@@ -246,58 +268,57 @@
                     <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
 
-                <StackPanel Orientation="Horizontal">
-                    <ces:ParameterDisplayControl ParamName="X轴工作速度"
-                                                 ParamUnit="mm/s"
-                                                 ParamValue="{Binding XWorkVel, Mode=TwoWay}" />
-                </StackPanel>
+                <ces:ParameterDisplayControl ParamName="X轴工作速度"
+                                             ParamUnit="mm/s"
+                                             ParamValue="{Binding XWorkVel, Mode=TwoWay}" />
 
-                <StackPanel Grid.Row="0"
-                            Grid.Column="1"
-                            Orientation="Horizontal">
-                    <ces:ParameterDisplayControl ParamName="Y轴工作速度"
-                                                 ParamUnit="mm/s"
-                                                 ParamValue="{Binding YWorkVel, Mode=TwoWay}" />
-                </StackPanel>
-                <StackPanel Grid.Row="1" Orientation="Horizontal">
-                    <ces:ParameterDisplayControl ParamName="R轴工作速度"
-                                                 ParamUnit="mm/s"
-                                                 ParamValue="{Binding RWorkVel, Mode=TwoWay}" />
-                </StackPanel>
+                <ces:ParameterDisplayControl Grid.Row="0"
+                                             Grid.Column="1"
+                                             ParamName="Y轴工作速度"
+                                             ParamUnit="mm/s"
+                                             ParamValue="{Binding YWorkVel, Mode=TwoWay}" />
+                <ces:ParameterDisplayControl ParamName="R轴工作速度"
+                                             Grid.Row="1"
+                                             Grid.Column="0"
+                                             ParamUnit="mm/s"
+                                             ParamValue="{Binding RWorkVel, Mode=TwoWay}" />
                 <UniformGrid Grid.Row="2"
                              Grid.ColumnSpan="2"
-                             Columns="2">
-                    <Button Margin="30,10"
+                            Columns="4">
+                    <Button Width="120"
+                            Height="60"
+                            HorizontalAlignment="Center"
                             Command="{Binding GoHomeCommand}"
                             Content="回零" />
-                    <Button Margin="30,10"
+                    <Button Width="120"
+                            Height="60"
+                            HorizontalAlignment="Center"
                             Command="{Binding ResetAlarmCommand}"
                             Content="清除报警" />
-                </UniformGrid>
-
-                <UniformGrid Grid.Row="3"
-                             Grid.ColumnSpan="2"
-                             Columns="2">
-                    <Button Margin="30,10"
+                    <Button Width="120"
+                            Height="60"
+                            HorizontalAlignment="Center"
                             Command="{Binding SaveParamCommand}"
                             Content="保存参数" />
-                    <Button Margin="30,10"
+                    <Button Width="120"
+                            Height="60"
+                            HorizontalAlignment="Center"
                             Command="{Binding ReloadParamCommand}"
                             Content="重载参数" />
-
                 </UniformGrid>
+
+
             </Grid>
         </GroupBox>
 
         <GroupBox Grid.Row="2"
-                  Margin="10"
                   FontSize="24"
                   Header="轴运动"
                   Style="{StaticResource GroupBox.DefaultStyle}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*" />
-                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="80" />
                 </Grid.RowDefinitions>
                 <cvs:AxisControl Axes="{Binding Axes}" />
             </Grid>

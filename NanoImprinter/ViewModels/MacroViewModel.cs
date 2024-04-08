@@ -167,23 +167,39 @@ namespace NanoImprinter.ViewModels
 
         private void MoveToImprintPosition()
         {
-            _macroPlatform.MoveToImprintPosition();
+            var task = Task.Run(() =>
+            {
+                _macroPlatform.MoveToImprintPosition();
+            });
         }
         private void MoveToLeftCenterPosition()
         {
-            _macroPlatform.MoveTo(LeftCenterPosition);
+            var task = Task.Run(() =>
+            {
+                _macroPlatform.MoveTo(LeftCenterPosition);
+            });
         }
         private void MoveToRightCenterPosition()
         {
-            _macroPlatform.MoveTo(RightCenterPosition);
+            var task = Task.Run(() =>
+            {
+                _macroPlatform.MoveTo(RightCenterPosition);
+            });
         }
         private void MoveToUpCenterPosition()
         {
-            _macroPlatform.MoveTo(UpCenterPosition);
+            var task = Task.Run(() =>
+            {
+                _macroPlatform.MoveTo(UpCenterPosition);
+            });
         }
         private void MoveToDownCenterPosition()
         {
-            _macroPlatform.MoveTo(DownCenterPosition);
+            var task = Task.Run(() =>
+            {
+                _macroPlatform.MoveTo(DownCenterPosition);
+            });
+            
         }
     }
 }

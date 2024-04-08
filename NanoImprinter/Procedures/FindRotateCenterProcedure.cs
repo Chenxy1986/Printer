@@ -23,7 +23,7 @@ namespace NanoImprinter.Procedures
         }
         protected override bool OnExecute()
         {
-            var model = new MachineModel();
+            var model = new DeviceModel();
             if (!CheckWorkStatus())
                 return false;
             //移动到圆心左监测点 

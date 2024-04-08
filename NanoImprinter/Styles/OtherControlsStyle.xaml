@@ -4,7 +4,7 @@
 
     <!--  页面头部标题的样式  -->
     <Style x:Key="Grid.ViewTitle.BorderTextBlock" TargetType="Grid">
-        <Setter Property="Height" Value="35" />
+        <Setter Property="Height" Value="40" />
         <Setter Property="Margin" Value="0" />
         <Style.Resources>
             <Style TargetType="Border">
@@ -15,7 +15,7 @@
                 <Setter Property="VerticalAlignment" Value="Center" />
                 <Setter Property="HorizontalAlignment" Value="Center" />
                 <Setter Property="Margin" Value="5" />
-                <Setter Property="FontSize" Value="20" />
+                <Setter Property="FontSize" Value="24" />
                 <Setter Property="Foreground" Value="Black" />
                 <Setter Property="FontWeight" Value="Bold" />
             </Style>

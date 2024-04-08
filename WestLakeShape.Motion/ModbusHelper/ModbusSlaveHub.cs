@@ -104,7 +104,7 @@ namespace WestLakeShape.Motion
         public Task WriteSingleRegister(byte slaveId, ushort address, ushort value)
         {
             var request = CreateRequest(5);
-            request[_pduOffset + 0] = FunctionCodes.WriteSingleRegister;
+            request[_pduOffset + 0] = FunctionCodes.WriteSingleHoldingRegister;
             request[_pduOffset + 1] = (byte)(address >> 8);
             request[_pduOffset + 2] = (byte)(address & 0xff);
             request[_pduOffset + 3] = (byte)(value >> 8);
@@ -470,7 +470,7 @@ namespace WestLakeShape.Motion
                             messageLength = offset + 2 + byteCount + tail;
                         }
                         break;
-                    case FunctionCodes.WriteSingleRegister:
+                    case FunctionCodes.WriteSingleHoldingRegister:
                     case FunctionCodes.WriteSingleCoil:
                         {
                             // 0: Function Code, 1-2: Register Address, 3-4: Data Value
@@ -500,7 +500,7 @@ namespace WestLakeShape.Motion
                     case FunctionCodes.ReadDiscreteInputs:
 
                     case FunctionCodes.ReadHoldingRegisters:
-                    case FunctionCodes.WriteSingleRegister:
+                    case FunctionCodes.WriteSingleHoldingRegister:
                     case FunctionCodes.WriteRegisters:
 
                     case FunctionCodes.ReadInputRegisters:

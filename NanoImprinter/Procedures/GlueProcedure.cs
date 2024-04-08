@@ -25,7 +25,7 @@ namespace NanoImprinter.Procedures
 
         protected override bool OnExecute()
         {
-            var model = new MachineModel();
+            var model = new DeviceModel();
             if (!CheckWorkStatus())
                 return false;
             //宏动平台移动点胶位置

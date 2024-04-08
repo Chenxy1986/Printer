@@ -18,9 +18,10 @@ namespace WestLakeShape.Motion.Device
         public static string NagetiveLimit = "RS_LIMIT";     //负限位
         public static string FollowError = "FE_LIMIT";       //跟随误差
         public static string FollowErrorRange = "FE_RANGE";  //跟随误差范围
-        public static string IsLoop = "SERVO";               //闭环或开环控制
+        public static string IsLoop = "SERVO";               //闭环或开环控制(带反馈置1)
         public static string JogSpeed = "JOGSPEED";          //JOG速度
-        public static string Enable = "WDOG";                //伺服ON
+        public static string Enable = "WDOG";                //驱动器外部继电器开关
+        public static string ServoOn = "AXIS_ENABLE";        //独立启用轴
 
         public static string TargetPosition = "DPOS";        //目标位置
         public static string CurrentPosition = "MPOS";       //当前位置

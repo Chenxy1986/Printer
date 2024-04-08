@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -75,11 +76,15 @@ namespace NanoImprinter.ControlViews
 
         private void btnJogForward_Click(object sender, RoutedEventArgs e)
         {
-            SelectedAxis.MoveTo(SelectedValue);
+            var distance = SelectedValue;
+            var axis = SelectedAxis;
+            var task = Task.Run(()=> axis.MoveBy(distance));
         }
         private void btnJogBack_Click(object sender, RoutedEventArgs e)
         {
-            SelectedAxis.MoveTo(SelectedValue);
+            var distance = -1 * SelectedValue;
+            var axis = SelectedAxis;
+            var task = Task.Run(() => axis.MoveBy(distance));
         }
 
         private void SliderShowToolTip(object sender, RoutedEventArgs e)
@@ -102,6 +107,11 @@ namespace NanoImprinter.ControlViews
         {
             UnitName = "mm/s";
             IsFixedSpeed = true;
+        }
+
+        private void btnStop_Click(object sender, RoutedEventArgs e)
+        {
+            SelectedAxis.Stop();
         }
     }
 }

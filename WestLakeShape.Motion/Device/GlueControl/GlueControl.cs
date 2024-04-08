@@ -15,6 +15,7 @@ namespace WestLakeShape.Motion.Device
         private const byte Slave_ID = 1;
         private GlueControlConfig _config;
 
+        public bool IsConnected => _port.IsConnected;
         /// <summary>
         /// 已点胶次数
         /// </summary>
@@ -39,16 +40,14 @@ namespace WestLakeShape.Motion.Device
             _port = new GlueControlPort(config.PortName);
         }
 
-        public bool Connect()
+        public void Connect()
         {
             _port.Connected();
-            return true;
         }
 
-        public bool Disconnected()
+        public void Disconnected()
         {
             _port.Disconnected();
-            return true;
         }
 
         /// <summary>

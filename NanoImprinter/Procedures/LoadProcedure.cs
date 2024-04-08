@@ -30,7 +30,7 @@ namespace NanoImprinter.Procedures
             if (!CheckWorkStatus())
                 return false;
 
-            var model = new MachineModel();
+            var model = new DeviceModel();
             //移动到放料位
             _platform.MoveToLoadPosition();
 

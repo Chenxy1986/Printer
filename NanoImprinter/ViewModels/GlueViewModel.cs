@@ -21,7 +21,6 @@ namespace NanoImprinter.ViewModels
         private string _portName;
         private bool _isReady;       //Z轴是否Ready
         private bool _isAlaram;      //Z轴是否报警
-        private bool _isConnected;   //点胶机是否连接
 
         private int _openTime;        //开阀时间
         private int _closeTime;       //关阀时间
@@ -49,12 +48,6 @@ namespace NanoImprinter.ViewModels
         {
             get => _isAlaram;
             set => SetProperty(ref _isAlaram, value);
-        }
-
-        public bool IsConnected
-        {
-            get => _isConnected;
-            set => SetProperty(ref _isConnected, value);
         }
         
         public double WaitPosition
@@ -122,13 +115,17 @@ namespace NanoImprinter.ViewModels
             Axes = new ObservableCollection<IAxis>();
             PortNames = new ObservableCollection<string>();
             Axes.Add(_gluePlatform.GlueZAxis);
+            RefreshPortNames(); 
             ReloadParam();
         }
 
 
         private void GoHome()
         {
-            _gluePlatform.GoHome();
+            var task = Task.Run(() =>
+            {
+                _gluePlatform.GoHome();
+            });
         }
         private void ResetAlarm()
         {
@@ -137,17 +134,22 @@ namespace NanoImprinter.ViewModels
 
         private void MoveToWaitPosition()
         {
-            _gluePlatform.MoveToWaitPosition();
+            var task = Task.Run(() =>
+            {
+                _gluePlatform.MoveToWaitPosition();
+            });
         }
 
         private void MoveToTakePicturePosition()
         {
-            _gluePlatform.MoveToGluePosition();
+            var task = Task.Run(() =>
+            {
+                _gluePlatform.MoveToGluePosition();
+            });
         }
 
         private void SaveParam()
         {
-            
             _platformConfig.WaitPosition = WaitPosition;
             _platformConfig.GluePosition = GluePosition;
             _platformConfig.WorkVel = WorkVel;
@@ -188,7 +190,6 @@ namespace NanoImprinter.ViewModels
         private void Connected()
         {
             _gluePlatform.Connected();
-            IsConnected = true;
         }
     }
 }

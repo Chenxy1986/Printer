@@ -12,7 +12,7 @@ using WestLakeShape.Motion.Device;
 
 namespace NanoImprinter.Model
 {
-    public interface IGluePlatform
+    public interface IGluePlatform : INotifyPropertyChanged, IPlatform
     {
         GluePlatformConfig Config { get; set; }
         //bool GoHome();
@@ -22,7 +22,7 @@ namespace NanoImprinter.Model
         void ResetAxesAlarm();
     }
 
-    public class GluePlatform:IGluePlatform, IPlatform, INotifyPropertyChanged
+    public class GluePlatform : IGluePlatform
     {
         private GluePlatformConfig _config;
         private IAxis _glueZAxis;
@@ -30,6 +30,8 @@ namespace NanoImprinter.Model
         private double _currentPositionGlueZ;
 
         public IAxis GlueZAxis => _glueZAxis;
+        public bool IsConnected => _glueControl.IsConnected;
+
         public GluePlatformConfig Config
         {
             get => _config;
@@ -57,10 +59,23 @@ namespace NanoImprinter.Model
             _glueControl = new GlueControl(config.GlueConfig);
 
         }
+        public void ReloadConfig()
+        {
+            _glueControl.ReloadConfig();
+        }
 
+        private void LoadAxesVelocity()
+        {
+            _glueZAxis.LoadVelocity(Config.WorkVel);
+        }
+
+        /// <summary>
+        /// 点胶回零与AFM相关；点胶》AFM
+        /// </summary>
+        /// <returns></returns>
         public bool GoHome()
         {
-             return _glueZAxis.GoHome();
+            return _glueZAxis.GoHome();
         }
 
         public bool MoveToWaitPosition()
@@ -99,11 +114,6 @@ namespace NanoImprinter.Model
                 CurrentPositionGlueZ = _glueZAxis.Position;
         }
 
-        public void ReloadConfig()
-        {
-            _glueControl.ReloadConfig();
-        }
-
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
         {
@@ -129,7 +139,7 @@ namespace NanoImprinter.Model
     }
 
 
-    public class GluePlatformConfig:NotifyPropertyChanged
+    public class GluePlatformConfig: NotifyPropertyChanged
     {
         private double _gluePosition;
         private double _waitPosition;

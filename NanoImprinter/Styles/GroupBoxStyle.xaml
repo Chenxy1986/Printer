@@ -80,7 +80,7 @@
                 <DataTemplate>
                     <Border>
                         <TextBlock Margin="1"
-                                   FontSize="18"
+                                   FontSize="24"
                                    Text="{Binding}" />
                     </Border>
                 </DataTemplate>

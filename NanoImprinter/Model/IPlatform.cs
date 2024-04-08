@@ -8,6 +8,7 @@ namespace NanoImprinter.Model
 {
     public interface IPlatform
     {
+        bool IsConnected { get; }
         bool GoHome();
         void Connected();
         void Disconnected();

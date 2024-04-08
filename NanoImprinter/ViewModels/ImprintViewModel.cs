@@ -29,13 +29,13 @@ namespace NanoImprinter.ViewModels
         private double _takePictureHeight;
         private double _cameraZWorkVel;
         private double _xDirSafePosition;
-        private PointXZ _uvWaitPosition;
-        private PointXZ _uvIrradiationPosition;
+        private double _uvWaitPosition;
+        private double _uvIrradiationPosition;
         private double _uvXWorkVel;
-        private double _uvZWorkVel;
-        private int _uvPreheatTime;
-        private int _uvExposureTime;       
-        private double _uvZDirSafePosition;
+        private double _uvYWorkVel;
+        private int _uvIrradiationTime;
+        private int _uvPowerPercentage;       
+        private double _uvYDirSafePosition;
 
         #region property
         public string UVPortName 
@@ -48,87 +48,77 @@ namespace NanoImprinter.ViewModels
             get => _forceSensorPortName;
             set => SetProperty(ref _forceSensorPortName, value);
         }
-
         public double MaskWaitHeight
         {
             get => _maskWaitHeight;
             set => SetProperty(ref _maskWaitHeight, value);
         }
+       
         public double MaskPreprintHeight
         {
             get => _maskPreprintHeight;
             set => SetProperty(ref _maskPreprintHeight, value);
         }
+        
         public double MaskZWorkVel
         {
             get => _maskZWorkVel;
             set => SetProperty(ref _maskZWorkVel, value);
         }
-
         public double CameraWaitHeight
         {
             get => _cameraWaitHeight;
             set => SetProperty(ref _cameraWaitHeight, value);
         }
-
         public double CameraTakePictureHeight
         {
             get => _takePictureHeight;
             set => SetProperty(ref _takePictureHeight, value);
         }
-
         public double CameraZWorkVel
         {
             get => _cameraZWorkVel;
             set => SetProperty(ref _cameraZWorkVel, value);
         }
-
         public double XDirSafePosition
         {
             get => _xDirSafePosition;
             set => SetProperty(ref _xDirSafePosition, value);
         }
-
-        public PointXZ UVWaitPosition
+        public double UVWaitPosition
         {
             get => _uvWaitPosition;
             set => SetProperty(ref _uvWaitPosition, value);
         }
-
-        public PointXZ UVIrradiationPosition
+        public double UVIrradiationPosition
         {
             get => _uvIrradiationPosition;
             set => SetProperty(ref _uvIrradiationPosition, value);
         }
-
         public double UVXWorkVel
         {
             get => _uvXWorkVel;
             set => SetProperty(ref _uvXWorkVel, value);
         }
-
         public double UVZWorkVel
         {
-            get => _uvZWorkVel;
-            set => SetProperty(ref _uvZWorkVel, value);
+            get => _uvYWorkVel;
+            set => SetProperty(ref _uvYWorkVel, value);
         }
-
-        public int UVPreheatTime
+        public int UVIrradiationTime
         {
-            get => _uvPreheatTime;
-            set => SetProperty(ref _uvPreheatTime, value);
+            get => _uvIrradiationTime;
+            set => SetProperty(ref _uvIrradiationTime, value);
         }
-        public int UVExposureTime
+        public int UVPowerPercentage
         {
-            get => _uvExposureTime;
-            set => SetProperty(ref _uvExposureTime, value);
+            get => _uvPowerPercentage;
+            set => SetProperty(ref _uvPowerPercentage, value);
         }
-
-
-        public double UVZDirSafePosition
+        public double UVYDirSafePosition
         {
-            get => _uvZDirSafePosition;
-            set => SetProperty(ref _uvZDirSafePosition, value);
+            get => _uvYDirSafePosition;
+            set => SetProperty(ref _uvYDirSafePosition, value);
         }
 
         #endregion
@@ -148,6 +138,10 @@ namespace NanoImprinter.ViewModels
         public DelegateCommand MoveToUVIrradiationPositionCommand => new DelegateCommand(MoveToUVIrradiationPosition);
         public DelegateCommand UVGoHomeCommand => new DelegateCommand(UVGoHome);
         public DelegateCommand RefreshPortNamesCommand => new DelegateCommand(RefreshPortNames);
+        public DelegateCommand OpenUVLightCommand => new DelegateCommand(OpenUVLight);
+        public DelegateCommand CloseUVLightCommand => new DelegateCommand(CloseUVLight);
+        public DelegateCommand WriteUVParameterCommand => new DelegateCommand(WriteUVParameter);
+
 
         #endregion
 
@@ -164,30 +158,38 @@ namespace NanoImprinter.ViewModels
             Axes.Add(_plate.MaskZAxis);
             Axes.Add(_plate.CameraZAxis);
             Axes.Add(_plate.UVXAxis);
-            Axes.Add(_plate.UVZAxis);
-            _uvWaitPosition = new PointXZ(0,0);
-            _uvIrradiationPosition = new PointXZ(0,0);
+            
+            RefreshPortNames();
             ReloadParam();
         }
 
         private void MaskZGoHome()
         {
-            _plate.MaskZAxis.GoHome();
+            var task = Task.Run(() =>
+            {
+                _plate.GoHome();
+            });
         }
         private void MoveToMaskPreprintHeight()
         {
-            _plate.MoveToMaskPreprintHeight();
+            var task = Task.Run(() =>
+            {
+                _plate.MoveToMaskPreprintHeight();
+            });
+            
         }
         private void MoveToCameraTakePictureHeight()
         {
-            _plate.MoveToTakePictureHeight();
+            var task = Task.Run(() =>
+            {
+                _plate.MoveToTakePictureHeight();
+            });
         }
         private void ResetAlarm()
         {
             _plate.MaskZAxis.ResetAlarm();
             _plate.CameraZAxis.ResetAlarm();
             _plate.UVXAxis.ResetAlarm();
-            _plate.UVZAxis.ResetAlarm();
         }
 
         private void SaveParam()
@@ -202,14 +204,17 @@ namespace NanoImprinter.ViewModels
             _platformConfig.UVWaitPosition = UVWaitPosition;
             _platformConfig.UVIrradiationPosition = UVIrradiationPosition;
             _platformConfig.UVXWorkVel = UVXWorkVel;
-            _platformConfig.UVYWorkVel = UVZWorkVel;
-            _platformConfig.UVConfig.PreheatTime = UVPreheatTime;
-            _platformConfig.UVConfig.ExposureTime = UVExposureTime;
-            _platformConfig.UVZDirSafePosition = UVZDirSafePosition;
+            _platformConfig.UVConfig.IrradiationTime = UVIrradiationTime;
+            _platformConfig.UVConfig.PowerPercentage = UVPowerPercentage;
+            _platformConfig.UVXDirSafePosition = UVYDirSafePosition;
             _platformConfig.UVConfig.PortName = _uvPortName;
             _platformConfig.ForceSensorControlConfig.PortName = _forceSensorPortName;
+            
             _machine.SaveParam();
             _plate.ReloadConfig();
+            
+            //保存参数到UV控制器中
+            _plate.WriteUVParam();
         }
 
         private void ReloadParam()
@@ -224,10 +229,9 @@ namespace NanoImprinter.ViewModels
             UVWaitPosition = _platformConfig.UVWaitPosition;
             UVIrradiationPosition = _platformConfig.UVIrradiationPosition;
             UVXWorkVel = _platformConfig.UVXWorkVel;
-            UVZWorkVel = _platformConfig.UVYWorkVel;
-            UVPreheatTime = _platformConfig.UVConfig.PreheatTime;
-            UVExposureTime = _platformConfig.UVConfig.ExposureTime;
-            UVZDirSafePosition = _platformConfig.UVZDirSafePosition;
+            UVIrradiationTime = _platformConfig.UVConfig.IrradiationTime;
+            UVPowerPercentage = _platformConfig.UVConfig.PowerPercentage;
+            UVYDirSafePosition = _platformConfig.UVXDirSafePosition;
             UVPortName = _platformConfig.UVConfig.PortName;
             ForceSensorPortName =_platformConfig.ForceSensorControlConfig.PortName;
         }
@@ -242,16 +246,24 @@ namespace NanoImprinter.ViewModels
         }
         private void MoveToUVWaitPosition()
         {
-            _plate.MoveToUVWaitPositon(); 
+            var task = Task.Run(() =>
+            {
+                _plate.MoveToUVWaitPositon();
+            });
         }
         private void MoveToUVIrradiationPosition()
         {
-            _plate.MoveToUVIrradiationPosition();
+            var task = Task.Run(() =>
+            {
+                _plate.MoveToUVIrradiationPosition();
+            });
         }
         private void UVGoHome()
         {
-            _plate.UVXAxis.GoHome();
-            _plate.UVZAxis.GoHome();
+            var task = Task.Run(() =>
+            {
+                _plate.UVXAxis.GoHome();
+            });
         }
         private void RefreshPortNames()
         {
@@ -260,6 +272,19 @@ namespace NanoImprinter.ViewModels
             {
                 PortNames.Add(port);
             }
+        }
+
+        private void OpenUVLight()
+        {
+            _plate.OpenUVLight();
+        }
+        private void CloseUVLight()
+        {
+            _plate.CloseUVLight();
+        }
+        private void WriteUVParameter()
+        {
+            _plate.WriteUVParam();
         }
     }
 }

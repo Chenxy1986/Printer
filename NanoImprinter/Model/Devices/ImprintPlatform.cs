@@ -13,7 +13,7 @@ using WestLakeShape.Motion.Device;
 
 namespace NanoImprinter.Model
 {
-    public interface IImprintPlatform
+    public interface IImprintPlatform : INotifyPropertyChanged, IPlatform
     {
         ImprintPlatformConfig Config { get; set; }
         //bool GoHome();
@@ -22,21 +22,19 @@ namespace NanoImprinter.Model
         void ResetAxesAlarm();
     }
 
-    public class ImprintPlatform:IImprintPlatform,IPlatform,INotifyPropertyChanged
+    public class ImprintPlatform: IImprintPlatform
     {
         private ImprintPlatformConfig _config;
         private IAxis _maskZAxis;
         private IAxis _cameraZAxis;
         private IAxis _uvXAxis;
-        private IAxis _uvZAxis;
         private ForceSensorControl _forceSensorControl;
         private UVControl _uvControl;
         
-        private double _currentPositionMaskZ;
+        private double _currentPositionMaskZ;  //掩膜Z轴当前位置
         private double _currentPositionCameraZ;
         private double _currentPositionUVX;
-        private double _currentPositionUVZ;
-        private double _forceValue0;
+        private double _forceValue0;//压力传感器1的力值
         private double _forceValue1;
         private double _forceValue2;
         private double _forceValue3;
@@ -50,7 +48,7 @@ namespace NanoImprinter.Model
         public IAxis MaskZAxis => _maskZAxis;
         public IAxis CameraZAxis => _cameraZAxis;
         public IAxis UVXAxis => _uvXAxis;
-        public IAxis UVZAxis => _uvZAxis;
+        public bool IsConnected => _uvControl.IsConnected;
 
         #region 实时数据
         public double CurrentPositionMaskZ
@@ -88,18 +86,6 @@ namespace NanoImprinter.Model
                 {
                     _currentPositionUVX = value;
                     OnPropertyChanged(nameof(CurrentPositionUVX));
-                }
-            }
-        }
-        public double CurrentPositionUVZ
-        {
-            get => _currentPositionUVZ;
-            set
-            {
-                if (_currentPositionUVZ != value)
-                {
-                    _currentPositionUVZ = value;
-                    OnPropertyChanged(nameof(CurrentPositionUVZ));
                 }
             }
         }
@@ -161,13 +147,8 @@ namespace NanoImprinter.Model
             _maskZAxis = axes[0];
             _cameraZAxis = axes[1];
             _uvXAxis = axes[2];
-            _uvZAxis = axes[3];
             _forceSensorControl = new ForceSensorControl(_config.ForceSensorControlConfig);
             _uvControl = new UVControl(_config.UVConfig);
-            //_maskZAxis = new TrioAxis(_config.MaskZAxisConfig);
-            //_cameraZAxis = new TrioAxis(_config.CameraZAxisConfig);
-            //_uvXAxis = new TrioAxis(_config.UVXAxisConfig);
-            //_uvYAxis = new TrioAxis(_config.UVYAxisConfig);
             RefreshDataService.Instance.Register(RefreshRealtimeData);
         }
 
@@ -190,20 +171,31 @@ namespace NanoImprinter.Model
             _uvControl.OnDisconnecting();
         }
 
-
+        /// <summary>
+        /// 依次回零顺序：UV》相机》压印
+        /// </summary>
+        /// <returns></returns>
         public bool GoHome()
         {
-            var czTask = Task.Run(()=> _cameraZAxis.GoHome());
-            var uxTask = Task.Run(()=>_uvXAxis.GoHome());
-            var uyTask = Task.Run(()=> _uvZAxis.GoHome());
-            Task.WaitAll(czTask, uxTask, uyTask);
-            return _maskZAxis.GoHome();
+            //var uvxTask = Task.Run(()=>_uvXAxis.GoHome());
+            //Task.WaitAll(uvxTask);
+            var cZTask = Task.Run(() => _cameraZAxis.GoHome());           
+            //Task.WaitAll(cZTask);
+            //return _maskZAxis.GoHome();
+            return true;
+            
         }
 
         public void ReloadConfig()
         {
             _uvControl.ReloadConfig();
             _forceSensorControl.ReloadConfig();
+        }
+        private void LoadAxesVelocity()
+        {
+            _uvXAxis.LoadVelocity(Config.UVXWorkVel);
+            _cameraZAxis.LoadVelocity(Config.CameraZWorkVel);
+            _maskZAxis.LoadVelocity(Config.MaskZWorkVel);
         }
 
         public bool MoveToMaskPreprintHeight()
@@ -232,22 +224,18 @@ namespace NanoImprinter.Model
 
         public bool MoveToUVWaitPositon()
         {
-            var xTask = Task.Run(() => MoveBy(_uvXAxis, _config.UVWaitPosition.X));
-            var zTask = Task.Run(() => MoveBy(_uvZAxis, _config.UVWaitPosition.Z));
-            Task.WaitAll(xTask, zTask);
+            var xTask = Task.Run(() => MoveBy(_uvXAxis, _config.UVWaitPosition));
+            Task.WaitAll(xTask);
             return true;
         }
 
         public bool MoveToUVIrradiationPosition()
         {
-            if (_maskZAxis.Position < _config.UVIrradiationPosition.Z)
-                throw new Exception("掩膜高度太高，移动UV会发生碰撞");
-            if (_cameraZAxis.Position < _config.UVZDirSafePosition)
+            if (_cameraZAxis.Position < _config.UVXDirSafePosition)
                 throw new Exception("相机高度太低，移动UV会发生碰撞");
 
-            var xTask = Task.Run(() => MoveBy(_uvXAxis, _config.UVIrradiationPosition.X));
-            var zTask = Task.Run(() => MoveBy(_uvZAxis, _config.UVIrradiationPosition.Z));
-            Task.WaitAll(xTask, zTask);
+            var xTask = Task.Run(() => MoveBy(_uvXAxis, _config.UVIrradiationPosition));
+            Task.WaitAll(xTask);
             return true;
         }
 
@@ -256,36 +244,49 @@ namespace NanoImprinter.Model
             return axis.MoveTo(position);
         }
 
+        public bool UVIrradiate()
+        {
+            _uvControl.Open(_uvControl.FirstChannel);
+            Thread.Sleep(_config.UVConfig.IrradiationTime);
+            return true;
+        }
+
         public void ResetAxesAlarm()
         {
             ((TrioAxis)_maskZAxis).ResetAlarm();
             ((TrioAxis)_cameraZAxis).ResetAlarm();
         }
 
-        public bool UVIrradiate()
+        public void OpenUVLight()
         {
-            _uvControl.TurnOn();
-            Thread.Sleep(_config.UVConfig.PreheatTime);
-            _uvControl.TurnOff();
-            return true;
+            _uvControl.Open(_uvControl.FirstChannel);
+        }
+        public void CloseUVLight()
+        {
+            _uvControl.Close(_uvControl.FirstChannel);
+        }
+
+        public void WriteUVParam()
+        {
+            _uvControl.WriteIrradiationParameter();
+        }
+
+        public void ReadUVParam()
+        {
+            _uvControl.ReadIrradiationParameter();
         }
 
         private void RefreshRealtimeData()
         {
-            if (_currentPositionCameraZ != _cameraZAxis.Position)
-                CurrentPositionCameraZ = _cameraZAxis.Position;
-            if (_currentPositionMaskZ != _maskZAxis.Position)
-                CurrentPositionMaskZ = _maskZAxis.Position;
-            if (_currentPositionUVX != _uvXAxis.Position)
-                CurrentPositionUVX = _uvXAxis.Position;
-            if (_forceValue0 != _forceSensorControl.ForceValue0)
-                ForceValue0 = _forceSensorControl.ForceValue0;
-            if (_forceValue1 != _forceSensorControl.ForceValue1)
-                ForceValue1 = _forceSensorControl.ForceValue1;
-            if (_forceValue2 != _forceSensorControl.ForceValue2)
-                ForceValue2 = _forceSensorControl.ForceValue2;
-            if (_forceValue3 != _forceSensorControl.ForceValue3)
-                ForceValue3 = _forceSensorControl.ForceValue3;
+            //刷新轴当前位置
+            CurrentPositionCameraZ = _cameraZAxis.Position;
+            CurrentPositionMaskZ = _maskZAxis.Position;
+            CurrentPositionUVX = _uvXAxis.Position;
+            //刷新压力传感器值
+            ForceValue0 = _forceSensorControl.ForceValue0;
+            ForceValue1 = _forceSensorControl.ForceValue1;
+            ForceValue2 = _forceSensorControl.ForceValue2;
+            ForceValue3 = _forceSensorControl.ForceValue3;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -311,13 +312,13 @@ namespace NanoImprinter.Model
         private double _cameraTakePictureHeight;
         private double _cameraZWorkVel;
         private double _cameraXDirSafePosition;
-        private PointXZ _uvWaitPosition = new PointXZ(0, 0);
-        private PointXZ _uvIrradiationPosition = new PointXZ(0, 0);
+        private double _uvWaitPosition ;
+        private double _uvIrradiationPosition;
         private double _uvXWorkVel;
-        private double _uvYWorkVel;
+        private double _uvZWorkVel;
         private UVControlConfig _uvConfig = new UVControlConfig();
         private ForceSensorControlConfig _forceSensorConfig = new ForceSensorControlConfig();
-        private double _uvZDirSafePosition;
+        private double _uvXDirSafePosition;
 
         //掩膜组件
         [Category("ImprintPlatform"), Description("掩膜等待高度")]
@@ -383,7 +384,7 @@ namespace NanoImprinter.Model
         //UV组件参数
         [Category("ImprintPlatform"), Description("UV等待位")]
         [DisplayName("UV等待位")]
-        public PointXZ UVWaitPosition 
+        public double UVWaitPosition 
         {
             get => _uvWaitPosition;
             set => SetProperty(ref _uvWaitPosition, value);
@@ -391,7 +392,7 @@ namespace NanoImprinter.Model
 
         [Category("ImprintPlatform"), Description("UV照射位")]
         [DisplayName("UV照射位")]
-        public PointXZ UVIrradiationPosition
+        public double UVIrradiationPosition
         {
             get => _uvIrradiationPosition ;
             set => SetProperty(ref _uvIrradiationPosition, value);
@@ -403,14 +404,6 @@ namespace NanoImprinter.Model
         {
             get => _uvXWorkVel;
             set => SetProperty(ref _uvXWorkVel, value);
-        }
-
-        [Category("ImprintPlatform"), Description("UVY轴工作速度")]
-        [DisplayName("UVY轴工作速度")]
-        public double UVYWorkVel
-        {
-            get => _uvYWorkVel;
-            set => SetProperty(ref _uvYWorkVel, value);
         }
 
         [Category("ImprintPlatform"), Description("UV配置参数")]
@@ -431,10 +424,10 @@ namespace NanoImprinter.Model
 
         [Category("PrintPlatform"), Description("UV移动过程中，Z方向相机发生碰撞的位置")]
         [DisplayName("Z方向安全位置")]
-        public double UVZDirSafePosition
+        public double UVXDirSafePosition
         {
-            get => _uvZDirSafePosition;
-            set => SetProperty(ref _uvZDirSafePosition, value);
+            get => _uvXDirSafePosition;
+            set => SetProperty(ref _uvXDirSafePosition, value);
         }
 
 

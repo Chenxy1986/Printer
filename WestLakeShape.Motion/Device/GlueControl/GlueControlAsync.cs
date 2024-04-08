@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace WestLakeShape.Motion.Device
 {
+    /// <summary>
+    /// 当前采用的.framework，prism无法支持异步命令
+    /// </summary>
     public class GlueControlTest
     {
         private ModbusSlaveHub _slave;

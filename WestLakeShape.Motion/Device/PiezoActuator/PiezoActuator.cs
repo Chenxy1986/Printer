@@ -219,11 +219,48 @@ namespace WestLakeShape.Motion.Device
 
     public class PiezoActuatorConfig : NotifyPropertyChanged
     {
-        private string _name;
+        private string _name = "COM1";
+        private int _zMaxValue;
+        private int _zMinValue;
+        private int _rxMaxValue;
+        private int _rxMinValue;
+        private int _ryMaxValue;
+        private int _ryMinValue;
         public string PortName
         {
-            get => _name ?? "COM1";
+            get => _name;
             set => SetProperty(ref _name, value);
+        }
+        public int ZMaxValue
+        {
+            get => _zMaxValue;
+            set => SetProperty(ref _zMaxValue, value);
+        }
+
+        public int ZMinValue
+        {
+            get => _zMinValue;
+            set => SetProperty(ref _zMinValue, value);
+        }
+        public int RXMaxValue
+        {
+            get => _rxMaxValue;
+            set => SetProperty(ref _rxMaxValue, value);
+        }
+        public int RXMinValue
+        {
+            get => _rxMinValue;
+            set => SetProperty(ref _rxMinValue, value);
+        }
+        public int RYMaxValue
+        {
+            get => _ryMaxValue;
+            set => SetProperty(ref _ryMaxValue, value);
+        }
+        public int RYMinValue
+        {
+            get => _ryMinValue;
+            set => SetProperty(ref _ryMinValue, value);
         }
     }
 

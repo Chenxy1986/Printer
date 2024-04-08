@@ -8,6 +8,7 @@ using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using WestLakeShape.Common;
 using WestLakeShape.Motion.Device;
 
@@ -153,9 +154,11 @@ namespace NanoImprinter.ViewModels
         {
             _machine = machine;
             _microPlatform = _machine.GetPlatform(typeof(MicroPlatform).Name) as MicroPlatform;
+            _microPlatform.OnMessage += ShowMessage;
             _microPlatformConfig = _machine.Config.MicroPlatform;
             ChannelIndex = Enum.GetValues(typeof(ChannelNo)).Cast<ChannelNo>().ToList();
             PortNames = new ObservableCollection<string>(SerialPort.GetPortNames());
+            RefreshPortNames();
             ReloadParam();
         }
 
@@ -234,6 +237,9 @@ namespace NanoImprinter.ViewModels
         {
             _microPlatform.Connected();
         }
-      
+        private void ShowMessage(string message)
+        {
+            MessageBox.Show(message, "错误", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
     }
 }

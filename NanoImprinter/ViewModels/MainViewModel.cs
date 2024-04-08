@@ -246,9 +246,6 @@ namespace NanoImprinter.ViewModels
             _machine = machine;
             _manager = manager;
             eventAggregator.GetEvent<ProcedureInfoEvent>().Subscribe(ProcedureInfoChanged);
-            _timer = new DispatcherTimer();
-            _timer.Interval = TimeSpan.FromSeconds(5);
-            _timer.Tick += TimerClick;
 
             LogEvents = new ObservableCollection<LogEvent>();
             if (Application.Current is App app)
@@ -266,7 +263,6 @@ namespace NanoImprinter.ViewModels
             }
         }
 
-       
 
         private void Emergency()
         {
@@ -462,42 +458,20 @@ namespace NanoImprinter.ViewModels
             }
         }
 
-        private int i = 0;
+      
         private void Connected()
         {
-            if (_timer.IsEnabled == true)
-                _timer.Stop();
-
-           
-            if(IsConnected != true)
+            var task = Task.Run(() =>
+            {
                 _machine.ConnectedPlatform();
-            else
-                _machine.DisconnectedPlatform();
-            //IsConnected = _machine.IsConnected;
-
-
-            i++;
-            if (i % 2 == 0)
-                IsConnected = true;
-            else
-                IsConnected = false;
-            //_timer.Start();
+            });
         }
         private void Disconnected()
         {
-            
-            if (_timer.IsEnabled == true)
-                _timer.Stop();
-
-            //_machine.DisconnectedPlatform();
-            IsConnected = _machine.IsConnected;
-            
-            //_timer.Start();
-        }
-
-        private void TimerClick(object sender, EventArgs e)
-        {
-            //_timer.Stop();
+            var task = Task.Run(() =>
+            {
+                _machine.DisconnectedPlatform();
+            });
         }
     }
 

@@ -21,15 +21,19 @@ namespace WestLakeShape.Motion
         public abstract bool GoHome();
 
         public abstract bool MoveTo(double position);
+        public abstract bool MoveBy(double position);
 
         public abstract void ServoOff();
 
         public abstract void ServoOn();
 
         public abstract void Stop();
+        public abstract void InitialParameter();
 
         public abstract void EmergencyStop();
         public abstract void ResetAlarm();
+
+        public abstract void LoadVelocity(double vel);
     }
 
     public class AxisConfig:NotifyPropertyChanged

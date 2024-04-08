@@ -12,7 +12,7 @@ using WestLakeShape.Motion.Device;
 
 namespace NanoImprinter.Model
 {
-    public interface IMacroPlatform
+    public interface IMacroPlatform : INotifyPropertyChanged, IPlatform
     {
         MacroPlatformConfig Config { get; set; }
         bool MoveTo(PointXYR offsetValue);
@@ -24,7 +24,7 @@ namespace NanoImprinter.Model
         void ResetAxesAlarm();
     }
 
-    public class MacroPlatform:IMacroPlatform,IPlatform,INotifyPropertyChanged
+    public class MacroPlatform: IMacroPlatform
     {
         private double _currentPositionX;
         private double _currentPositionY;
@@ -33,6 +33,7 @@ namespace NanoImprinter.Model
         public IAxis XAxis { get; }
         public IAxis YAxis { get; }
         public IAxis RAxis { get; }
+        public bool IsConnected => true;
 
         public MacroPlatformConfig Config
         {
@@ -96,6 +97,12 @@ namespace NanoImprinter.Model
                 RAxis
             };
         }
+        private void LoadAxesVelocity()
+        {
+            XAxis.LoadVelocity(Config.XWorkVel);
+            YAxis.LoadVelocity(Config.YWorkVel);
+            RAxis.LoadVelocity(Config.RWorkVel);
+        }
 
         /// <summary>
         /// XY方向和R方向的移动
@@ -123,7 +130,7 @@ namespace NanoImprinter.Model
         }
 
         /// <summary>
-        /// 宏动平台回零
+        /// 微动平台回零后，宏动平台回零
         /// </summary>
         /// <returns></returns>
         public bool GoHome()
@@ -198,14 +205,13 @@ namespace NanoImprinter.Model
         public void Connected()
         {
         }
-
         public void Disconnected()
         {
         }
     }
 
 
-    public class MacroPlatformConfig:NotifyPropertyChanged
+    public class MacroPlatformConfig: NotifyPropertyChanged
     {
         private Point2D _loadPosition = new Point2D(0, 0);
         private Point2D _gluePosition = new Point2D(0, 0);

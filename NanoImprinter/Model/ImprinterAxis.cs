@@ -11,76 +11,90 @@ namespace NanoImprinter.Model
 {
     public class ImprinterAxis
     {
-        private Timer _timerCallBack;
-        
-        private ImprinterAxisConfig _config;
-
-        private TrioAxis _afmPlatformXAxis;// AFM平台
-        private TrioAxis _afmPlatformYAxis;
-
+        private TrioAxis _imprintPlatformMaskZAxis;// 压印Z轴
+        private TrioAxis _imprintPlatformCameraAxis;//压印相机轴
         //private ZmcAxis _gluePlatformXAxis;//点胶X轴
         //private ZmcAxis _gluePlatformYAxis;//点胶Y轴
         private TrioAxis _gluePlatformZAxis;// 点胶平台
 
-        private TrioAxis _macroPlatformXAxis;// 宏动平台
-        private TrioAxis _macroPlatformYAxis;
-        private TrioAxis _macroPlatformRAxis;
+        private TrioAxis _afmPlatformXAxis;// AFM平台
+        private TrioAxis _afmPlatformYAxis;
+        private TrioAxis _afmPlatformZAxis;//
 
+        private TrioAxis _uvPlatformXAxis;//UV平台轴
+        
+        private TrioAxis _macroPlatformRAxis;// 宏动平台
+        private TrioAxis _macroPlatformYAxis;
+        private TrioAxis _macroPlatformXAxis;
+        
         //private TrioAxis _microPlatformRXAxis;// 微动平台
         //private TrioAxis _microPlatformRYAxis;
         //private TrioAxis _microPlatformZAxis;
 
-        private TrioAxis _imprintPlatformMaskZAxis;// 压印Z轴
-        private TrioAxis _imprintPlatformCameraAxis;//压印相机轴
+        private TrioControl _trioControl;
+        private ImprinterAxisConfig _config;
+        private bool _isConnected;
 
-        private TrioAxis _uvPlatformXAxis;//UV平台轴
-        private TrioAxis _uvPlatformZAxis; 
+        public bool IsConnected => _isConnected;
 
         public ImprinterAxis(ImprinterAxisConfig config)
         {
             _config = config;
-           
-            _afmPlatformXAxis = new TrioAxis(config.AfmPlatformXAxis);
-            _afmPlatformYAxis = new TrioAxis(config.AfmPlatformYAxis);
-
-            //_gluePlatformXAxis = new ZmcAxis(config.GluePlatformXAxis);
-            //_gluePlatformYAxis = new ZmcAxis(config.GluePlatformYAxis);
-            _gluePlatformZAxis = new TrioAxis(config.GluePlatformZAxis);
 
             _macroPlatformXAxis = new TrioAxis(config.MacroPlatformXAxis);
             _macroPlatformYAxis = new TrioAxis(config.MacroPlatformYAxis);
             _macroPlatformRAxis = new TrioAxis(config.MacroPlatformRAxis);
+            _imprintPlatformCameraAxis = new DCAxis(config.ImprintPlatformCameraZAxis);
+            _imprintPlatformMaskZAxis = new DCAxis(config.ImprintPlatformMaskZAxis);
+            _gluePlatformZAxis = new DCAxis(config.GluePlatformZAxis);
+            _uvPlatformXAxis = new DCAxis(config.UVPlatformXAxis);
+            _afmPlatformXAxis = new DCAxis(config.AfmPlatformXAxis);
+            _afmPlatformYAxis = new DCAxis(config.AfmPlatformYAxis);
+            _afmPlatformZAxis = new DCAxis(config.AfmPlatformZAxis);
 
-            //_microPlatformRXAxis = new TrioAxis(config.MicroPlatformRXAxis);
-            //_microPlatformRYAxis = new TrioAxis(config.MicroPlatformRYAxis);
-            //_microPlatformZAxis = new TrioAxis(config.MicroPlatformZAxis);
+            _trioControl = TrioControl.Instance;
+        }
 
-            _imprintPlatformMaskZAxis = new TrioAxis(config.ImprintPlatformMaskZAxis);
-            _imprintPlatformCameraAxis = new TrioAxis(config.ImprintPlatformCameraZAxis);
+        public void Connected()
+        {
+           //打开控制器
+           var isOpened = _trioControl.Connected();
+            if (isOpened)
+            {
+                var axes = All();
+                axes.ForEach(o =>
+                {
+                    o.InitialParameter();
+                    o.ServoOn();
+                });
+            }
+        }
 
-            _uvPlatformXAxis = new TrioAxis(config.UVPlatformXAxis);
-            _uvPlatformZAxis = new TrioAxis(config.UVPlatformZAxis);
+        public void Disconnected()
+        {
+            _isConnected = _trioControl.Disconnected();
+        }
 
+        private void Initial()
+        {
+            var axes = All();
+            _macroPlatformYAxis.InitialParameter();     
         }
 
         public List<IAxis> All()
         {
             return new List<IAxis>() {
-            _afmPlatformXAxis,
-            _afmPlatformYAxis,
-
-            _gluePlatformZAxis,
-
-            _macroPlatformXAxis,
-            _macroPlatformYAxis,
-            _macroPlatformRAxis,
-
-             _imprintPlatformMaskZAxis,
+             _macroPlatformXAxis,
+             _macroPlatformYAxis,
+             _macroPlatformRAxis,
              _imprintPlatformCameraAxis,
-
+             _imprintPlatformMaskZAxis,
+             _gluePlatformZAxis,
              _uvPlatformXAxis,
-             _uvPlatformZAxis
-            };
+             _afmPlatformXAxis,
+             _afmPlatformYAxis,
+             _afmPlatformZAxis,//原来UV2轴更改为AFM3轴
+             };
         }
 
         public IAxis[] MacroPlatformAxes()
@@ -97,8 +111,6 @@ namespace NanoImprinter.Model
         {
             return new IAxis[]
             {
-               //_gluePlatformXAxis,
-               //_gluePlatformYAxis,
                _gluePlatformZAxis,
             };
         }
@@ -109,6 +121,7 @@ namespace NanoImprinter.Model
                 {
                    _afmPlatformXAxis,
                    _afmPlatformYAxis,
+                   _afmPlatformZAxis,
                 };
         }
 
@@ -118,11 +131,32 @@ namespace NanoImprinter.Model
                 {
                     _imprintPlatformMaskZAxis,
                     _imprintPlatformCameraAxis,
-                      _uvPlatformXAxis,
-                    _uvPlatformZAxis,
+                     _uvPlatformXAxis,
                 };
         }
 
+        public List<IAxis> DCAxes()
+        {
+            return new List<IAxis>() {
+             _imprintPlatformMaskZAxis,
+             _imprintPlatformCameraAxis,
+             _uvPlatformXAxis,
+             _gluePlatformZAxis,
+             _afmPlatformXAxis,
+             _afmPlatformYAxis,
+             _afmPlatformZAxis,
+            };
+        }
+
+        public List<IAxis> ACAxes()
+        {
+            return new List<IAxis>() {
+             _macroPlatformXAxis,
+             _macroPlatformYAxis,
+             _macroPlatformRAxis,
+            };
+        }
+    
         //public void RefreshAxisValue(object state)
         //{
         //    var axes = All();
@@ -140,43 +174,48 @@ namespace NanoImprinter.Model
         //{
         //    UpdataStatusEvent?.Invoke(this, new AxisStatusEventArgs(name,position));
         //}
+    
     }
+
 
     public class ImprinterAxisConfig
     {
         /// <summary>
-        /// AFM平台
+        /// 宏动平台
         /// </summary>
-        public TrioAxisConfig AfmPlatformXAxis { get; set; } = new TrioAxisConfig() { Name = "X轴" };
-        public TrioAxisConfig AfmPlatformYAxis { get; set; } = new TrioAxisConfig() { Name = "Y轴" };
+        public TrioAxisConfig MacroPlatformXAxis { get; set; } = new TrioAxisConfig() { Name = "宏动平台X轴", Index = 0 };
+        //X2轴不需要设置
+        //public TrioAxisConfig MacroPlatformX2Axis { get; set; } = new TrioAxisConfig() { Name = "宏动平台X2轴", Index = 1 };
 
+        public TrioAxisConfig MacroPlatformYAxis { get; set; } = new TrioAxisConfig() { Name = "宏动平台Y轴", Index = 2 };
+        public TrioAxisConfig MacroPlatformRAxis { get; set; } = new TrioAxisConfig() { Name = "宏动平台R轴", Index = 3 };
+        public DCAxisConfig ImprintPlatformCameraZAxis { get; set; } = new DCAxisConfig() { Name = "相机Z轴", Index = 4 };
+        /// <summary>
+        /// 压印平台
+        /// </summary>
+        public DCAxisConfig ImprintPlatformMaskZAxis { get; set; } = new DCAxisConfig() { Name = "掩膜Z轴", Index = 5};
         /// <summary>
         /// 点胶平台
         /// </summary>
         //public ZmcAxisConfig GluePlatformXAxis { get; set; }
         //public ZmcAxisConfig GluePlatformYAxis { get; set; }
-        public TrioAxisConfig GluePlatformZAxis { get; set; } = new TrioAxisConfig() { Name = "Z轴" };
-
-
-        /// <summary>
-        /// 宏动平台
-        /// </summary>
-        public TrioAxisConfig MacroPlatformXAxis { get; set; } = new TrioAxisConfig() { Name = "X轴" };
-        public TrioAxisConfig MacroPlatformYAxis { get; set; } = new TrioAxisConfig() { Name = "Y轴" };
-        public TrioAxisConfig MacroPlatformRAxis { get; set; } = new TrioAxisConfig() { Name = "R轴" };
-
-        /// <summary>
-        /// 压印平台
-        /// </summary>
-        public TrioAxisConfig ImprintPlatformMaskZAxis { get; set; } = new TrioAxisConfig() { Name = "掩膜Z轴" };
-        public TrioAxisConfig ImprintPlatformCameraZAxis { get; set; } = new TrioAxisConfig() { Name = "相机Z轴" };
-
+        public DCAxisConfig GluePlatformZAxis { get; set; } = new DCAxisConfig() { Name = "点胶平台Z轴", Index = 6 };
         /// <summary>
         /// UV平台
         /// </summary>
-        public TrioAxisConfig UVPlatformXAxis { get; set; } = new TrioAxisConfig() { Name = "UV X轴" };
-        public TrioAxisConfig UVPlatformZAxis { get; set; } = new TrioAxisConfig() { Name = "UV Z轴" };
+        public DCAxisConfig UVPlatformXAxis { get; set; } = new DCAxisConfig() { Name = "UV平台X轴", Index = 7 };
+
+        /// <summary>
+        /// AFM平台
+        /// </summary>
+        public DCAxisConfig AfmPlatformXAxis { get; set; } = new DCAxisConfig() { Name = "AFM平台X轴",Index= 8 };
+        public DCAxisConfig AfmPlatformYAxis { get; set; } = new DCAxisConfig() { Name = "AFM平台Y轴",Index=9 };
+        public DCAxisConfig AfmPlatformZAxis { get; set; } = new DCAxisConfig() { Name = "AFM平台Z轴", Index = 10 };
     }
+
+
+
+
 
     public class AxisStatusEventArgs : EventArgs
     {

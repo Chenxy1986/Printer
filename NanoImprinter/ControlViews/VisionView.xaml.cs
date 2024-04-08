@@ -20,9 +20,25 @@ namespace NanoImprinter.ControlViews
     /// </summary>
     public partial class VisionView : UserControl
     {
+        public static readonly DependencyProperty ShutterValueProperty = DependencyProperty.Register("ShutterValue",
+        typeof(int), typeof(PrintMaskDataView), new PropertyMetadata(null));
+        public static readonly DependencyProperty GainValueProperty = DependencyProperty.Register("GainValue",
+       typeof(int), typeof(PrintMaskDataView), new PropertyMetadata(null));
+
         public VisionView()
         {
             InitializeComponent();
+        }
+        public int ShutterValue
+        {
+            get => (int)GetValue(ShutterValueProperty);
+            set => SetValue(ShutterValueProperty, value);
+        }
+
+        public int GainValue
+        {
+            get => (int)GetValue(GainValueProperty);
+            set => SetValue(GainValueProperty, value);
         }
     }
 }
